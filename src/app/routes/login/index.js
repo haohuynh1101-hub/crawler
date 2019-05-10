@@ -4,7 +4,14 @@ var passport = require("passport");
 
 //dang nhap
 router.get('/', async (req, res, next) => {
-    return res.render('login');
+    try {
+        if (!req.user) {
+            return res.render('login');
+        }
+        return res.redirect("/")
+    } catch (error) {
+        next(error)
+    }
 });
 
 router.post("/", passport.authenticate("local", {
