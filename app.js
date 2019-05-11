@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var passport = require("passport");
 var session = require('express-session');
+
 var config = require("config");
 
 require('model/connect');

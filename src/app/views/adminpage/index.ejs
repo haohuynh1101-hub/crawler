@@ -1,12 +1,323 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
+<!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:14:52 GMT -->
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Admin</title>
+  <% include ../partials/head %>
+
 </head>
-<body>
-  <h1>Admin</h1>
+
+
+<body class="fixed-left">
+
+  <!-- Begin page -->
+  <div id="wrapper">
+
+    <!-- Top Bar Start -->
+    <% include ../partials/topbar %>
+    <!-- Top Bar End -->
+
+
+    <!-- ========== Left Sidebar Start ========== -->
+    <!-- Left Sidebar End -->
+
+
+
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="content-page ml-0">
+      <!-- Start content -->
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xl-7 col-md-6">
+              <label for="" class="col-form-label">Click Adword của đối thủ</label>
+              <div class="card-box">
+
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group row">
+                      <label class="col-5 col-form-label p-0">Từ khóa</label>
+                      <div class="col-7">
+                        <input type="text" class="form-control" value="">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-5 col-form-label p-0">Trang test</label>
+                      <div class="col-7">
+                        <input type="text" class="form-control" value="">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 p-0">
+                    <div class="row">
+                      <div class="checkbox">
+                        <input id="checkbox1" type="checkbox">
+                        <label for="checkbox1">
+                          Cuộn trang
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 p-0">
+                    <div class="row">
+                      <div class="checkbox">
+                        <input id="checkbox2" type="checkbox">
+                        <label for="checkbox2">
+                          Tự động xóa cookies
+                        </label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="checkbox">
+                        <input id="checkbox3" type="checkbox">
+                        <label for="checkbox3">
+                          WebRTC
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 p-0">
+                    <div class="row">
+                      <div class="checkbox">
+                        <input id="checkbox5" type="checkbox">
+                        <label for="checkbox5">
+                          Giải phóng RAM > 100 MB
+                        </label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="checkbox">
+                        <input id="checkbox6" type="checkbox">
+                        <label for="checkbox6">
+                          sử dụng UserAgent <a>ClearIP</a>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-9 pl-0">
+                    <div class="form-group row">
+                      <label class="col-2 col-form-label">Title</label>
+                      <div class="col-10 p-0">
+                        <textarea class="form-control" rows="4"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="radio">
+                      <input type="radio" name="radio" id="radio0" value="option1" checked>
+                      <label for="radio0">
+                        Tiêu đề
+                      </label>
+                    </div>
+                    <div class="radio">
+                      <input type="radio" name="radio" id="radio1" value="option1" checked>
+                      <label for="radio1">
+                        Tên miền
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 pl-0">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="form-group row">
+                          <label class="col-4 col-form-label">Delay</label>
+                          <div class="col-6">
+                            <input type="text" class="form-control" value="">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="form-group row">
+                          <label class="col-4 col-form-label">Bơm</label>
+                          <div class="col-6">
+                            <input type="text" class="form-control" value="">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-8 col-form-label pr-0">Thời gian ngừng trước khi tìm kiếm</label>
+                      <div class="col-3 pl-0">
+                        <input type="number" class="form-control pl-0" value="">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="" class="col-12 col-form-label pr-0">Trình duyệt</label>
+                      <div class="col-md-3 mt-3">
+                        <div class="radio">
+                          <input type="radio" name="radio" id="radio1" value="option1" checked>
+                          <label for="radio1">
+                            Tổng hợp
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-md-5 p-0 mt-3">
+                        <div class="radio">
+                          <input type="radio" name="radio" id="radio1" value="option1" checked>
+                          <label for="radio1">
+                            Android, iOS, Table
+                          </label>
+                        </div>
+                      </div>
+                      <div class="col-md-4 p-0 mt-3">
+                        <div class="radio">
+                          <input type="radio" name="radio" id="radio1" value="option1" checked>
+                          <label for="radio1">
+                            Desktop
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group row">
+                      <div class="col-12">
+                        <textarea class="form-control" rows="3"></textarea>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-12">
+                        <select class="form-control">
+                          <option>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                          <option>4</option>
+                          <option>5</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-8">
+                        <input type="text" class="form-control" value="Viettel">
+                      </div>
+                      <div class="col-4 pl-0">
+                        <input type="text" class="form-control" value="">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="row">
+                      <button type="button" class="btn btn-outline-dark w-100 mb-3 btn-lg">Lưu cấu hình</button>
+                      <button type="button" class="btn btn-outline-dark mr-3 mb-3 btn-lg">Test </button>
+                      <button type="button" class="btn btn-outline-dark w-50 ml-4 mb-3 btn-lg">Bắt đầu</button>
+                      <button type="button" class="btn btn-outline-dark w-100 mb-3 btn-lg">Tạo</button>
+                    </div>
+                    <div class="row"></div>
+                    <div class="row"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- end col -->
+
+            <div class="col-xl-5 col-md-6">
+              <label for="" class="col-form-label">Sugget</label>
+
+              <div class="card-box">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group row">
+                      <label class="col-2 col-form-label">Từ khóa</label>
+                      <div class="col-4">
+                        <input type="text" class="form-control" value="">
+                      </div>
+                      <div class="radio ml-2">
+                        <input type="radio" name="radio" id="radio1" value="option1" checked>
+                        <label for="radio1">
+                          3G
+                        </label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-2 col-form-label">Domain</label>
+                      <div class="col-4">
+                        <input type="text" class="form-control" value="">
+                      </div>
+                      <label class="col-2 col-form-label">Max Page</label>
+                      <div class="col-2">
+                        <input type="number" class="form-control" value="">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-2 col-form-label">Delay (giây)</label>
+                      <div class="col-4">
+                        <input type="text" class="form-control" value="">
+                      </div>
+
+                      <div class="checkbox mt-2">
+                        <input id="checkbox0" type="checkbox">
+                        <label for="checkbox0">
+                          Random
+                        </label>
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-4 col-form-label">Ngừng trước khi tìm kiếm</label>
+                      <div class="col-4">
+                        <input type="number" class="form-control" value="">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label class="col-4 col-form-label">Số lần muốn bơm</label>
+                      <div class="col-4">
+                        <input type="number" class="form-control" value="">
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <div class="col-7">
+                        <textarea class="form-control" rows="5"></textarea>
+                      </div>
+                      <div class="col-5">
+
+                        <button type="button" class="btn btn-outline-dark w-100">Lưu cấu hình</button>
+                        <button type="button" class="btn btn-outline-dark w-100">Tạo</button>
+                        <button type="button" class="btn btn-outline-dark px-4 mr-2">Suggest</button>
+                        <button type="button" class="btn btn-outline-dark w-50 px-0 mx-0">Thoát</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end col -->
+
+
+          </div>
+          <!-- end row -->
+
+        </div> <!-- container -->
+
+      </div> <!-- content -->
+
+      <footer class="footer text-right">
+        2016 - 2019 © Adminto. Coderthemes.com
+      </footer>
+
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- End Right content here -->
+    <!-- ============================================================== -->
+
+
+    <!-- Right Sidebar -->
+    <!-- /Right-bar -->
+
+  </div>
+  <!-- END wrapper -->
+
+
+
+  <% include ../partials/scripts %>
+
 </body>
+
+<!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:15:13 GMT -->
+
 </html>
