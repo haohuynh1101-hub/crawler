@@ -4,7 +4,7 @@ module.exports = {
         headless: false
         
     },
-    listProxy: fs.readFileSync('src/app/public/proxy.txt').toString().split("\n"),
+    //listProxy: fs.readFileSync('src/app/public/proxy.txt').toString().split("\n"),
     timeDelay:10000,
     typingSpeed:50
 }
