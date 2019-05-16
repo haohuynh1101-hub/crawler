@@ -47,6 +47,7 @@ io.on('connection', function(socket){
 module.exports = {
   socketApi,
   sendCurrentIP: (ip) => {
+    console.log('sending ip ...')
     io.emit("server-send-current-ip", ip)
   },
   sendCurrentUserAgent: (data) => {
@@ -57,8 +58,7 @@ module.exports = {
     console.log("sending url...");
     io.emit(`server-send-current-url`,url)
   },
-  test:()=>{
-      console.log('ttesing')
-    io.emit('test')
+  sendNotFoundURL:()=>{
+    io.emit('not found url')
   }
 }

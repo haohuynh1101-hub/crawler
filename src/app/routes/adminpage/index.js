@@ -1,12 +1,12 @@
 var router = require('express').Router();
-var puppeteer = require('puppeteer'); 
+var puppeteer = require('puppeteer');
 var Const = require("Const");
 var searchByKeyWord = require('./../../../services/searchByKeyWord');
 var changeUserAgent = require('./../../../services/changeUserAgent');
 var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var clickTitle = require('./../../../services/clickTitle');
-var {sendCurrentUserAgent,sendCurrentURL}=require('services/socket');
+var { sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
 router.get('/', async function (req, res, next) {
   res.render('adminpage');
 });
@@ -20,7 +20,7 @@ router.post('/run', async (req, res) => {
   let domainToClick = req.body.domainToClick;
   let delayTime = req.body.delayTime;
   let title = req.body.title;
-  let numberOfClick=req.body.numberOfClick;
+  let numberOfClick = req.body.numberOfClick;
   // if (clickMode == 'manual') {
 
   // }
@@ -29,7 +29,7 @@ router.post('/run', async (req, res) => {
   // } 
   console.log('in run')
   try {
-    for(let i=0;i<numberOfClick;i++){
+    for (let i = 0; i < numberOfClick; i++) {
       await searchAndClickTitle(keyword, title, isAutochangeUserAgent, delayTime);
     }
     res.send('ok')
@@ -41,37 +41,41 @@ router.post('/run', async (req, res) => {
 
 //delaytime(second)
 const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime) => {
-  //set up brower and page
-  let brower = await puppeteer.launch({ headless: false })
+  let wasClicked=false;
+  while (wasClicked==false) {
+    //set up brower and page
+    let brower = await puppeteer.launch(Const.options);
 
-  const page = await brower.newPage();
-  if (isChangeUserAgent) {
-    let currentUserAgent = await changeUserAgent(page);
-    await sendCurrentUserAgent(currentUserAgent);
-    console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
+    const page = await brower.newPage();
+    if (isChangeUserAgent) {
+      let currentUserAgent = await changeUserAgent(page);
+      await sendCurrentUserAgent(currentUserAgent);
+      console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
+    }
+    await page.setCacheEnabled(false);
+    await page.on('console', consoleObj => console.log(consoleObj.text()));
+
+
+    await page.setViewport({
+      width: 1366,
+      height: 768,
+    });
+    try {
+
+      await page.goto('https://www.google.com/');
+
+      await searchByKeyWord(page, keyword);
+      //await page.waitForNavigation({ waitUntil: 'load' });
+      wasClicked = await clickTitle(page, title)
+      await setTimeDelay(delayTime);
+      await page.waitFor(Const.timeDelay);
+      brower.close();
+    } catch (error) {
+      console.log("TCL: searchAndClickTitle -> error", error)
+       brower.close();
+    }
   }
-  await page.setCacheEnabled(false);
-  await page.on('console', consoleObj => console.log(consoleObj.text()));
 
-
-  await page.setViewport({
-    width: 1366,
-    height: 768,
-  });
-  try {
- 
-    await page.goto('https://www.google.com/');
-    
-    await searchByKeyWord(page, keyword);
-    //await page.waitForNavigation({ waitUntil: 'load' });
-    await clickTitle(page, title)
-    await setTimeDelay(delayTime);
-    await page.waitFor(Const.timeDelay);
-    brower.close();
-  } catch (error) {
-		console.log("TCL: searchAndClickTitle -> error", error)
-    brower.close();
-  }
 
 }
 module.exports = router;

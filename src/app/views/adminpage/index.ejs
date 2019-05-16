@@ -314,7 +314,9 @@
      socket.on('server-send-current-url',(url)=>{
        $('#currentURL').text(url);
      })
-     
+     socket.on('not found url',()=>{
+      $('#currentURL').text("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
+     })
     const runTool = () => {
       $.post("/run",
         {
