@@ -5,7 +5,8 @@ module.exports = {
         try {
             let lengthDoc = await mongoose.model('userAgents').countDocuments();
             let randomIndex = Math.floor(Math.random() * lengthDoc);
-            let userAgent = await mongoose.model('userAgents').findOne({}, null, {skip: randomIndex});
+            let userAgent = await mongoose.model('userAgents').findOne({}, null, { skip: randomIndex });
+            userAgent = userAgent.document;
             return userAgent;
         } catch (error) {
             next(error);

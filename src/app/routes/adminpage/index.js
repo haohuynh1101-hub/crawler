@@ -48,7 +48,7 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
 
     const page = await brower.newPage();
     if (isChangeUserAgent) {
-      let currentUserAgent = await changeUserAgent(page);
+      let currentUserAgent = await changeUserAgent();
       await sendCurrentUserAgent(currentUserAgent);
       console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
     }

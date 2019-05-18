@@ -7,8 +7,8 @@ const clickTitle = async (page, title) => {
       let wasClicked=false;
       let extractedDOM = await document.querySelectorAll('li');
       extractedDOM.forEach(async element => {
-        console.log(element.querySelectorAll('a')[0].innerText.toString())
-        console.log(element.innerText.toString().includes(title))
+        //console.log(element.querySelectorAll('a')[0].innerText.toString())
+        //console.log(element.innerText.toString().includes(title))
         if (element.innerText.toString().includes(title)) {
           wasClicked=true;
           await element.querySelectorAll('a')[0].click();
