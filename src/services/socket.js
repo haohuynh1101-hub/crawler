@@ -15,7 +15,7 @@ var io = socketIo();
 // const adminSendShowAnswerFlippicture = require("./sockets/adminSendShowAnswerFlipPicture");
 // const adminSendHideAnswerFlippicture = require("./sockets/adminSendHideAnswerFlipPicture");
 
-var socketApi = {io};
+var socketApi = { io };
 
 // // Server listen and action here
 // adminStartTimer(io);
@@ -31,19 +31,14 @@ var socketApi = {io};
 // adminSendShowAnswerFlippicture(io);
 // adminSendHideAnswerFlippicture(io);
 
-io.on('connection', function(socket){
+var clientSocket;
+
+io.on('connection', function (socket) {
+  clientSocket = socket;
   console.log('A user connected: ' + socket.id);
-
-  socket.on('check', data => {
-    console.log(data)
-  })
-
-  socket.on('i-am-online', data => {
-    io.emit('server-i-am-online', data)
-  })
-
+  
 });
-
+ 
 module.exports = {
   socketApi,
   sendCurrentIP: (ip) => {
@@ -51,14 +46,18 @@ module.exports = {
     io.emit("server-send-current-ip", ip)
   },
   sendCurrentUserAgent: (data) => {
-      console.log('sending user agent')
+    console.log('sending user agent')
     io.emit('server-send-current-useragent', data)
   },
   sendCurrentURL: (url) => {
     console.log("sending url...");
-    io.emit(`server-send-current-url`,url)
+    io.emit(`server-send-current-url`, url)
   },
-  sendNotFoundURL:()=>{
+  sendNotFoundURL: () => {
     io.emit('not found url')
+  },
+  sendInvalidQuery:()=>{
+    console.log('sending invalid query response ...')
+    io.emit('invalid-query');
   }
-}
+} 

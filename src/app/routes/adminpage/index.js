@@ -6,7 +6,7 @@ var changeUserAgent = require('./../../../services/changeUserAgent');
 var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var clickTitle = require('./../../../services/clickTitle');
-var { sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
+var { sendInvalidQuery, sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
 router.get('/', async function (req, res, next) {
   res.render('adminpage');
 });
@@ -30,7 +30,11 @@ router.post('/run', async (req, res) => {
   console.log('in run')
   try {
     for (let i = 0; i < numberOfClick; i++) {
-      await searchAndClickTitle(keyword, title, isAutochangeUserAgent, delayTime);
+      let isCrashed=await searchAndClickTitle(keyword, title, isAutochangeUserAgent, delayTime);
+      if(isCrashed){
+        sendInvalidQuery();
+        break;
+      }
     }
     res.send('ok')
   } catch (error) {
@@ -40,12 +44,16 @@ router.post('/run', async (req, res) => {
 
 
 //delaytime(second)
+//return value: true (operation crashed)  false(operation success)
 const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime) => {
-  let wasClicked=false;
-  while (wasClicked==false) {
+  let wasClicked = false;
+  let runTime = 0;
+  while (wasClicked == false) {
+    runTime++;
+    if (runTime > 5) return true;
     //set up brower and page
     let brower = await puppeteer.launch(Const.options);
-
+ 
     const page = await brower.newPage();
     if (isChangeUserAgent) {
       let currentUserAgent = await changeUserAgent();
@@ -72,10 +80,10 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
       brower.close();
     } catch (error) {
       console.log("TCL: searchAndClickTitle -> error", error)
-       brower.close();
+      brower.close();
     }
   }
-
+  return false;
 
 }
 module.exports = router;

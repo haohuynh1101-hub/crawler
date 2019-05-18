@@ -317,6 +317,9 @@
      socket.on('not found url',()=>{
       $('#currentURL').text("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
      })
+     socket.on('invalid-query',()=>{
+       alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
+     })
     const runTool = () => {
       $.post("/run",
         {
