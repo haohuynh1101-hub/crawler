@@ -255,7 +255,6 @@
     })
     socket.on('not found url', () => {
       appendLog("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
-      $('#currentURL').text("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
     })
     socket.on('invalid-query', () => {
       appendLog('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !');
@@ -271,6 +270,10 @@
       appendLog('Đang đóng trình duyệt ...')
       $('#currentUserAgent').text('');
       $('#currentURL').text('');
+    })  
+    socket.on('send-id',(id)=>{
+      console.log(id);
+      localStorage.setItem('id',id);
     })
     const runTool = (e) => {
       $('#listLog').empty();
@@ -285,7 +288,8 @@
           title: $('#title').val(),
           isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
           delayTime: 5,
-          numberOfClick: $('#numberOfClick').val()
+          numberOfClick: $('#numberOfClick').val(),
+          socketID:localStorage.getItem('id')
 
         },
         function (data, status) {

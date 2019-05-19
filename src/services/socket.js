@@ -16,7 +16,7 @@ var io = socketIo();
 // const adminSendHideAnswerFlippicture = require("./sockets/adminSendHideAnswerFlipPicture");
 
 var socketApi = { io };
-
+var connectedUsers = [];
 // // Server listen and action here
 // adminStartTimer(io);
 // adminSendLevelUp(io);
@@ -30,43 +30,68 @@ var socketApi = { io };
 // adminSendHideCover(io);
 // adminSendShowAnswerFlippicture(io);
 // adminSendHideAnswerFlippicture(io);
+const getSocket = (userID, array) => {
+  for (var i = 0; i < array.length; i++) {
+    if (array[i].id === userID) {
+      return array[i].socket;
 
+    }
+  }
+}
 var clientSocket;
 
 io.on('connection', function (socket) {
-  clientSocket = socket;
+  let users = {
+    id: socket.id,
+    socket: socket
+  }
+
   console.log('A user connected: ' + socket.id);
-  
+  console.log('same '+users.id);
+  console.log('before emit '+socket.id);
+  console.log('same same '+users.id);
+  socket.emit('send-id', socket.id);
+  connectedUsers.push(users);
 });
- 
+
 module.exports = {
   socketApi,
-  sendCurrentIP: (ip) => {
+  sendCurrentIP: (socketID, ip) => {
     console.log('sending ip ...')
-    io.emit("server-send-current-ip", ip)
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit("server-send-current-ip", ip)
   },
-  sendCurrentUserAgent: (data) => {
+  sendCurrentUserAgent: (socketID, data) => {
+    console.log("TCL: socketID", socketID)
     console.log('sending user agent')
-    io.emit('server-send-current-useragent', data)
+    let userSocket = getSocket(socketID, connectedUsers);
+    //console.log("TCL: userSocket", userSocket)
+    userSocket.emit('server-send-current-useragent', data)
   },
-  sendCurrentURL: (url) => {
+  sendCurrentURL: (socketID, url) => {
     console.log("sending url...");
-    io.emit(`server-send-current-url`, url)
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit(`server-send-current-url`, url)
   },
-  sendNotFoundURL: () => {
-    io.emit('not found url')
+  sendNotFoundURL: (socketID) => {
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('not found url')
   },
-  sendInvalidQuery:()=>{
+  sendInvalidQuery: (socketID) => {
     console.log('sending invalid query response ...')
-    io.emit('invalid-query');
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('invalid-query');
   },
-  sendChangingAgent:()=>{
-    io.emit('changing-agent');
+  sendChangingAgent: (socketID) => {
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('changing-agent');
   },
-  sendGotoGoogle:()=>{
-    io.emit('go-google');
+  sendGotoGoogle: (socketID) => {
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('go-google');
   },
-  sendCloseBrower:()=>{
-    io.emit('close-brower');
+  sendCloseBrower: (socketID) => {
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('close-brower');
   }
 } 

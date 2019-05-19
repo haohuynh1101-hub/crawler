@@ -1,6 +1,6 @@
 var {sendCurrentURL,sendNotFoundURL}=require('services/socket');
 
-const clickTitle = async (page, title) => {
+const clickTitle = async (socketID,page, title) => {
   try {
     await page.on('console', consoleObj => console.log(consoleObj.text()));
     let wasClicked=await page.evaluate(async (title) => {
@@ -19,11 +19,11 @@ const clickTitle = async (page, title) => {
     
     if(wasClicked){
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-      sendCurrentURL(page.url());
+      sendCurrentURL(socketID,page.url());
       return  true;
     }
     else{
-      sendNotFoundURL();
+      sendNotFoundURL(socketID);
       return false;
     }
   } catch (error) {

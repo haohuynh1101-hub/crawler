@@ -21,6 +21,7 @@ router.post('/run', async (req, res) => {
   let delayTime = req.body.delayTime;
   let title = req.body.title;
   let numberOfClick = req.body.numberOfClick;
+  let socketID=req.body.socketID;
   // if (clickMode == 'manual') {
 
   // }
@@ -30,9 +31,9 @@ router.post('/run', async (req, res) => {
   console.log('in run')
   try {
     for (let i = 0; i < numberOfClick; i++) {
-      let isCrashed=await searchAndClickTitle(keyword, title, isAutochangeUserAgent, delayTime);
+      let isCrashed=await searchAndClickTitle(keyword, title, isAutochangeUserAgent, delayTime,socketID);
       if(isCrashed){
-        sendInvalidQuery();
+        sendInvalidQuery(socketID);
         break;
       }
     }
@@ -45,7 +46,7 @@ router.post('/run', async (req, res) => {
 
 //delaytime(second)
 //return value: true (operation crashed)  false(operation success)
-const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime) => {
+const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime,socketID) => {
   let wasClicked = false;
   let runTime = 0;
   while (wasClicked == false) {
@@ -56,9 +57,9 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
  
     const page = await brower.newPage();
     if (isChangeUserAgent) {
-      await sendChangingAgent();
-      let currentUserAgent = await changeUserAgent();
-      await sendCurrentUserAgent(currentUserAgent);
+      await sendChangingAgent(socketID);
+      let currentUserAgent = await changeUserAgent(socketID);
+      await sendCurrentUserAgent(socketID,currentUserAgent);
       console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
     }
     await page.setCacheEnabled(false);
@@ -72,13 +73,13 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
     try {
 
       await page.goto('https://www.google.com/');
-      await sendGotoGoogle();
+      await sendGotoGoogle(socketID);
       await searchByKeyWord(page, keyword);
       //await page.waitForNavigation({ waitUntil: 'load' });
-      wasClicked = await clickTitle(page, title)
+      wasClicked = await clickTitle(socketID,page, title)
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
-      await sendCloseBrower();
+      await sendCloseBrower(socketID);
       brower.close();
     } catch (error) {
       console.log("TCL: searchAndClickTitle -> error", error)
