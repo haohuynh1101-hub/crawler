@@ -124,7 +124,7 @@
                           class="text-muted col-form-label"></span></label>
                     </div>
                   </div>
-                  <div class="col-md-6" style="padding: 0 0 10px 10px;" >
+                  <div class="col-md-6" style="padding: 0 0 10px 10px;">
                     <div id="logBox">
                       <ul id="listLog">
                       </ul>
@@ -133,10 +133,9 @@
                 </div>
                 <div class="row">
                   <div class="col-md-12 text-right">
-                      <button type="button" class="btn btn-outline-dark btn-lg">Lưu cấu hình</button>
-                      <button id='btnstart' onclick='runTool()' type="button"
-                        class="btn btn-outline-success btn-lg">Bắt
-                        đầu</button>
+                    <button type="button" class="btn btn-outline-dark btn-lg">Lưu cấu hình</button>
+                    <button id='btnstart' onclick='runTool()' type="button" class="btn btn-outline-success btn-lg">Bắt
+                      đầu</button>
                   </div>
                 </div>
               </div>
@@ -247,18 +246,34 @@
     socket.on('server-send-current-useragent', (data) => {
       console.log(data)
       $('#currentUserAgent').text(data);
+      appendLog('Thay đổi User Agent thành công');
     })
 
     socket.on('server-send-current-url', (url) => {
       $('#currentURL').text(url);
+      appendLog(url);
     })
     socket.on('not found url', () => {
+      appendLog("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
       $('#currentURL').text("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
     })
-    socket.on('invalid-query',()=>{
-       alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
-     })
+    socket.on('invalid-query', () => {
+      appendLog('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !');
+      alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
+    })
+    socket.on('changing-agent',()=>{
+      appendLog('Đang thay đổi User Agent ...');
+    })
+    socket.on('go-google',()=>{
+      appendLog("https://www.google.com/");
+    })
+    socket.on('close-brower',()=>{
+      appendLog('Đang đóng trình duyệt ...')
+      $('#currentUserAgent').text('');
+      $('#currentURL').text('');
+    })
     const runTool = (e) => {
+      $('#listLog').empty();
       let validate = CheckValide();
       if (validate.err) {
         alert("Please insert" + validate.message);
@@ -277,22 +292,6 @@
           console.log(data);
         });
     }
-
-    // $.post("/io",
-    //     {
-    //       keyword: $('#keyword').val(),
-    //       title: $('#title').val(),
-    //       isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-    //       delayTime: 5
-
-    //     },
-    //     function (data, status) {
-    //       alert("Data: " + data + "\nStatus: " + status);
-    //     });
-    //var socket = io();
-    // socket.on('test',()=>{
-    //   console.log('testing')
-    // });
 
     //valide data
     function CheckValide() {

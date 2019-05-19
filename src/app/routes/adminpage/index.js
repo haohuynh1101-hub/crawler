@@ -6,7 +6,7 @@ var changeUserAgent = require('./../../../services/changeUserAgent');
 var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var clickTitle = require('./../../../services/clickTitle');
-var { sendInvalidQuery, sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
+var {sendCloseBrower,sendGotoGoogle,sendChangingAgent, sendInvalidQuery, sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
 router.get('/', async function (req, res, next) {
   res.render('adminpage');
 });
@@ -50,12 +50,13 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
   let runTime = 0;
   while (wasClicked == false) {
     runTime++;
-    if (runTime > 5) return true;
+    if (runTime > 3) return true;
     //set up brower and page
     let brower = await puppeteer.launch(Const.options);
  
     const page = await brower.newPage();
     if (isChangeUserAgent) {
+      await sendChangingAgent();
       let currentUserAgent = await changeUserAgent();
       await sendCurrentUserAgent(currentUserAgent);
       console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
@@ -71,12 +72,13 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime)
     try {
 
       await page.goto('https://www.google.com/');
-
+      await sendGotoGoogle();
       await searchByKeyWord(page, keyword);
       //await page.waitForNavigation({ waitUntil: 'load' });
       wasClicked = await clickTitle(page, title)
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
+      await sendCloseBrower();
       brower.close();
     } catch (error) {
       console.log("TCL: searchAndClickTitle -> error", error)

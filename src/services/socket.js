@@ -59,5 +59,14 @@ module.exports = {
   sendInvalidQuery:()=>{
     console.log('sending invalid query response ...')
     io.emit('invalid-query');
+  },
+  sendChangingAgent:()=>{
+    io.emit('changing-agent');
+  },
+  sendGotoGoogle:()=>{
+    io.emit('go-google');
+  },
+  sendCloseBrower:()=>{
+    io.emit('close-brower');
   }
 } 
