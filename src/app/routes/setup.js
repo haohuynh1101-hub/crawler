@@ -1,7 +1,10 @@
 var router = require('express').Router();
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
+
+var {strDocAgents} = require('config/listAgents');
 var { success } = require('services/returnToUser')
+var { randomAgent } = require('services/randomAgent');
 
 router.get("/", async (req, res, next) => {
     let insert = {
@@ -17,5 +20,19 @@ router.get("/", async (req, res, next) => {
           });
       return success(res, "Done")
 })
+//add agent
+router.get("/UserAgents", async (req, res, next) => {
+    try {
+      let arrDoc = strDocAgents.trim().split(`\n`);
+      arrDoc.forEach(async item => {
+        await mongoose.model('userAgents').create({document: item});
+      })
+      let userAgents = await mongoose.model('userAgents').find();
+      return success(res, "Done", userAgents);
+    } catch (error) {
+      next(error);
+    }
+})
+
 
 module.exports = router

@@ -1,0 +1,19 @@
+#logBox {
+    width: 100%;
+    min-height: 120px;
+    max-height: 140px;
+    background: #ecececa1;
+    border-radius: 10px;
+    padding: 5px 0;
+    overflow-wrap: break-word;
+    overflow-y: scroll;
+}
+
+#listLog li {
+    list-style-type: circle;
+    color: #705d5d;
+}
+
+#nav-tabContent {
+    padding: 20px 0 0 0;
+}
