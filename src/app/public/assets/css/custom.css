@@ -13,3 +13,7 @@
     list-style-type: circle;
     color: #705d5d;
 }
+
+#nav-tabContent {
+    padding: 20px 0 0 0;
+}
