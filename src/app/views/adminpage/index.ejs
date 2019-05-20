@@ -370,7 +370,12 @@
 
     //append log
     function appendLog(messageLog) {
-      $("#listLog").prepend(`<li>${messageLog}</li>`);
+      let timeLog = new Date();
+      let log =   `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
+                + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
+                + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
+                + `  ${messageLog}`;
+      $("#listLog").prepend(`<li>${log}</li>`);
     }
   </script>
 </body>
