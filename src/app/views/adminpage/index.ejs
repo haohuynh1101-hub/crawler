@@ -256,12 +256,11 @@
   </div>
   <!-- END wrapper -->
 
-
   <% include ../partials/scripts %>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
   <script>
-    var socket = io.connect('http://103.1.236.253');
+    var socket = io.connect('http://seotools.webdevuit.com/');
     socket.on('server-send-current-useragent', (data) => {
       console.log(data)
       $('#currentUserAgent').text(data);
