@@ -68,7 +68,8 @@ const searchAndSuggest=async(keyword, domain, isChangeUserAgent, delayTime,socke
     const page = await brower.newPage();
     if (isChangeUserAgent) {
       await sendChangingAgent(socketID);
-      let currentUserAgent = await changeUserAgent(socketID);
+      console.log('page before call change agent')
+      let currentUserAgent = await changeUserAgent(page);
       await sendCurrentUserAgent(socketID,currentUserAgent);
       console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
     }
@@ -113,7 +114,7 @@ const searchAndClickTitle = async (keyword, title, isChangeUserAgent, delayTime,
     const page = await brower.newPage();
     if (isChangeUserAgent) {
       await sendChangingAgent(socketID);
-      let currentUserAgent = await changeUserAgent(socketID);
+      let currentUserAgent = await changeUserAgent(page);
       await sendCurrentUserAgent(socketID,currentUserAgent);
       console.log("TCL: searchAndClick -> currentUserAgent", currentUserAgent)
     }
