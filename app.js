@@ -7,7 +7,7 @@ var passport = require("passport");
 var session = require('express-session');
 
 var config = require("config");
-
+require('dotenv').config();
 require('model/connect');
 require('model/schema');
 

@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_PATH=./src nodemon ./bin/www ",
-    "dev": "set IS_DEV=DEV&&cross-env NODE_PATH=./src nodemon ./bin/www "
+    "dev": "set IS_DEV=DEV && cross-env NODE_PATH=./src nodemon ./bin/www "
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.3",
     "cross-env": "^5.2.0",
     "debug": "~2.6.9",
+    "dotenv": "^8.0.0",
     "ejs": "~2.5.7",
     "expect-puppeteer": "^4.1.1",
     "express": "~4.16.0",
