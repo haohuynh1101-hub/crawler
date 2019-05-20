@@ -47,6 +47,6 @@ module.exports = {
     })
   },
   redirectLogin: (res) => {
-    return res.redirect('/dang-nhap')
+    return res.redirect('/login')
   }
 }
