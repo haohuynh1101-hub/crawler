@@ -78,6 +78,7 @@ module.exports = {
     userSocket.emit('not found url')
   },
   sendInvalidQuery: (socketID) => {
+		console.log("TCL: socketID", socketID)
     console.log('sending invalid query response ...')
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('invalid-query');
