@@ -224,7 +224,7 @@
 
                         <div class="col-md-12" style="padding: 0 0 10px 10px;">
                           <div id="logBox">
-                            <ul id="listLog2">
+                            <ul id="listLogSuggest">
                             </ul>
                           </div>
                         </div>
@@ -373,7 +373,7 @@
                 + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
                 + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
                 + `  ${messageLog}`;
-      $("#listLog").prepend(`<li>${log}</li>`);
+      $("#listLogSuggest").prepend(`<li>${log}</li>`);
     }
   </script>
 </body>
