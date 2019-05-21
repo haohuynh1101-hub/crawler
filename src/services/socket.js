@@ -84,6 +84,7 @@ module.exports = {
     userSocket.emit('invalid-query');
   },
   sendChangingAgent: (socketID) => {
+		console.log("TCL: socketID", socketID)
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('changing-agent');
   },
