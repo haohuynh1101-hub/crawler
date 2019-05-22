@@ -294,6 +294,7 @@
       localStorage.setItem('id', id);
     })
     const runTool = (e) => {
+      $('#listLogSuggest').empty();
       $('#listLog').empty();
       let validate = CheckValide();
       if (validate.err) {
