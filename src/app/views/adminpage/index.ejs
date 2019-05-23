@@ -215,7 +215,7 @@
                       <div class="form-group row">
                         <div class="col-8"></div>
                         <div class="col-4 text-right">
-                          <button type="button" onclick='runSuggestTool()'
+                          <button id='btnSuggest' type="button" onclick='runSuggestTool()'
                             class="btn btn-outline-dark px-4 mr-2">Suggest</button>
                         </div>
                       </div>
@@ -288,6 +288,9 @@
       appendLog('Đang đóng trình duyệt ...')
       $('#currentUserAgent').text('');
       $('#currentURL').text('');
+    })
+    socket.on('next-page',()=>{
+      appendLog('Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
     })
     socket.on('send-id', (id) => {
       console.log(id);
