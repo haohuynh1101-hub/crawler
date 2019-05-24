@@ -1,5 +1,22 @@
 var { sendCurrentURL, sendNotFoundURL, sendNextPage } = require('services/socket');
+async function autoScroll(page){
+  await page.evaluate(async () => {
+      await new Promise((resolve, reject) => {
+          var totalHeight = 0;
+          var distance = 100;
+          var timer = setInterval(() => {
+              var scrollHeight = document.body.scrollHeight;
+              window.scrollBy(0, distance);
+              totalHeight += distance;
 
+              if(totalHeight >= scrollHeight){
+                  clearInterval(timer);
+                  resolve();
+              }
+          }, 100);
+      });
+  });
+}
 
 /**
  * find and click domain base on google search result (find maximum 10 first pages)
@@ -62,6 +79,7 @@ const suggestDomain = async (socketID, page, domain) => {
 
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
       sendCurrentURL(socketID, page.url());
+      await autoScroll(page);
       return true;
 
     }
