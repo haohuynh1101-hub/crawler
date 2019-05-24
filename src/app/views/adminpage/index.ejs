@@ -33,14 +33,14 @@
         <div class="container">
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-              <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab"
-                aria-controls="nav-home" aria-selected="true">Click Adword của đối thủ</a>
-              <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab"
-                aria-controls="nav-profile" aria-selected="false">Suggest</a>
+              <a class="nav-item nav-link active" id="nav-suggest-tab" data-toggle="tab" href="#suggest" role="tab"
+                aria-controls="suggest" aria-selected="true">Suggest</a>
+              <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink" role="tab"
+                aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
-            <% include ./feature-partials/click-adwords %>
+            <% include ./feature-partials/click-backlink %>
             <% include ./feature-partials/suggest %>
           </div>
         </div> <!-- container -->
