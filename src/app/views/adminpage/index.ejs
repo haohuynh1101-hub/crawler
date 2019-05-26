@@ -178,7 +178,10 @@
       }
       return { err: false };
     }
-
+    // accept only positve number in input
+   function acceptPositiveNumber(event) {
+            return (event.charCode >= 48 && event.charCode <= 57) ? true : event.preventDefault();
+        }
     //append log
     function appendLog(messageLog) {
       let timeLog = new Date();
