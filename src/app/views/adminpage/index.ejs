@@ -128,7 +128,6 @@
         });
     }
     const runSuggestTool = () => {
-      console.log('sugg tool')
       $('#listLog').empty();
       $.post("/suggest",
         {
@@ -138,6 +137,22 @@
           delaySuggest: $('#delay-suggest').val(),
           suggestTime: $('#suggestTime').val(),
           socketID: localStorage.getItem('id')
+
+        },
+        function (data, status) {
+          console.log(data);
+        });
+    }
+    
+    const clickBacklink=()=>{
+      $('#logBox').empty();
+      $.post("/backlink",
+        {
+          domain: $('#domain_backlink').val(),
+          delay: 3,
+          amount: 1,
+          socketID: localStorage.getItem('id'),
+          backlink: $('#backlink').val()
 
         },
         function (data, status) {
