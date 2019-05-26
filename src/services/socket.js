@@ -59,10 +59,8 @@ module.exports = {
     userSocket.emit("server-send-current-ip", ip)
   },
   sendCurrentUserAgent: (socketID, data) => {
-    console.log("TCL: socketID", socketID)
     console.log('sending user agent')
     let userSocket = getSocket(socketID, connectedUsers);
-    //console.log("TCL: userSocket", userSocket)
     userSocket.emit('server-send-current-useragent', data)
   },
   sendCurrentURL: (socketID, url) => {
@@ -95,5 +93,30 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('domain not found, finding in next page ...');
     userSocket.emit('next-page');
+  },
+  sendChangingAgentBacklink:(socketID)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    console.log('changing user agent ...');
+    userSocket.emit('changing-agent-backlink');
+  },
+  sendCurrentUserAgentBacklink:(socketID,data)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('agent-backlink',data);
+  },
+  sendGotoDomainBacklink:(socketID,domain)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('send-domain-backlink',domain);
+  },
+  sendFindingBacklink:(socketID)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('finding-backlink');
+  },
+  sendFoundBacklink:(socketID,link)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('found-backlink',link);
+  },
+  sendNotFoundBacklink:(socketID,link)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('not-found-backlink',link);
   }
 } 

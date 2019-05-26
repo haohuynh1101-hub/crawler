@@ -5,9 +5,20 @@ var searchByKeyWord = require('./../../../services/searchByKeyWord');
 var changeUserAgent = require('./../../../services/changeUserAgent');
 var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
-var clickTitle = require('./../../../services/clickTitle');
 var suggestDomain = require('./../../../services/suggestDomain');
-var { sendCloseBrower, sendGotoGoogle, sendChangingAgent, sendInvalidQuery, sendCurrentUserAgent, sendCurrentURL } = require('services/socket');
+var { sendCloseBrower,
+  sendGotoGoogle,
+  sendChangingAgent,
+  sendInvalidQuery,
+  sendCurrentUserAgent,
+  sendCurrentURL,
+  sendChangingAgentBacklink,
+  sendCurrentUserAgentBacklink,
+  sendGotoDomainBacklink,
+  sendFindingBacklink,
+  sendFoundBacklink,
+  sendNotFoundBacklink
+} = require('services/socket');
 
 router.get('/', async function (req, res, next) {
 
@@ -25,7 +36,7 @@ router.post('/backlink', async (req, res) => {
 
     if (!isSuccessed) {
 
-      sendInvalidQuery(socketID);
+      sendNotFoundBacklink(socketID, backlink);
       break;
 
     }
@@ -140,34 +151,35 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
   //change user agent
-  await sendChangingAgent(socketID);
+  await sendChangingAgentBacklink(socketID);
   let currentUserAgent = await changeUserAgent(page);
-  await sendCurrentUserAgent(socketID, currentUserAgent);
+  await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
 
   //go to domain
   //find and click backlink
+  await sendGotoDomainBacklink(socketID, domain);
   await page.goto(domain);
 
-  console.log('start eval')
+  await sendFindingBacklink(socketID);
   let wasClicked = await page.evaluate(async (backlink) => {
-    console.log('inside eval')
+
     //search all dom tree to find backlink
     let extractedDOM = await document.querySelectorAll(`a`);
-    console.log(extractedDOM.length)
+
     if (extractedDOM.length == 0) return false;
 
     try {
 
-      extractedDOM.forEach(async (element) => {
+      for(let i=0;i<extractedDOM.length;i++){
 
-        if (element.innerText.includes(backlink)) {
-          console.log('tim thay')
-          await element.click();
+        if (extractedDOM[i].innerText.includes(backlink)) {
+
+          await extractedDOM[i].click();
+          return true;
         }
-      });
-
-      return true;
-
+      }
+      
+      return false;
     } catch (error) {
 
       console.log("TCL: clickBackLink -> error", error)
@@ -176,8 +188,17 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
 
   }, backlink);
 
-  if (!wasClicked) return false;
+  if (wasClicked==false) {
+    await brower.close();
+    return false;
+  }
 
+  //set time stay on page after click
+  await sendFoundBacklink(socketID, backlink);
+  await setTimeDelay(delay);
+  await page.waitFor(Const.timeDelay);
+
+  await brower.close();
   return true;
 
 }
