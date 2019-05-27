@@ -47,9 +47,6 @@ io.on('connection', function (socket) {
   }
 
   console.log('A user connected: ' + socket.id);
-  console.log('same '+users.id);
-  console.log('before emit '+socket.id);
-  console.log('same same '+users.id);
   socket.emit('send-id', socket.id);
   connectedUsers.push(users);
 });
@@ -78,13 +75,11 @@ module.exports = {
     userSocket.emit('not found url')
   },
   sendInvalidQuery: (socketID) => {
-		console.log("TCL: socketID", socketID)
     console.log('sending invalid query response ...')
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('invalid-query');
   },
   sendChangingAgent: (socketID) => {
-		console.log("TCL: socketID", socketID)
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('changing-agent');
   },
@@ -95,5 +90,10 @@ module.exports = {
   sendCloseBrower: (socketID) => {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('close-brower');
+  },
+  sendNextPage:(socketID)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    console.log('domain not found, finding in next page ...');
+    userSocket.emit('next-page');
   }
 } 
