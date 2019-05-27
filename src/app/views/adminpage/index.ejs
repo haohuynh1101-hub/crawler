@@ -138,7 +138,6 @@
 
     const runTool = (e) => {
       $('#listLogSuggest').empty();
-      $('#listLog').empty();
       let validate = CheckValide();
       if (validate.err) {
         alert("Please insert" + validate.message);
@@ -186,7 +185,7 @@
         alert("Please insert" + validate.message);
         return false;
       }
-      $('#logBoxBacklink').empty();
+      $('#listLogBacklink').empty();
       $.post("/backlink",
         {
           domain: $('#domain_backlink').val(),
