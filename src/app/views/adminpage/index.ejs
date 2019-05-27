@@ -93,18 +93,49 @@
     socket.on('go-google', () => {
       appendLog("https://www.google.com/");
     })
+
     socket.on('close-brower', () => {
       appendLog('Đang đóng trình duyệt ...')
       $('#currentUserAgent').text('');
       $('#currentURL').text('');
     })
+
     socket.on('next-page',()=>{
       appendLog('Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
     })
+
     socket.on('send-id', (id) => {
       console.log(id);
       localStorage.setItem('id', id);
     })
+
+    socket.on('changing-agent-backlink',()=>{
+      appendLogBacklink('Đang thay đổi user agent ...');
+    })
+
+    socket.on('agent-backlink',(data)=>{
+      appendLogBacklink('User agent hiện tại: '+ data);
+    })
+
+    socket.on('send-domain-backlink',(domain)=>{
+      appendLogBacklink('Đang truy cập: '+ domain);
+    })
+
+    socket.on('finding-backlink',()=>{
+      appendLogBacklink('Đang tìm backlink ... ');
+    })
+
+    socket.on('found-backlink',(link)=>{
+      appendLogBacklink('Đã tìm thấy backlink, đang truy cập '+link);
+      appendLogBacklink('Delay ...')
+    })
+
+    socket.on('not-found-backlink',(link)=>{
+      appendLogBacklink('Không tìm thấy '+link);
+      appendLogBacklink('Vui lòng kiểm tra lại ');
+      alert('Không tìm thấy backlink, vui lòng kiểm tra lại ');
+    })
+
     const runTool = (e) => {
       $('#listLogSuggest').empty();
       $('#listLog').empty();
@@ -128,7 +159,6 @@
         });
     }
     const runSuggestTool = () => {
-      console.log('sugg tool')
       $('#listLog').empty();
       $.post("/suggest",
         {
@@ -138,6 +168,22 @@
           delaySuggest: $('#delay-suggest').val(),
           suggestTime: $('#suggestTime').val(),
           socketID: localStorage.getItem('id')
+
+        },
+        function (data, status) {
+          console.log(data);
+        });
+    }
+    
+    const clickBacklink=()=>{
+      $('#logBox').empty();
+      $.post("/backlink",
+        {
+          domain: $('#domain_backlink').val(),
+          delay: 3,
+          amount: 1,
+          socketID: localStorage.getItem('id'),
+          backlink: $('#backlink').val()
 
         },
         function (data, status) {
@@ -190,6 +236,15 @@
                 + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
                 + `  ${messageLog}`;
       $("#listLogSuggest").prepend(`<li>${log}</li>`);
+    }
+
+    function appendLogBacklink(messageLog) {
+      let timeLog = new Date();
+      let log =   `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
+                + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
+                + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
+                + `  ${messageLog}`;
+      $("#listLogBacklink").prepend(`<li>${log}</li>`);
     }
   </script>
 </body>
