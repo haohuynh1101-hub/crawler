@@ -159,24 +159,34 @@
         });
     }
     const runSuggestTool = () => {
-      $('#listLog').empty();
-      $.post("/suggest",
-        {
-          keywordSuggest: $('#suggestKeyword').val(),
-          domain: $('#domain').val(),
-          isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-          delaySuggest: $('#delay-suggest').val(),
-          suggestTime: $('#suggestTime').val(),
-          socketID: localStorage.getItem('id')
+      let validate = CheckValideSuggest();
+      if (validate.err) {
+        alert("Please insert" + validate.message);
+        return false;
+      }
+      // $('#listLog').empty();
+      // $.post("/suggest",
+      //   {
+      //     keywordSuggest: $('#suggestKeyword').val(),
+      //     domain: $('#domain').val(),
+      //     isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+      //     delaySuggest: $('#delay-suggest').val(),
+      //     suggestTime: $('#suggestTime').val(),
+      //     socketID: localStorage.getItem('id')
 
-        },
-        function (data, status) {
-          console.log(data);
-        });
+      //   },
+      //   function (data, status) {
+      //     console.log(data);
+      //   });
     }
     
     const clickBacklink=()=>{
-      $('#logBox').empty();
+      let validate = CheckValideBackLink();
+      if (validate.err) {
+        alert("Please insert" + validate.message);
+        return false;
+      }
+      $('#logBoxBacklink').empty();
       $.post("/backlink",
         {
           domain: $('#domain_backlink').val(),
@@ -191,38 +201,34 @@
         });
     }
     //valide data
-    function CheckValide() {
-      let keyword = $('#keyword');
-      let title = $('#title');
-      let delayTime = $('#delayTime');
-      let numberOfClick = $('#numberOfClick');
-
-      keyword.css("border-color", "#E3E3E3");
-      title.css("border-color", "#E3E3E3");
-      delayTime.css("border-color", "#E3E3E3");
-      numberOfClick.css("border-color", "#E3E3E3");
-
-      if (keyword.val() == "") {
-        keyword.focus();
-        keyword.css("border-color", "red")
-        return { err: true, message: " Keyword" };
+    function CheckValide(listInput) {
+      listInput.forEach(element => {
+        element.css("border-color", "#E3E3E3");
+      });
+      for(let element of listInput) {
+        if (element.val() == "") {
+          element.focus();
+          element.css("border-color", "red")
+        return { err: true, message: element.attr('data-focus') };
       }
-      else if (title.val() == "") {
-        title.focus();
-        title.css("border-color", "red")
-        return { err: true, message: " Title" };
-      }
-      else if (delayTime.val() == "") {
-        delayTime.focus();
-        delayTime.css("border-color", "red")
-        return { err: true, message: " Delay time" };
-      }
-      else if (numberOfClick.val() == "") {
-        numberOfClick.focus();
-        numberOfClick.css("border-color", "red")
-        return { err: true, message: " Number of click" };
       }
       return { err: false };
+    }
+    //valide data Back link
+    function CheckValideBackLink() {
+      let domainBacklink = $('#domain_backlink');
+      let backlink = $('#backlink');
+      let delayBackLink = $('#delay_backink');
+
+      return ( CheckValide([domainBacklink, backlink, delayBackLink]));
+    }
+    //valide data suggest
+    function CheckValideSuggest() {
+      let suggestKeyword = $('#suggestKeyword');
+      let domain = $('#domain');
+      let delaySuggest = $('#delay-suggest');
+
+      return ( CheckValide([suggestKeyword, domain, delaySuggest]));
     }
     // accept only positve number in input
    function acceptPositiveNumber(event) {
