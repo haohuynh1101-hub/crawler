@@ -163,20 +163,20 @@
         alert("Please insert" + validate.message);
         return false;
       }
-      // $('#listLog').empty();
-      // $.post("/suggest",
-      //   {
-      //     keywordSuggest: $('#suggestKeyword').val(),
-      //     domain: $('#domain').val(),
-      //     isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-      //     delaySuggest: $('#delay-suggest').val(),
-      //     suggestTime: $('#suggestTime').val(),
-      //     socketID: localStorage.getItem('id')
+      $('#listLogSuggest').empty();
+      $.post("/suggest",
+        {
+          keywordSuggest: $('#suggestKeyword').val(),
+          domain: $('#domain').val(),
+          isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+          delaySuggest: $('#delay-suggest').val(),
+          suggestTime: $('#suggestTime').val(),
+          socketID: localStorage.getItem('id')
 
-      //   },
-      //   function (data, status) {
-      //     console.log(data);
-      //   });
+        },
+        function (data, status) {
+          console.log(data);
+        });
     }
     
     const clickBacklink=()=>{
@@ -186,11 +186,12 @@
         return false;
       }
       $('#listLogBacklink').empty();
+      
       $.post("/backlink",
         {
           domain: $('#domain_backlink').val(),
-          delay: 3,
-          amount: 1,
+          delay: $('#delay_backink').val(),
+          amount: $('#suggestTime_backlink').val(),
           socketID: localStorage.getItem('id'),
           backlink: $('#backlink').val()
 
