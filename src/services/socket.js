@@ -34,19 +34,19 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit("server-send-current-ip", ip)
   },
-  sendCurrentUserAgent: (socketID, data) => {
+  sendCurrentUserAgent: (socketID,projectId, data) => {
     console.log('sending user agent')
-    let userSocket = getSocket(socketID,projectId, connectedUsers);
+    let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('server-send-current-useragent', data)
   },
-  sendCurrentURL: (socketID, url) => {
+  sendCurrentURL: (socketID,projectId, url) => {
     console.log("sending url...");
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit(`server-send-current-url`, url)
+    userSocket.emit(`server-send-current-url`, {url,projectId})
   },
-  sendNotFoundURL: (socketID) => {
+  sendNotFoundURL: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('not found url')
+    userSocket.emit('not found url',projectId)
   },
   sendInvalidQuery: (socketID) => {
     console.log('sending invalid query response ...')
@@ -58,6 +58,7 @@ module.exports = {
     userSocket.emit('changing-agent',projectId);
   },
   sendGotoGoogle: (socketID,projectId) => {
+    console.log('go to google '+projectId)
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('go-google',projectId);
   },
@@ -65,7 +66,7 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('close-brower',projectId);
   },
-  sendNextPage:(socketID)=>{
+  sendNextPage:(socketID,projectId)=>{
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('domain not found, finding in next page ...');
     userSocket.emit('next-page');

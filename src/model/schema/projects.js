@@ -13,7 +13,7 @@ var projects = new mongoose.Schema({
   log:[
       {
           type:mongoose.Schema.Types.ObjectId,
-          ref:'log'
+          ref:'logs'
       }
   ],
   status:String,

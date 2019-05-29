@@ -29,7 +29,7 @@ var { sendCloseBrower,
 router.post('/addproject', async (req, res) => {
   try {
 
-    let projects = await mongoose.model('projects').create({ ...req.body, belongTo: req.user._id });
+    let projects = await mongoose.model('projects').create({ ...req.body, belongTo: req.user._id,status:'not stated' });
 
     res.json(projects);
 
@@ -52,8 +52,9 @@ router.get('/project/:id', async (req, res) => {
 
   try {
 
-    let project = await mongoose.model('projects').findById(req.params.id);
+    let project = await mongoose.model('projects').findById(req.params.id).populate('log');
 
+    console.log("TCL: project", project)
     res.json(project);
 
   } catch (error) {
@@ -69,7 +70,6 @@ router.get('/', async function (req, res, next) {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
 
-    console.log("TCL: allProject", allProject)
     res.render('adminpage', { allProject });
 
   } catch (error) {
@@ -190,16 +190,16 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
-    //await sendChangingAgent(socketID,projectId);
+    await sendChangingAgent(socketID,projectId);
     let currentUserAgent = await changeUserAgent(page);
-    //await sendCurrentUserAgent(socketID, projectId,currentUserAgent);
+    await sendCurrentUserAgent(socketID, projectId,currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
 
     try {
 
       await page.goto('https://www.google.com/');
       await saveLog(projectId, 'https://www.google.com/');
-      //await sendGotoGoogle(socketID,projectId);
+      await sendGotoGoogle(socketID,projectId);
 
       await searchByKeyWord(page, keyword);
       wasClicked = await suggestDomain(socketID, projectId, page, domain);
@@ -207,7 +207,7 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
 
-      //await sendCloseBrower(socketID,projectId);
+      await sendCloseBrower(socketID,projectId);
       await saveLog(projectId, 'Đang đóng trình duyệt ...');
       brower.close();
 
