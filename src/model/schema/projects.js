@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 
 var projects = new mongoose.Schema({
+  name:String,
   keyword:[
       {
           type:String
