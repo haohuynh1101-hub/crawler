@@ -1,35 +1,11 @@
 var socketIo = require("socket.io");
 var io = socketIo();
 
-// // Require module
-// const adminStartTimer = require("./sockets/adminSendStartTimer");
-// const adminSendLevelUp = require("./sockets/adminSendLevelUp");
-// const adminSendShowAnswer = require("./sockets/adminSendShowAnswer");
-// const adminSendShowHelp = require("./sockets/adminSendShowHelp");
-// const adminSendShowOption = require("./sockets/adminSendShowOption");
-// const userSendOption = require("./sockets/userSendOption");
-// const adminSendCheckResult = require("./sockets/adminSendCheckResult");
-// const adminSendRefreshInfo = require("./sockets/adminSendRefreshInfo");
-// const adminSendShowCover = require("./sockets/adminSendShowCover");
-// const adminSendHideCover = require("./sockets/adminSendHideCover");
-// const adminSendShowAnswerFlippicture = require("./sockets/adminSendShowAnswerFlipPicture");
-// const adminSendHideAnswerFlippicture = require("./sockets/adminSendHideAnswerFlipPicture");
+
 
 var socketApi = { io };
 var connectedUsers = [];
-// // Server listen and action here
-// adminStartTimer(io);
-// adminSendLevelUp(io);
-// adminSendShowAnswer(io);
-// adminSendShowHelp(io);
-// adminSendShowOption(io);
-// userSendOption(io);
-// adminSendCheckResult(io);
-// adminSendRefreshInfo(io);
-// adminSendShowCover(io);
-// adminSendHideCover(io);
-// adminSendShowAnswerFlippicture(io);
-// adminSendHideAnswerFlippicture(io);
+
 const getSocket = (userID, array) => {
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === userID) {
@@ -118,5 +94,9 @@ module.exports = {
   sendNotFoundBacklink:(socketID,link)=>{
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('not-found-backlink',link);
+  },
+  sendNotFoundDomainWithKeyword:(socketID,keyword)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('domain-not-found-suggest',keyword);
   }
 } 
