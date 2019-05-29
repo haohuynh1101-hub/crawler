@@ -4,23 +4,23 @@
 <!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:14:52 GMT -->
 
 <head>
-    <% include ../partials/head %>
+  <% include ../partials/head %>
 
 </head>
 
 
 <body class="fixed-left">
 
-    <!-- Begin page -->
-    <div id="wrapper">
+  <!-- Begin page -->
+  <div id="wrapper">
 
-        <!-- Top Bar Start -->
-        <% include ../partials/topbar %>
-        <!-- Top Bar End -->
+    <!-- Top Bar Start -->
+    <% include ../partials/topbar %>
+    <!-- Top Bar End -->
 
 
-        <!-- ========== Left Sidebar Start ========== -->
-        <!-- Left Sidebar End -->
+    <!-- ========== Left Sidebar Start ========== -->
+    <!-- Left Sidebar End -->
 
 
 
@@ -35,8 +35,8 @@
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <a class="nav-item nav-link active" id="nav-suggest-tab" data-toggle="tab" href="#suggest" role="tab"
                 aria-controls="suggest" aria-selected="true">Suggest</a>
-              <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink" role="tab"
-                aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
+              <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink"
+                role="tab" aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
@@ -53,206 +53,222 @@
         <!-- Right Sidebar -->
         <!-- /Right-bar -->
 
-    <!-- ============================================================== -->
-    <!-- End Right content here -->
-    <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- End Right content here -->
+        <!-- ============================================================== -->
 
 
-    <!-- Right Sidebar -->
-    <!-- /Right-bar -->
+        <!-- Right Sidebar -->
+        <!-- /Right-bar -->
 
-  </div>
-  <!-- END wrapper -->
+      </div>
+      <!-- END wrapper -->
 
-  <% include ../partials/scripts %>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-  <script>
-    var socket = io();
-    socket.on('server-send-current-useragent', (data) => {
-      console.log(data)
-      $('#currentUserAgent').text(data);
-      appendLog('Thay đổi User Agent thành công');
-    })
+      <% include ../partials/scripts %>
+      <script src="/socket.io/socket.io.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+      <script>
+        var socket = io();
+        socket.on('server-send-current-useragent', (data) => {
+          console.log(data)
+          $('#currentUserAgent').text(data);
+          appendLog('Thay đổi User Agent thành công');
+        })
 
-    socket.on('server-send-current-url', (url) => {
-      $('#currentURL').text(url);
-      appendLog(url);
-      appendLog('Đang lả lướt trên trang ...')
-    })
-    socket.on('not found url', () => {
-      appendLog("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
-    })
-    socket.on('invalid-query', () => {
-      appendLog('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !');
-      alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
-    })
-    socket.on('changing-agent', () => {
-      appendLog('Đang thay đổi User Agent ...');
-    })
-    socket.on('go-google', () => {
-      appendLog("https://www.google.com/");
-    })
+        socket.on('server-send-current-url', (url) => {
+          $('#currentURL').text(url);
+          appendLog(url);
+          appendLog('Đang lả lướt trên trang ...')
+        })
+        socket.on('not found url', () => {
+          appendLog("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
+        })
+        socket.on('invalid-query', () => {
+          appendLog('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !');
+          alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
+        })
+        socket.on('changing-agent', () => {
+          appendLog('Đang thay đổi User Agent ...');
+        })
+        socket.on('go-google', () => {
+          appendLog("https://www.google.com/");
+        })
 
-    socket.on('close-brower', () => {
-      appendLog('Đang đóng trình duyệt ...')
-      $('#currentUserAgent').text('');
-      $('#currentURL').text('');
-    })
+        socket.on('close-brower', () => {
+          appendLog('Đang đóng trình duyệt ...')
+          $('#currentUserAgent').text('');
+          $('#currentURL').text('');
+        })
 
-    socket.on('next-page',()=>{
-      appendLog('Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
-    })
+        socket.on('next-page', () => {
+          appendLog('Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
+        })
 
-    socket.on('send-id', (id) => {
-      console.log(id);
-      localStorage.setItem('id', id);
-    })
+        socket.on('send-id', (id) => {
+          console.log(id);
+          localStorage.setItem('id', id);
+        })
 
-    socket.on('changing-agent-backlink',()=>{
-      appendLogBacklink('Đang thay đổi user agent ...');
-    })
+        socket.on('changing-agent-backlink', () => {
+          appendLogBacklink('Đang thay đổi user agent ...');
+        })
 
-    socket.on('agent-backlink',(data)=>{
-      appendLogBacklink('User agent hiện tại: '+ data);
-    })
+        socket.on('agent-backlink', (data) => {
+          appendLogBacklink('User agent hiện tại: ' + data);
+        })
 
-    socket.on('send-domain-backlink',(domain)=>{
-      appendLogBacklink('Đang truy cập: '+ domain);
-    })
+        socket.on('send-domain-backlink', (domain) => {
+          appendLogBacklink('Đang truy cập: ' + domain);
+        })
 
-    socket.on('finding-backlink',()=>{
-      appendLogBacklink('Đang tìm backlink ... ');
-    })
+        socket.on('finding-backlink', () => {
+          appendLogBacklink('Đang tìm backlink ... ');
+        })
 
-    socket.on('found-backlink',(link)=>{
-      appendLogBacklink('Đã tìm thấy backlink, đang truy cập '+link);
-      appendLogBacklink('Delay ...')
-    })
+        socket.on('found-backlink', (link) => {
+          appendLogBacklink('Đã tìm thấy backlink, đang truy cập ' + link);
+          appendLogBacklink('Delay ...')
+        })
 
-    socket.on('not-found-backlink',(link)=>{
-      appendLogBacklink('Không tìm thấy '+link);
-      appendLogBacklink('Vui lòng kiểm tra lại ');
-      alert('Không tìm thấy backlink, vui lòng kiểm tra lại ');
-    })
+        socket.on('not-found-backlink', (link) => {
+          appendLogBacklink('Không tìm thấy ' + link);
+          appendLogBacklink('Vui lòng kiểm tra lại ');
+          alert('Không tìm thấy backlink, vui lòng kiểm tra lại ');
+        })
 
-    const runTool = (e) => {
-      $('#listLogSuggest').empty();
-      let validate = CheckValide();
-      if (validate.err) {
-        alert("Please insert" + validate.message);
-        return false;
-      }
-      $.post("/run",
-        {
-          keyword: $('#keyword').val(),
-          title: $('#title').val(),
-          isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-          delayTime: 5,
-          numberOfClick: $('#numberOfClick').val(),
-          socketID: localStorage.getItem('id')
+        const runTool = (e) => {
+          $('#listLogSuggest').empty();
+          let validate = CheckValide();
+          if (validate.err) {
+            alert("Please insert" + validate.message);
+            return false;
+          }
+          $.post("/run",
+            {
+              keyword: $('#keyword').val(),
+              title: $('#title').val(),
+              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+              delayTime: 5,
+              numberOfClick: $('#numberOfClick').val(),
+              socketID: localStorage.getItem('id')
 
-        },
-        function (data, status) {
-          console.log(data);
-        });
-    }
-    const runSuggestTool = () => {
-      let validate = CheckValideSuggest();
-      if (validate.err) {
-        alert("Please insert" + validate.message);
-        return false;
-      }
-      $('#listLogSuggest').empty();
-      $.post("/suggest",
-        {
-          keywordSuggest: $('#suggestKeyword').val(),
-          domain: $('#domain').val(),
-          isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-          delaySuggest: $('#delay-suggest').val(),
-          suggestTime: $('#suggestTime').val(),
-          socketID: localStorage.getItem('id')
-
-        },
-        function (data, status) {
-          console.log(data);
-        });
-    }
-    
-    const clickBacklink=()=>{
-      let validate = CheckValideBackLink();
-      if (validate.err) {
-        alert("Please insert" + validate.message);
-        return false;
-      }
-      $('#listLogBacklink').empty();
-      
-      $.post("/backlink",
-        {
-          domain: $('#domain_backlink').val(),
-          delay: $('#delay_backink').val(),
-          amount: $('#suggestTime_backlink').val(),
-          socketID: localStorage.getItem('id'),
-          backlink: $('#backlink').val()
-
-        },
-        function (data, status) {
-          console.log(data);
-        });
-    }
-    //valide data
-    function CheckValide(listInput) {
-      listInput.forEach(element => {
-        element.css("border-color", "#E3E3E3");
-      });
-      for(let element of listInput) {
-        if (element.val() == "") {
-          element.focus();
-          element.css("border-color", "red")
-        return { err: true, message: element.attr('data-focus') };
-      }
-      }
-      return { err: false };
-    }
-    //valide data Back link
-    function CheckValideBackLink() {
-      let domainBacklink = $('#domain_backlink');
-      let backlink = $('#backlink');
-      let delayBackLink = $('#delay_backink');
-
-      return ( CheckValide([domainBacklink, backlink, delayBackLink]));
-    }
-    //valide data suggest
-    function CheckValideSuggest() {
-      let suggestKeyword = $('#suggestKeyword');
-      let domain = $('#domain');
-      let delaySuggest = $('#delay-suggest');
-
-      return ( CheckValide([suggestKeyword, domain, delaySuggest]));
-    }
-    // accept only positve number in input
-   function acceptPositiveNumber(event) {
-            return (event.charCode >= 48 && event.charCode <= 57) ? true : event.preventDefault();
+            },
+            function (data, status) {
+              console.log(data);
+            });
         }
-    //append log
-    function appendLog(messageLog) {
-      let timeLog = new Date();
-      let log =   `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-                + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-                + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-                + `  ${messageLog}`;
-      $("#listLogSuggest").prepend(`<li>${log}</li>`);
-    }
+        const runSuggestTool = () => {
+          let validate = CheckValideSuggest();
+          if (validate.err) {
+            alert("Please insert" + validate.message);
+            return false;
+          }
+          $('#listLogSuggest').empty();
+          $.post("/suggest",
+            {
+              keywordSuggest: $('#suggestKeyword').val(),
+              domain: $('#domain').val(),
+              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+              delaySuggest: $('#delay-suggest').val(),
+              suggestTime: $('#suggestTime').val(),
+              socketID: localStorage.getItem('id')
 
-    function appendLogBacklink(messageLog) {
-      let timeLog = new Date();
-      let log =   `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-                + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-                + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-                + `  ${messageLog}`;
-      $("#listLogBacklink").prepend(`<li>${log}</li>`);
-    }
-  </script>
+            },
+            function (data, status) {
+              console.log(data);
+            });
+        }
+
+        const clickBacklink = () => {
+          let validate = CheckValideBackLink();
+          if (validate.err) {
+            alert("Please insert" + validate.message);
+            return false;
+          }
+          $('#listLogBacklink').empty();
+
+          $.post("/backlink",
+            {
+              domain: $('#domain_backlink').val(),
+              delay: $('#delay_backink').val(),
+              amount: $('#suggestTime_backlink').val(),
+              socketID: localStorage.getItem('id'),
+              backlink: $('#backlink').val()
+
+            },
+            function (data, status) {
+              console.log(data);
+            });
+        }
+
+        //save config
+        function saveProject() {
+          let validate = CheckValideSuggest();
+          if (validate.err) {
+            alert("Please insert" + validate.message);
+            return false;
+          }
+        }
+
+        function viewProject(id) {
+          $('#view-logBox').children(0).attr("id", id);
+          $.get(`/suggest/get/${id}`).done(function (data) {
+            alert("Data Loaded: " + data);
+          })
+        }
+        //valide data
+        function CheckValide(listInput) {
+          listInput.forEach(element => {
+            element.css("border-color", "#E3E3E3");
+          });
+          for (let element of listInput) {
+            if (element.val() == "") {
+              element.focus();
+              element.css("border-color", "red")
+              return { err: true, message: element.attr('data-focus') };
+            }
+          }
+          return { err: false };
+        }
+        //valide data Back link
+        function CheckValideBackLink() {
+          let domainBacklink = $('#domain_backlink');
+          let backlink = $('#backlink');
+          let delayBackLink = $('#delay_backink');
+
+          return (CheckValide([domainBacklink, backlink, delayBackLink]));
+        }
+        //valide data suggest
+        function CheckValideSuggest() {
+          let suggestKeyword = $('#suggestKeyword');
+          let domain = $('#domain');
+          let delaySuggest = $('#delay-suggest');
+
+          return (CheckValide([suggestKeyword, domain, delaySuggest]));
+        }
+        // accept only positve number in input
+        function acceptPositiveNumber(event) {
+          return (event.charCode >= 48 && event.charCode <= 57) ? true : event.preventDefault();
+        }
+        //append log
+        function appendLog(messageLog) {
+          let timeLog = new Date();
+          let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
+            + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
+            + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
+            + `  ${messageLog}`;
+          $("#listLogSuggest").prepend(`<li>${log}</li>`);
+        }
+
+        function appendLogBacklink(messageLog) {
+          let timeLog = new Date();
+          let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
+            + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
+            + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
+            + `  ${messageLog}`;
+          $("#listLogBacklink").prepend(`<li>${log}</li>`);
+        }
+      </script>
 </body>
 
 <!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:15:13 GMT -->
