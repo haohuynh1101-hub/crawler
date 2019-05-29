@@ -28,8 +28,8 @@ var { sendCloseBrower,
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
   try {
-
-    let projects = await mongoose.model('projects').create({ ...req.body, belongTo: req.user._id,status:'not stated' });
+    console.log(JSON.parse(req.body.keyword))
+    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
 
     res.json(projects);
 
@@ -190,16 +190,16 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
-    await sendChangingAgent(socketID,projectId);
+    await sendChangingAgent(socketID, projectId);
     let currentUserAgent = await changeUserAgent(page);
-    await sendCurrentUserAgent(socketID, projectId,currentUserAgent);
+    await sendCurrentUserAgent(socketID, projectId, currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
 
     try {
 
       await page.goto('https://www.google.com/');
       await saveLog(projectId, 'https://www.google.com/');
-      await sendGotoGoogle(socketID,projectId);
+      await sendGotoGoogle(socketID, projectId);
 
       await searchByKeyWord(page, keyword);
       wasClicked = await suggestDomain(socketID, projectId, page, domain);
@@ -207,7 +207,7 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
 
-      await sendCloseBrower(socketID,projectId);
+      await sendCloseBrower(socketID, projectId);
       await saveLog(projectId, 'Đang đóng trình duyệt ...');
       brower.close();
 
@@ -241,7 +241,7 @@ const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, socke
 
     if (isNotFoundDomain) {
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
-      sendNotFoundDomainWithKeyword(socketID,projectId, keyword[i]);
+      sendNotFoundDomainWithKeyword(socketID, projectId, keyword[i]);
     }
   }
 

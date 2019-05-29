@@ -70,38 +70,37 @@
       <script>
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
-          console.log(data)
-          $('#currentUserAgent').text(data);
-          appendLog('Thay đổi User Agent thành công');
+          appendLog(data.projectId, 'Thay đổi User Agent thành công');
         })
 
-        socket.on('server-send-current-url', (url) => {
-          $('#currentURL').text(url);
-          appendLog(url);
-          appendLog('Đang lả lướt trên trang ...')
+        socket.on('server-send-current-url', (data) => {
+          appendLog(data.projectId, data.url);
+          appendLog(data.projectId, 'Đang lả lướt trên trang ...')
         })
-        socket.on('not found url', () => {
-          appendLog("Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
+
+        socket.on('not found url', (projectId) => {
+          appendLog(projectId, "Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
         })
+
         socket.on('invalid-query', () => {
           appendLog('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !');
           alert('Tiêu đề hoặc URL đã nhập không khớp với bất kì kết quả tìm kiếm nào, vui lòng thử lại !')
         })
-        socket.on('changing-agent', () => {
-          appendLog('Đang thay đổi User Agent ...');
+        socket.on('changing-agent', (projectId) => {
+          appendLog(projectId, 'Đang thay đổi User Agent ...');
         })
-        socket.on('go-google', () => {
-          appendLog("https://www.google.com/");
+        socket.on('go-google', (projectId) => {
+          appendLog(projectId, "https://www.google.com/");
         })
 
-        socket.on('close-brower', () => {
-          appendLog('Đang đóng trình duyệt ...')
+        socket.on('close-brower', (projectId) => {
+          appendLog(projectId, 'Đang đóng trình duyệt ...')
           $('#currentUserAgent').text('');
           $('#currentURL').text('');
         })
 
-        socket.on('next-page', () => {
-          appendLog('Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
+        socket.on('next-page', (projectId) => {
+          appendLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
         })
 
         socket.on('send-id', (id) => {
@@ -199,15 +198,17 @@
             alert("Please insert" + validate.message);
             return false;
           }
+
+
           $.post("/addproject",
             {
-              keyword: $('#suggestKeyword').val(),
+              keyword: JSON.stringify($('#suggestKeyword').val().split(',')),
               domain: $('#domain').val(),
               isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
               delay: $('#delay-suggest').val(),
               amount: $('#suggestTime').val(),
               socketID: localStorage.getItem('id'),
-              name:  $('#projectName').val()
+              name: $('#projectName').val()
             },
             function (data, status) {
               console.log(data);
@@ -222,10 +223,10 @@
             $('#view-domain').val(data.domain);
             $('#view-delay-suggest').val(data.delay);
             $('#view-suggestTime').val(data.amount);
-            data.log.map((item)=>{
+            data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
-            
+
           })
         }
         //valide data
@@ -263,13 +264,13 @@
           return (event.charCode >= 48 && event.charCode <= 57) ? true : event.preventDefault();
         }
         //append log
-        function appendLog(messageLog) {
+        function appendLog(projectId, messageLog) {
           let timeLog = new Date();
           let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
             + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
             + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
             + `  ${messageLog}`;
-          $("#listLogSuggest").prepend(`<li>${log}</li>`);
+          $(`#${projectId}`).prepend(`<li>${log}</li>`);
         }
 
         function appendLogBacklink(messageLog) {
