@@ -78,7 +78,7 @@ const suggestDomain = async (socketID, page, domain) => {
     if (wasClicked) {
 
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-      sendCurrentURL(socketID, page.url());
+      //sendCurrentURL(socketID, page.url());
       await autoScroll(page);
       return true;
 
