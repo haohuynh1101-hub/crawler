@@ -223,7 +223,7 @@
             $('#view-delay-suggest').val(data.delay);
             $('#view-suggestTime').val(data.amount);
             data.log.map((item)=>{
-              $(`#${id}`).prepend(item.message);
+              $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
             
           })
