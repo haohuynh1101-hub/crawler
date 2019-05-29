@@ -1,126 +1,100 @@
 <!--  Modal content for the above example -->
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="suggest-modal" aria-labelledby="suggest-form"
-    aria-hidden="true" style="display: none;">
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="suggest-modal"
+    aria-labelledby="suggest-form" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content pb-0">
             <div class="modal-header">
                 <h4 class="modal-title" id="suggest-form">Suggest Form</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <div class="modal-body">
-                    <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group row">
-                                    <label class="col-4 col-form-label">Tên dự án</label>
-                                    <div class="col-8">
-                                        <input type="text" id='projectName' class="form-control" data-focus=" Project Name" value="">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-4 col-form-label">Từ khóa</label>
-                                    <div class="col-8">
-                                        <input type="text" id='suggestKeyword' class="form-control" data-focus=" Keyword" value="">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-4 col-form-label">Domain</label>
-                                    <div class="col-8">
-                                        <input type="text" id='domain' class="form-control" data-focus=" Domain" value="">
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-4 col-form-label">Delay (giây)</label>
-                                    <div class="col-8">
-                                        <input type="text" id='delay-suggest' data-focus=" Delay" class="form-control" onkeypress="acceptPositiveNumber(event)"
-                                            value="">
-                                    </div>
-                                </div>
-                        
-                                <div class="form-group row">
-                                    <label class="col-4 col-form-label">Số lần muốn bơm</label>
-                                    <div class="col-8">
-                                        <select id='suggestTime' class="form-control">
-                                            <option value="500">500</option>
-                                            <option value="1000">1000</option>
-                                            <option value="5000">5000</option>
-                                            <option value="10000">10000</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="row form-group">
-                                    <div class="checkbox">
-                                        <input id="checkbox4" type="checkbox" checked disabled>
-                                        <label for="checkbox4">
-                                            Tự động xóa cookies
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <div class="checkbox">
-                                        <input id="checkbox3" type="checkbox" checked disabled>
-                                        <label for="checkbox3">
-                                            Tự động thay đổi UserAgent
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-group row" style="visibility: hidden">
-                                    <div class="checkbox">
-                                        <input id="" type="checkbox">
-                                        <label for="">
-                                            .
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="form-group row" style="visibility: hidden">
-                                    <div class="checkbox">
-                                        <input id="" type="checkbox">
-                                        <label for="">
-                                            .
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group row">
-                                    <label class="col-12 col-form-label pr-2">UserAgent hiện tại: <span id='currentUserAgent'
-                                            class="text-muted col-form-label"></span></label>
-                                </div>
-                                <div class="form-group row">
-                                    <label class="col-12 col-form-label pr-2"> Trang web hiện tại: <span id='currentURL'
-                                            class="text-muted col-form-label"></span></label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                        
-                            <div class="col-md-12" style="padding: 0 0 10px 10px;">
-                                <div class="logBox">
-                                    <ul id="listLogSuggest">
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
+            <div class="modal-body pb-0">
+                <div class="row">
+                    <div class="col-md-6">
                         <div class="form-group row">
-                                <div class="col-8"></div>
-                                <div class="col-4 text-right">
-                                    <button id='btnSuggest' type="button" onclick='saveProject()'
-                                        class="btn btn-outline-success px-4 mr-2">Lưu</button>
-                                </div>
+                            <label class="col-4 col-form-label">Tên dự án</label>
+                            <div class="col-8">
+                                <input type="text" id='projectName' class="form-control" data-focus=" Project Name"
+                                    value="">
                             </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Từ khóa</label>
+                            <div class="col-8">
+                                <input type="text" id='suggestKeyword' class="form-control" data-focus=" Keyword"
+                                    value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Domain</label>
+                            <div class="col-8">
+                                <input type="text" id='domain' class="form-control" data-focus=" Domain" value="">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Delay (giây)</label>
+                            <div class="col-8">
+                                <input type="text" id='delay-suggest' data-focus=" Delay" class="form-control"
+                                    onkeypress="acceptPositiveNumber(event)" value="">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Số lần muốn bơm</label>
+                            <div class="col-8">
+                                <select id='suggestTime' class="form-control">
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                    <option value="5000">5000</option>
+                                    <option value="10000">10000</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-4 col-form-label">Công cụ tìm kiếm</label>
+                            <div class="col-8">
+                                <select id='searchingTools' class="form-control">
+                                    <option value="google.com">google.com</option>
+                                    <option value="google.com.vn">google.com.vn</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group">
+                            <div class="checkbox">
+                                <input id="checkbox4" type="checkbox" checked disabled>
+                                <label for="checkbox4">
+                                    Tự động xóa cookies
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="checkbox">
+                                <input id="checkbox3" type="checkbox" checked disabled>
+                                <label for="checkbox3">
+                                    Tự động thay đổi UserAgent
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="instruction">
+
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                    <div class="form-group row">
+                        <div class="col-8"></div>
+                        <div class="col-4 text-right">
+                            <button id='btnSuggest' type="button" onclick='saveProject()'
+                                class="btn btn-outline-success px-4 mr-2">Lưu</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
-
-
-
-
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
