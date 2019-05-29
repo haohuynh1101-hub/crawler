@@ -37,7 +37,7 @@ module.exports = {
   sendCurrentUserAgent: (socketID,projectId, data) => {
     console.log('sending user agent')
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('server-send-current-useragent', data)
+    userSocket.emit('server-send-current-useragent', {data,projectId})
   },
   sendCurrentURL: (socketID,projectId, url) => {
     console.log("sending url...");
@@ -69,7 +69,7 @@ module.exports = {
   sendNextPage:(socketID,projectId)=>{
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('domain not found, finding in next page ...');
-    userSocket.emit('next-page');
+    userSocket.emit('next-page',projectId);
   },
   sendChangingAgentBacklink:(socketID)=>{
     let userSocket = getSocket(socketID, connectedUsers);
