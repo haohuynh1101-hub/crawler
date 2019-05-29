@@ -15,6 +15,7 @@ var projects = new mongoose.Schema({
           ref:'log'
       }
   ],
+  status:String,
   belongTo:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'users'

@@ -8,6 +8,7 @@ var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
+var saveLog = require('./../../../services/saveLog');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -24,6 +25,7 @@ var { sendCloseBrower,
 } = require('services/socket');
 
 //add project
+//call when client click save new project button
 router.post('/addproject', async (req, res) => {
   try {
 
@@ -44,6 +46,7 @@ router.post('/addproject', async (req, res) => {
 })
 
 //get project by id
+//call when client click view detail button
 router.get('/project/:id', async (req, res) => {
 
   try {
@@ -58,14 +61,16 @@ router.get('/project/:id', async (req, res) => {
   }
 
 })
+
 router.get('/', async function (req, res, next) {
 
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
-    
-    res.render('adminpage',{allProject});
-    
+
+    console.log("TCL: allProject", allProject)
+    res.render('adminpage', { allProject });
+
   } catch (error) {
 
     console.log("render admin page error: ", error)
@@ -74,6 +79,7 @@ router.get('/', async function (req, res, next) {
 
 
 });
+
 
 router.post('/backlink', async (req, res) => {
 
@@ -96,19 +102,8 @@ router.post('/backlink', async (req, res) => {
 
 })
 
-const suggestTask = (keywordSuggest, domain, delaySuggest, socketID, isAutochangeUserAgent) => {
 
-  // let isCrashed = await searchAndSuggest(keywordSuggest, domain, isAutochangeUserAgent, delaySuggest, socketID);
-
-  // if (isCrashed) {
-
-  //   sendInvalidQuery(socketID);
-  //   return false;
-
-  // }
-}
-
-router.post('/suggest', async (req, res) => {
+router.post('/suggest', async (req, res, next) => {
 
   let {
     socketID,
@@ -117,9 +112,23 @@ router.post('/suggest', async (req, res) => {
 
   let { keyword, domain, delay, amount } = await getProject(projectId);
 
+  //set status of project to "running"
+  try {
+
+    let updateProject = await mongoose.model('projects').findById(projectId);
+
+    updateProject.status = 'running';
+    updateProject.save();
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
+  }
+
+  //main process 
   for (let i = 0; i < amount; i++) {
 
-    let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, socketID);
+    let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, socketID, projectId);
 
     if (isCrashed) {
 
@@ -128,6 +137,19 @@ router.post('/suggest', async (req, res) => {
 
     }
 
+  }
+
+  //set status of project to "stopped"
+  try {
+
+    let updateProject = await mongoose.model('projects').findById(projectId);
+
+    updateProject.status = 'stopped';
+    updateProject.save();
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
   }
 
   res.send('ok');
@@ -141,9 +163,10 @@ router.post('/suggest', async (req, res) => {
  * @param {bool} isChangeUserAgent 
  * @param {number} delayTime time stay at website after access (seconds)
  * @param {*} socketID 
+ * @param {*} projectId
  * @return {boolean} true (operation crashed)  false(operation success) 
  */
-const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketID) => {
+const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketID, projectId) => {
 
   let wasClicked = false;
   let runTime = 0;
@@ -165,23 +188,26 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
     await page.on('console', consoleObj => console.log(consoleObj.text()));
 
     //change user agent
-    //await sendChangingAgent(socketID);
+    await saveLog(projectId, 'Đang thay đổi User Agent ...');
+    //await sendChangingAgent(socketID,projectId);
     let currentUserAgent = await changeUserAgent(page);
-    //await sendCurrentUserAgent(socketID, currentUserAgent);
-
+    //await sendCurrentUserAgent(socketID, projectId,currentUserAgent);
+    await saveLog(projectId, 'Thay đổi User Agent thành công');
 
     try {
 
       await page.goto('https://www.google.com/');
-      //await sendGotoGoogle(socketID);
+      await saveLog(projectId, 'https://www.google.com/');
+      //await sendGotoGoogle(socketID,projectId);
 
       await searchByKeyWord(page, keyword);
-      wasClicked = await suggestDomain(socketID, page, domain);
+      wasClicked = await suggestDomain(socketID, projectId, page, domain);
 
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
 
-      //await sendCloseBrower(socketID);
+      //await sendCloseBrower(socketID,projectId);
+      await saveLog(projectId, 'Đang đóng trình duyệt ...');
       brower.close();
 
     } catch (error) {
@@ -201,17 +227,21 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
  * @param {*} domain 
  * @param {number} delayTime time stay at website after access (seconds)
  * @param {*} socketID 
+ * @param {*} projectId
  * @return {boolean} true (not found any domain with keywords provided)  false(operation success) 
  */
-const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, socketID) => {
+const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, socketID, projectId) => {
 
   let isNotFoundDomain;
 
   for (let i = 0; i < keyword.length; i++) {
 
-    isNotFoundDomain = await searchAndSuggestSingleKeyword(keyword[i], domain, delayTime, socketID);
+    isNotFoundDomain = await searchAndSuggestSingleKeyword(keyword[i], domain, delayTime, socketID, projectId);
 
-    //if(isNotFoundDomain) sendNotFoundDomainWithKeyword(socketID,keyword[i]);
+    if (isNotFoundDomain) {
+      saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      sendNotFoundDomainWithKeyword(socketID,projectId, keyword[i]);
+    }
   }
 
   return isNotFoundDomain;

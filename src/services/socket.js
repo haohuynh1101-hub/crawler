@@ -36,7 +36,7 @@ module.exports = {
   },
   sendCurrentUserAgent: (socketID, data) => {
     console.log('sending user agent')
-    let userSocket = getSocket(socketID, connectedUsers);
+    let userSocket = getSocket(socketID,projectId, connectedUsers);
     userSocket.emit('server-send-current-useragent', data)
   },
   sendCurrentURL: (socketID, url) => {
@@ -53,17 +53,17 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('invalid-query');
   },
-  sendChangingAgent: (socketID) => {
+  sendChangingAgent: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('changing-agent');
+    userSocket.emit('changing-agent',projectId);
   },
-  sendGotoGoogle: (socketID) => {
+  sendGotoGoogle: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('go-google');
+    userSocket.emit('go-google',projectId);
   },
-  sendCloseBrower: (socketID) => {
+  sendCloseBrower: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('close-brower');
+    userSocket.emit('close-brower',projectId);
   },
   sendNextPage:(socketID)=>{
     let userSocket = getSocket(socketID, connectedUsers);
@@ -95,8 +95,8 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('not-found-backlink',link);
   },
-  sendNotFoundDomainWithKeyword:(socketID,keyword)=>{
+  sendNotFoundDomainWithKeyword:(socketID,projectId,keyword)=>{
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('domain-not-found-suggest',keyword);
+    userSocket.emit('domain-not-found-suggest',{keyword,projectId});
   }
 } 
