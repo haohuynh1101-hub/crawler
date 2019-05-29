@@ -43,9 +43,10 @@ router.post('/addproject', async (req, res) => {
     })
   }
 
-})
+});
 
 //get project by id
+
 //call when client click view detail button
 router.get('/project/:id', async (req, res) => {
 

@@ -157,12 +157,7 @@
               console.log(data);
             });
         }
-        const runSuggestTool = () => {
-          let validate = CheckValideSuggest();
-          if (validate.err) {
-            alert("Please insert" + validate.message);
-            return false;
-          }
+        const runSuggestTool = (id) => {
           $('#listLogSuggest').empty();
           $.post("/suggest",
             {
@@ -171,7 +166,8 @@
               isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
               delaySuggest: $('#delay-suggest').val(),
               suggestTime: $('#suggestTime').val(),
-              socketID: localStorage.getItem('id')
+              socketID: localStorage.getItem('id'),
+              projectId: id
 
             },
             function (data, status) {
@@ -208,12 +204,25 @@
             alert("Please insert" + validate.message);
             return false;
           }
+          $.post("/addproject",
+            {
+              keyword: $('#suggestKeyword').val(),
+              domain: $('#domain').val(),
+              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+              delay: $('#delay-suggest').val(),
+              amount: $('#suggestTime').val(),
+              socketID: localStorage.getItem('id'),
+              name:  $('#projectName').val()
+            },
+            function (data, status) {
+              console.log(data);
+            });
         }
 
         function viewProject(id) {
           $('#view-logBox').children(0).attr("id", id);
-          $.get(`/suggest/get/${id}`).done(function (data) {
-            alert("Data Loaded: " + data);
+          $.get(`/project/${id}`).done(function (data) {
+            console.log(data)
           })
         }
         //valide data
@@ -243,8 +252,8 @@
           let suggestKeyword = $('#suggestKeyword');
           let domain = $('#domain');
           let delaySuggest = $('#delay-suggest');
-
-          return (CheckValide([suggestKeyword, domain, delaySuggest]));
+          let projectName = $("#projectName")
+          return (CheckValide([projectName, suggestKeyword, domain, delaySuggest]));
         }
         // accept only positve number in input
         function acceptPositiveNumber(event) {
