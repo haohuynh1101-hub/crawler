@@ -28,7 +28,7 @@ async function autoScroll(page){
 const suggestDomain = async (socketID, page, domain) => {
   try {
 
-    await page.on('console', consoleObj => console.log(consoleObj.text()));
+    // await page.on('console', consoleObj => console.log(consoleObj.text()));
     let wasClicked;
 
     for (let currentPageIndex = 0; currentPageIndex < 9; currentPageIndex++) {

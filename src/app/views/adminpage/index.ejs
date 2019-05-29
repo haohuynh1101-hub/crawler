@@ -196,7 +196,6 @@
               console.log(data);
             });
         }
-
         //save config
         function saveProject() {
           let validate = CheckValideSuggest();
@@ -222,7 +221,11 @@
         function viewProject(id) {
           $('#view-logBox').children(0).attr("id", id);
           $.get(`/project/${id}`).done(function (data) {
-            console.log(data)
+            $('#view-projectName').val(data.name);
+            $('#view-suggestKeyword').val(data.keyword);
+            $('#view-domain').val(data.domain);
+            $('#view-delay-suggest').val(data.delay);
+            $('#view-suggestTime').val(data.amount);
           })
         }
         //valide data
