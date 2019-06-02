@@ -1,35 +1,11 @@
 var socketIo = require("socket.io");
 var io = socketIo();
 
-// // Require module
-// const adminStartTimer = require("./sockets/adminSendStartTimer");
-// const adminSendLevelUp = require("./sockets/adminSendLevelUp");
-// const adminSendShowAnswer = require("./sockets/adminSendShowAnswer");
-// const adminSendShowHelp = require("./sockets/adminSendShowHelp");
-// const adminSendShowOption = require("./sockets/adminSendShowOption");
-// const userSendOption = require("./sockets/userSendOption");
-// const adminSendCheckResult = require("./sockets/adminSendCheckResult");
-// const adminSendRefreshInfo = require("./sockets/adminSendRefreshInfo");
-// const adminSendShowCover = require("./sockets/adminSendShowCover");
-// const adminSendHideCover = require("./sockets/adminSendHideCover");
-// const adminSendShowAnswerFlippicture = require("./sockets/adminSendShowAnswerFlipPicture");
-// const adminSendHideAnswerFlippicture = require("./sockets/adminSendHideAnswerFlipPicture");
+
 
 var socketApi = { io };
 var connectedUsers = [];
-// // Server listen and action here
-// adminStartTimer(io);
-// adminSendLevelUp(io);
-// adminSendShowAnswer(io);
-// adminSendShowHelp(io);
-// adminSendShowOption(io);
-// userSendOption(io);
-// adminSendCheckResult(io);
-// adminSendRefreshInfo(io);
-// adminSendShowCover(io);
-// adminSendHideCover(io);
-// adminSendShowAnswerFlippicture(io);
-// adminSendHideAnswerFlippicture(io);
+
 const getSocket = (userID, array) => {
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === userID) {
@@ -58,41 +34,42 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit("server-send-current-ip", ip)
   },
-  sendCurrentUserAgent: (socketID, data) => {
+  sendCurrentUserAgent: (socketID,projectId, data) => {
     console.log('sending user agent')
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('server-send-current-useragent', data)
+    userSocket.emit('server-send-current-useragent', {data,projectId})
   },
-  sendCurrentURL: (socketID, url) => {
+  sendCurrentURL: (socketID,projectId, url) => {
     console.log("sending url...");
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit(`server-send-current-url`, url)
+    userSocket.emit(`server-send-current-url`, {url,projectId})
   },
-  sendNotFoundURL: (socketID) => {
+  sendNotFoundURL: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('not found url')
+    userSocket.emit('not found url',projectId)
   },
   sendInvalidQuery: (socketID) => {
     console.log('sending invalid query response ...')
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('invalid-query');
   },
-  sendChangingAgent: (socketID) => {
+  sendChangingAgent: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('changing-agent');
+    userSocket.emit('changing-agent',projectId);
   },
-  sendGotoGoogle: (socketID) => {
+  sendGotoGoogle: (socketID,projectId) => {
+    console.log('go to google '+projectId)
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('go-google');
+    userSocket.emit('go-google',projectId);
   },
-  sendCloseBrower: (socketID) => {
+  sendCloseBrower: (socketID,projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('close-brower');
+    userSocket.emit('close-brower',projectId);
   },
-  sendNextPage:(socketID)=>{
+  sendNextPage:(socketID,projectId)=>{
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('domain not found, finding in next page ...');
-    userSocket.emit('next-page');
+    userSocket.emit('next-page',projectId);
   },
   sendChangingAgentBacklink:(socketID)=>{
     let userSocket = getSocket(socketID, connectedUsers);
@@ -118,5 +95,9 @@ module.exports = {
   sendNotFoundBacklink:(socketID,link)=>{
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('not-found-backlink',link);
+  },
+  sendNotFoundDomainWithKeyword:(socketID,projectId,keyword)=>{
+    let userSocket = getSocket(socketID, connectedUsers);
+    userSocket.emit('domain-not-found-suggest',{keyword,projectId});
   }
 } 
