@@ -70,6 +70,7 @@
       <script>
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
+          $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
         })
 
@@ -217,6 +218,7 @@
 
         function viewProject(id) {
           $('#view-logBox').children(0).attr("id", id);
+          $('#currentUserAgent').attr('agent',id);
           $.get(`/project/${id}`).done(function (data) {
             $('#view-projectName').val(data.name);
             $('#view-suggestKeyword').val(data.keyword);
