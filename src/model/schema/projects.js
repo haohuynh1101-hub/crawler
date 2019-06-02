@@ -20,7 +20,8 @@ var projects = new mongoose.Schema({
   belongTo:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'users'
-  }
+  },
+  searchTool:String
 })
 
 module.exports = projects;

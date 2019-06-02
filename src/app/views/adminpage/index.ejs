@@ -209,10 +209,12 @@
               delay: $('#delay-suggest').val(),
               amount: $('#suggestTime').val(),
               socketID: localStorage.getItem('id'),
-              name: $('#projectName').val()
+              name: $('#projectName').val(),
+              searchTool:$('#searchingTools').val()
             },
             function (data, status) {
               console.log(data);
+              window.location.href = '/';
             });
         }
 
@@ -225,6 +227,7 @@
             $('#view-domain').val(data.domain);
             $('#view-delay-suggest').val(data.delay);
             $('#view-suggestTime').val(data.amount);
+            $('#view-searchingTools').val(data.searchTool)
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })

@@ -28,7 +28,7 @@ var { sendCloseBrower,
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
   try {
-    console.log(JSON.parse(req.body.keyword))
+    console.log(req.body)
     let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
 
     res.json(projects);
@@ -54,7 +54,6 @@ router.get('/project/:id', async (req, res) => {
 
     let project = await mongoose.model('projects').findById(req.params.id).populate('log');
 
-    console.log("TCL: project", project)
     res.json(project);
 
   } catch (error) {
