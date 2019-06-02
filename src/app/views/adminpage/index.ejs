@@ -70,11 +70,13 @@
       <script>
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
+          console.log('dit me',data)
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
         })
 
         socket.on('server-send-current-url', (data) => {
+          console.log(data.url)
           appendLog(data.projectId, data.url);
           appendLog(data.projectId, 'Đang lả lướt trên trang ...')
         })
@@ -91,6 +93,7 @@
           appendLog(projectId, 'Đang thay đổi User Agent ...');
         })
         socket.on('go-google', (projectId) => {
+          console.log('dang den google')
           appendLog(projectId, "https://www.google.com/");
         })
 

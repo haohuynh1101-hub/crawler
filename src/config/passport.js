@@ -33,6 +33,7 @@ module.exports = passport =>  {
           bcrypt.compare(password, userDoc.password, (err, isMatch) => {
             if (err) throw err;
             if (isMatch) {
+              console.log(userDoc)
               userDoc.password = null;
               return done(null, userDoc);
             }

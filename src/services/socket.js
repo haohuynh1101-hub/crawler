@@ -14,7 +14,6 @@ const getSocket = (userID, array) => {
     }
   }
 }
-var clientSocket;
 
 io.on('connection', function (socket) {
   let users = {
@@ -34,70 +33,88 @@ module.exports = {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit("server-send-current-ip", ip)
   },
-  sendCurrentUserAgent: (socketID,projectId, data) => {
-    console.log('sending user agent')
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('server-send-current-useragent', {data,projectId})
+  sendCurrentUserAgent: (socketID, projectId, data) => {
+    try {
+      console.log('sending user agent')
+      let userSocket = getSocket(socketID, connectedUsers);
+      userSocket.emit('server-send-current-useragent', { data, projectId })
+    } catch (error) {
+      console.log("TCL: error send user agent", error)
+
+    }
+
   },
-  sendCurrentURL: (socketID,projectId, url) => {
-    console.log("sending url...");
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit(`server-send-current-url`, {url,projectId})
+  sendCurrentURL: (socketID, projectId, url) => {
+    try {
+      console.log("sending url...");
+      let userSocket = getSocket(socketID, connectedUsers);
+      userSocket.emit(`server-send-current-url`, { url, projectId })
+    } catch (error) {
+      console.log("TCL: error send url", error)
+
+    }
+
   },
-  sendNotFoundURL: (socketID,projectId) => {
+  sendNotFoundURL: (socketID, projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('not found url',projectId)
+    userSocket.emit('not found url', projectId)
   },
   sendInvalidQuery: (socketID) => {
     console.log('sending invalid query response ...')
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('invalid-query');
   },
-  sendChangingAgent: (socketID,projectId) => {
+  sendChangingAgent: (socketID, projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('changing-agent',projectId);
+    userSocket.emit('changing-agent', projectId);
   },
-  sendGotoGoogle: (socketID,projectId) => {
-    console.log('go to google '+projectId)
+  sendGotoGoogle: (socketID, projectId) => {
+    try {
+      console.log('go to google ' + projectId)
+      let userSocket = getSocket(socketID, connectedUsers);
+      userSocket.emit('go-google', projectId);
+    } catch (error) {
+      console.log("TCL: error go-google", error)
+
+    }
+
+  },
+  sendCloseBrower: (socketID, projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('go-google',projectId);
+    userSocket.emit('close-brower', projectId);
   },
-  sendCloseBrower: (socketID,projectId) => {
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('close-brower',projectId);
-  },
-  sendNextPage:(socketID,projectId)=>{
+  sendNextPage: (socketID, projectId) => {
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('domain not found, finding in next page ...');
-    userSocket.emit('next-page',projectId);
+    userSocket.emit('next-page', projectId);
   },
-  sendChangingAgentBacklink:(socketID)=>{
+  sendChangingAgentBacklink: (socketID) => {
     let userSocket = getSocket(socketID, connectedUsers);
     console.log('changing user agent ...');
     userSocket.emit('changing-agent-backlink');
   },
-  sendCurrentUserAgentBacklink:(socketID,data)=>{
+  sendCurrentUserAgentBacklink: (socketID, data) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('agent-backlink',data);
+    userSocket.emit('agent-backlink', data);
   },
-  sendGotoDomainBacklink:(socketID,domain)=>{
+  sendGotoDomainBacklink: (socketID, domain) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('send-domain-backlink',domain);
+    userSocket.emit('send-domain-backlink', domain);
   },
-  sendFindingBacklink:(socketID)=>{
+  sendFindingBacklink: (socketID) => {
     let userSocket = getSocket(socketID, connectedUsers);
     userSocket.emit('finding-backlink');
   },
-  sendFoundBacklink:(socketID,link)=>{
+  sendFoundBacklink: (socketID, link) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('found-backlink',link);
+    userSocket.emit('found-backlink', link);
   },
-  sendNotFoundBacklink:(socketID,link)=>{
+  sendNotFoundBacklink: (socketID, link) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('not-found-backlink',link);
+    userSocket.emit('not-found-backlink', link);
   },
-  sendNotFoundDomainWithKeyword:(socketID,projectId,keyword)=>{
+  sendNotFoundDomainWithKeyword: (socketID, projectId, keyword) => {
     let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('domain-not-found-suggest',{keyword,projectId});
+    userSocket.emit('domain-not-found-suggest', { keyword, projectId });
   }
 } 
