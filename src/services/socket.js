@@ -124,5 +124,9 @@ module.exports = {
   sendNotFoundDomainWithKeyword: async (userid, projectId, keyword) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('domain-not-found-suggest', { keyword, projectId });
+  },
+  sendRandomURLClicked:async(userid,projectId,url)=>{
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-random-url', { url, projectId });
   }
 } 

@@ -137,6 +137,11 @@
           alert('Không tìm thấy backlink, vui lòng kiểm tra lại ');
         })
 
+        socket.on('send-random-url', data => {
+          appendLog(data.projectId, 'Đang click url ngẫu nhiên trên trang ...');
+          appendLog(data.projectId, 'URL hiện tại: ' + data.url);
+        })
+
         const runTool = (e) => {
           $('#listLogSuggest').empty();
           let validate = CheckValide();
@@ -211,7 +216,7 @@
               amount: $('#suggestTime').val(),
               socketID: localStorage.getItem('id'),
               name: $('#projectName').val(),
-              searchTool:$('#searchingTools').val()
+              searchTool: $('#searchingTools').val()
             },
             function (data, status) {
               window.location.href = '/';

@@ -1,17 +1,17 @@
 var mongoose = require('mongoose');
 
-const getProject=async(id)=>{
-    
-    try {
+const getProject = async (id) => {
 
-        let project = await mongoose.model('projects').findById(id);
-    
-        return project;
-    
-      } catch (error) {
-    
-        return null;
-      }
+  try {
+
+    let project = await mongoose.model('projects').findById(id);
+
+    return project;
+
+  } catch (error) {
+
+    return null;
+  }
 }
 
-module.exports=getProject;
+module.exports = getProject;
