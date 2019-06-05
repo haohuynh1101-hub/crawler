@@ -24,6 +24,7 @@ var { sendCloseBrower,
   sendNotFoundDomainWithKeyword
 } = require('services/socket');
 
+
 //add project
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
@@ -63,6 +64,8 @@ router.get('/project/:id', async (req, res) => {
 
 })
 
+
+//homepage router
 router.get('/', async function (req, res, next) {
 
   try {
@@ -80,7 +83,7 @@ router.get('/', async function (req, res, next) {
 
 });
 
-
+//click backlink request
 router.post('/backlink', async (req, res) => {
 
   let { domain, backlink, amount, delay, socketID } = req.body;
@@ -102,13 +105,10 @@ router.post('/backlink', async (req, res) => {
 
 })
 
-
+//suggest domain request
 router.post('/suggest', async (req, res, next) => {
 
-  let {
-    socketID,
-    projectId
-  } = req.body;
+  let { projectId, userid } = req.body;
 
   let { keyword, domain, delay, amount } = await getProject(projectId);
 
@@ -119,6 +119,7 @@ router.post('/suggest', async (req, res, next) => {
 
     updateProject.status = 'running';
     updateProject.save();
+
   } catch (error) {
 
     console.log('error when change project status', error);
@@ -128,11 +129,11 @@ router.post('/suggest', async (req, res, next) => {
   //main process 
   for (let i = 0; i < amount; i++) {
 
-    let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, socketID, projectId);
+    let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, projectId, userid);
 
     if (isCrashed) {
 
-      sendInvalidQuery(socketID);
+      sendInvalidQuery(userid);
       break;
 
     }
@@ -146,6 +147,7 @@ router.post('/suggest', async (req, res, next) => {
 
     updateProject.status = 'stopped';
     updateProject.save();
+
   } catch (error) {
 
     console.log('error when change project status', error);
@@ -156,17 +158,38 @@ router.post('/suggest', async (req, res, next) => {
 
 })
 
+//update user's socket request
+router.post('/sendSocket', async (req, res) => {
+
+  let { userid, socketid } = req.body;
+
+  try {
+
+    let user = await mongoose.model('users').findById(userid);
+
+    user.currentSocketID = socketid;
+    await user.save();
+
+    res.send('ok');
+
+  } catch (error) {
+
+    console.log('err update user socket');
+  }
+
+})
+
 /**
  * 
  * @param {*} keyword 
  * @param {*} domain 
  * @param {bool} isChangeUserAgent 
  * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} socketID 
  * @param {*} projectId
+ * @param {*} userid
  * @return {boolean} true (operation crashed)  false(operation success) 
  */
-const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketID, projectId) => {
+const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
 
   let wasClicked = false;
   let runTime = 0;
@@ -189,24 +212,24 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
-    await sendChangingAgent(socketID, projectId);
+    await sendChangingAgent(userid, projectId);
     let currentUserAgent = await changeUserAgent(page);
-    await sendCurrentUserAgent(socketID, projectId, currentUserAgent);
+    await sendCurrentUserAgent(userid, projectId, currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
 
     try {
 
       await page.goto('https://www.google.com/');
       await saveLog(projectId, 'https://www.google.com/');
-      await sendGotoGoogle(socketID, projectId);
+      await sendGotoGoogle(userid, projectId);
 
       await searchByKeyWord(page, keyword);
-      wasClicked = await suggestDomain(socketID, projectId, page, domain);
+      wasClicked = await suggestDomain(userid, projectId, page, domain);
 
       await setTimeDelay(delayTime);
       await page.waitFor(Const.timeDelay);
 
-      await sendCloseBrower(socketID, projectId);
+      await sendCloseBrower(userid, projectId);
       await saveLog(projectId, 'Đang đóng trình duyệt ...');
       brower.close();
 
@@ -226,21 +249,21 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, socketI
  * @param {Array} keyword array of keyword 
  * @param {*} domain 
  * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} socketID 
  * @param {*} projectId
+ * @param {*} userid
  * @return {boolean} true (not found any domain with keywords provided)  false(operation success) 
  */
-const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, socketID, projectId) => {
+const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
 
   let isNotFoundDomain;
 
   for (let i = 0; i < keyword.length; i++) {
 
-    isNotFoundDomain = await searchAndSuggestSingleKeyword(keyword[i], domain, delayTime, socketID, projectId);
+    isNotFoundDomain = await searchAndSuggestSingleKeyword(keyword[i], domain, delayTime, projectId, userid);
 
     if (isNotFoundDomain) {
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
-      sendNotFoundDomainWithKeyword(socketID, projectId, keyword[i]);
+      sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
     }
   }
 
@@ -321,5 +344,6 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
   return true;
 
 }
+
 
 module.exports = router;

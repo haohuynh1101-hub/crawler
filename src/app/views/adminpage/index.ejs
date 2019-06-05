@@ -70,13 +70,11 @@
       <script>
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
-          console.log('dit me',data)
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
         })
 
         socket.on('server-send-current-url', (data) => {
-          console.log(data.url)
           appendLog(data.projectId, data.url);
           appendLog(data.projectId, 'Đang lả lướt trên trang ...')
         })
@@ -166,7 +164,7 @@
 
           $.post("/suggest",
             {
-              socketID: localStorage.getItem('id'),
+              userid: localStorage.getItem('userid'),
               projectId: id
             },
             function (data, status) {
@@ -216,21 +214,20 @@
               searchTool:$('#searchingTools').val()
             },
             function (data, status) {
-              console.log(data);
               window.location.href = '/';
             });
         }
 
         function viewProject(id) {
           $('#view-logBox').children(0).attr("id", id);
-          $('#currentUserAgent').attr('agent',id);
+          $('#currentUserAgent').attr('agent', id);
           $.get(`/project/${id}`).done(function (data) {
             $('#view-projectName').val(data.name);
             $('#view-suggestKeyword').val(data.keyword);
             $('#view-domain').val(data.domain);
             $('#view-delay-suggest').val(data.delay);
             $('#view-suggestTime').val(data.amount);
-            $('#view-searchingTools').val(data.searchTool)
+            $('#view-searchingTools').val(data.searchTool);
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -289,6 +286,23 @@
             + `  ${messageLog}`;
           $("#listLogBacklink").prepend(`<li>${log}</li>`);
         }
+
+        const sendNewSocketAndUserID = () => {
+          $.post("/sendSocket",
+            {
+              userid: localStorage.getItem('userid'),
+              socketid: localStorage.getItem('id')
+            },
+            function (data, status) {
+
+            });
+        }
+
+        //send new socket id when page load
+        $(window).on('load', function () {
+          sendNewSocketAndUserID();
+        });
+
       </script>
 </body>
 

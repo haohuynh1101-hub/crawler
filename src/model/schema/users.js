@@ -15,7 +15,8 @@ var users = new mongoose.Schema({
   fullname: {
     required: true,
     type: String
-  }
+  },
+  currentSocketID:String
 })
 
 module.exports = users;
