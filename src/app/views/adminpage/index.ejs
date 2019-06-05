@@ -105,9 +105,10 @@
           appendLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
         })
 
-        socket.on('send-id', (id) => {
+        socket.on('send-id', async(id) => {
           console.log(id);
-          localStorage.setItem('id', id);
+          await localStorage.setItem('id', id);
+          await sendNewSocketAndUserID();
         })
 
         socket.on('changing-agent-backlink', () => {
@@ -304,11 +305,11 @@
             });
         }
 
-        //send new socket id when page load
-        $(window).on('load', function () {
-          console.log('send new socket')
-          sendNewSocketAndUserID();
-        });
+        // //send new socket id when page load
+        // $(window).on('load',async function () {
+        //   console.log('send new socket')
+        //   await sendNewSocketAndUserID();
+        // });
 
       </script>
 </body>
