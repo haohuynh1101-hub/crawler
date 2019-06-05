@@ -167,6 +167,7 @@
 
           $('#listLogSuggest').empty();
           $(`#btnRun-${id}`).attr("disabled", true);
+          window.location.href='/';
           $.post("/suggest",
             {
               userid: localStorage.getItem('userid'),
