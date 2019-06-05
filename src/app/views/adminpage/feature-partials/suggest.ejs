@@ -32,7 +32,13 @@
                                                 <% include ./view-modal %>
                                                 <button type="button"
                                                     class="btn btn-success btn-bordred waves-effect w-md waves-light m-b-5"
-                                                    onclick="runSuggestTool('<%- item._id %>')">Chạy</button>
+                                                    id="btnRun-<%- item._id %>"
+                                                    <% if(item.status != 'running') { %>
+                                                    onclick="runSuggestTool('<%- item._id %>')"
+                                                    <% } else { %> 
+                                                    disabled
+                                                    <% } %>
+                                                    >Chạy</button>
             
                                             </td>
                                     </tr>

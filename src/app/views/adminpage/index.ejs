@@ -166,7 +166,7 @@
         const runSuggestTool = (id) => {
 
           $('#listLogSuggest').empty();
-
+          $(`#btnRun-${id}`).attr("disabled", true);
           $.post("/suggest",
             {
               userid: localStorage.getItem('userid'),
@@ -227,12 +227,12 @@
           $('#view-logBox').children(0).attr("id", id);
           $('#currentUserAgent').attr('agent', id);
           $.get(`/project/${id}`).done(function (data) {
-            $('#view-projectName').val(data.name);
-            $('#view-suggestKeyword').val(data.keyword);
-            $('#view-domain').val(data.domain);
-            $('#view-delay-suggest').val(data.delay);
-            $('#view-suggestTime').val(data.amount);
-            $('#view-searchingTools').val(data.searchTool);
+            $('#view-projectName').text(data.name);
+            $('#view-suggestKeyword').text(data.keyword);
+            $('#view-domain').text(data.domain);
+            $('#view-delay-suggest').text(data.delay);
+            $('#view-suggestTime').text(data.amount);
+            $('#view-searchingTools').text(data.searchTool);
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
