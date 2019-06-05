@@ -3,7 +3,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require('mongoose');
 
-module.exports = passport =>  {  
+module.exports = passport => {
   // passport config
 
   // Serialize user for session
@@ -17,7 +17,7 @@ module.exports = passport =>  {
   passport.deserializeUser((id, done) => {
     mongoose.model('users').findById(id, (err, user) => {
       if (err) done(err);
-      
+
       if (user) {
         user.password = null
         done(err, user);

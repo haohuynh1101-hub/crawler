@@ -14,45 +14,46 @@
   <!-- Begin page -->
   <div id="wrapper">
 
-      <!-- Start content -->
-      <div class="content" style=" display: flex; flex-direction: column; justify-content: center; vertical-align: middle; width: 100vw; height: 100vh; ">
-        <div class="container-fluid">
-          <div class="row">
-            <!-- end col -->
-            <div class="col-md-4">
-            </div>
-            <div class="col-md-4">
-              <div class="card-box">
-                <h4 class="m-t-0 m-b-30 header-title">Login</h4>
-
-                <form class="form-horizontal" role="form" method="POST" action="/login">
-                  <div class="form-group row">
-                    <label for="username" class="col-2 col-form-label">Username</label>
-                    <div class="col-9">
-                      <input type="text" class="form-control" id="username" placeholder="Username" name="username">
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="password" class="col-2 col-form-label">Password</label>
-                    <div class="col-9">
-                      <input type="password" class="form-control" id="password" placeholder="Password" name="password">
-                    </div>
-                  </div>
-                  <div class="form-group mb-0 justify-content-end row">
-                    <div class="col-9">
-                      <button type="submit" class="btn btn-info waves-effect waves-light">Sign in</button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
+    <!-- Start content -->
+    <div class="content"
+      style=" display: flex; flex-direction: column; justify-content: center; vertical-align: middle; width: 100vw; height: 100vh; ">
+      <div class="container-fluid">
+        <div class="row">
+          <!-- end col -->
+          <div class="col-md-4">
           </div>
-          <!-- end row -->
+          <div class="col-md-4">
+            <div class="card-box">
+              <h4 class="m-t-0 m-b-30 header-title">Login</h4>
 
-        </div> <!-- container -->
+              
+                <div class="form-group row">
+                  <label for="username" class="col-2 col-form-label">Username</label>
+                  <div class="col-9">
+                    <input type="text" class="form-control" id="username" placeholder="Username" name="username">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="password" class="col-2 col-form-label">Password</label>
+                  <div class="col-9">
+                    <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+                  </div>
+                </div>
+                <div class="form-group mb-0 justify-content-end row">
+                  <div class="col-9">
+                    <button onclick="login()" class="btn btn-info waves-effect waves-light">Sign in</button>
+                  </div>
+                </div>
+              
+            </div>
+          </div>
 
-      </div> <!-- content -->
+        </div>
+        <!-- end row -->
+
+      </div> <!-- container -->
+
+    </div> <!-- content -->
 
 
 
@@ -65,5 +66,24 @@
 </body>
 
 <!-- Mirrored from coderthemes.com/adminto/vertical_dark/form-elements.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:18:57 GMT -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+<script>
+  const login = () => {
+
+    $.post("/login",
+      {
+        username: $('#username').val(),
+        password: $('#password').val()
+      },
+      function (data, status) {
+        if(data){
+          localStorage.setItem('userid',data);
+          window.location.href = '/';
+        }
+      });
+  }
+
+</script>
 
 </html>

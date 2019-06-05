@@ -20,12 +20,12 @@ async function autoScroll(page){
 
 /**
  * find and click domain base on google search result (find maximum 10 first pages)
- * @param {*} socketID 
+ * @param {*} userid 
  * @param {*} page 
  * @param {*} domain 
  * @return {boolean} true (found and clicked) || false (domain not found)
  */
-const suggestDomain = async (socketID,projectId, page, domain) => {
+const suggestDomain = async (userid,projectId, page, domain) => {
   
   try {
 
@@ -65,7 +65,7 @@ const suggestDomain = async (socketID,projectId, page, domain) => {
       //search in next page  
       if (!wasClicked) {
 
-        await sendNextPage(socketID,projectId);
+        await sendNextPage(userid,projectId);
         await page.evaluate(async (currentPageIndex) => {
           let nextPageElement = await document.querySelectorAll(`a[href*="start=${currentPageIndex + 1}0"]`)[0];
           await nextPageElement.click();
@@ -79,14 +79,14 @@ const suggestDomain = async (socketID,projectId, page, domain) => {
     if (wasClicked) {
 
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
-      sendCurrentURL(socketID,projectId, page.url());
+      sendCurrentURL(userid,projectId, page.url());
       await autoScroll(page);
       return true;
 
     }
     else {
 
-      sendNotFoundURL(socketID,projectId);
+      sendNotFoundURL(userid,projectId);
       return false;
 
     }
