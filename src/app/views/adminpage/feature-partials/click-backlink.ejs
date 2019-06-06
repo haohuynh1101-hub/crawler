@@ -1,102 +1,57 @@
 <div class="tab-pane fade" id="click-backlink" role="tabpanel" aria-labelledby="nav-home-tab">
-
     <div class="col-xl-12 col-md-12 pl-0">
+
         <div class="card-box">
+
             <div class="row">
-                <div class="col-md-6">
-            <div class="form-group row">
-                <label class="col-2 col-form-label pr-0">Website</label>
-                <div class="col-8">
-                    <input id='domain_backlink' type="text" class="form-control pl-0" data-focus=" Website" value="">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-2 col-form-label pr-0">Backlink</label>
-                <div class="col-8">
-                    <input id='backlink' type="text" class="form-control pl-0" data-focus=" Backlink" value="">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-2 col-form-label">Delay (giây)</label>
-                <div class="col-8">
-                    <input type="text" id='delay_backink' onkeypress="acceptPositiveNumber(event)" class="form-control" data-focus=" Delay"
-                        value="">
-                </div>
-            </div>
-            <div class="form-group row">
-                <label class="col-2 col-form-label">Số lần muốn bơm</label>
-                <div class="col-8">
-                    <select id='suggestTime_backlink' class="form-control">
-                        <option value="500">500</option>
-                        <option value="1000">1000</option>
-                        <option value="5000">5000</option>
-                        <option value="10000">10000</option>
-                    </select>
-                </div>
-            </div>
-            </div>
-            <div class="col-md-6">
-                <div class="row form-group">
-                    <div class="checkbox">
-                        <input id="checkbox4" type="checkbox" checked disabled>
-                        <label for="checkbox4">
-                            Tự động xóa cookies
-                        </label>
+                <div class="col-12">
+                    <div class="card-box table-responsive">
+                        <button class="btn btn-primary waves-effect waves-light mb-1" data-toggle="modal"
+                            data-target="#backlink-modal">Thêm dự án</button>
+                        <% include ./modal-create-backlink %>
+                        <table id="datatable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">STT</th>
+                                    <th style="width: 30%">Tên dự án</th>
+                                    <th style="width: 25%">Trạng thái</th>
+                                    <th style="width: 25%">Hành động</th>
+                                </tr>
+                            </thead>
+                            
+                                <% allProject.map((item, index) => { %>
+                                    <tr>
+                                            <td><%- index+1 %></td>
+                                            <td><%- item.name %></td>
+                                            <td><%- item.status %></td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-info btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    onclick="viewBackProject('<%- item._id %>')" data-toggle="modal"
+                                                    data-target="#view-modal-backlink">Xem</button>
+                                                <% include ./modal-view-backlink %>
+                                                <button type="button"
+                                                    class="btn btn-success btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    id="btnBackLinkRun-<%- item._id %>"
+                                                    <% if(item.status != 'running') { %>
+                                                    onclick="runBackLinkTool('<%- item._id %>')"
+                                                    <% } else { %> 
+                                                    disabled
+                                                    <% } %>
+                                                    >Chạy</button>
+            
+                                            </td>
+                                    </tr>
+                                <% }) %>
+                             
+
+                            <tbody>
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="form-group row">
-                    <div class="checkbox">
-                        <input id="checkbox3" type="checkbox" checked disabled>
-                        <label for="checkbox3">
-                            Tự động thay đổi UserAgent
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group row" style="visibility: hidden">
-                    <div class="checkbox">
-                        <input id="" type="checkbox">
-                        <label for="">
-                            .
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group row" style="visibility: hidden">
-                    <div class="checkbox">
-                        <input id="" type="checkbox">
-                        <label for="">
-                            .
-                        </label>
-                    </div>
-                </div>
-                    <div class="form-group row">
-                        <div class="col-9"></div>
-                        <div class="col-3">
-                            <div class="row">
-                                <button id='btnStartBacklink' onclick='clickBacklink()' type="button"
-                                    class="btn btn-outline-success w-100 btn-lg">Bắt
-                                    đầu</button>
-                            </div>
-                        </div>
-            </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="form-group row">
-                    <label class="col-12 col-form-label pr-2">UserAgent hiện tại: <span id=''
-                            class="text-muted col-form-label"></span></label>
-                </div>
-                
-            </div>
-        </div>
-            <div class="row">
-                <div class="col-md-12" style="padding: 0 0 10px 10px;">
-                    <div class="logBox">
-                        <ul id="listLogBacklink">
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            </div> <!-- end row -->
         </div>
     </div><!-- end col -->
 </div>

@@ -1,57 +1,48 @@
 <!--  Modal content for the above example -->
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="view-modal" aria-labelledby="view-form"
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="view-modal-backlink" aria-labelledby="view-form"
     aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="view-form">Suggest Form</h4>
+                <h4 class="modal-title" id="view-form">Backink Form</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group row">
-                            <label class="col-4 col-form-label">Tên dự án</label>
+                            <label class="col-2 col-form-label pr-0">Website</label>
                             <div class="col-8">
-                                <label id='view-projectName' class="form-control"></label>
+                                <input id='domain_backlink' type="text" class="form-control pl-0" data-focus=" Website"
+                                    value="">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-4 col-form-label">Từ khóa</label>
+                            <label class="col-2 col-form-label pr-0">Backlink</label>
                             <div class="col-8">
-                                <label id='view-suggestKeyword' class="form-control"></label>
+                                <input id='backlink' type="text" class="form-control pl-0" data-focus=" Backlink"
+                                    value="">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-4 col-form-label">Domain</label>
+                            <label class="col-2 col-form-label">Delay (giây)</label>
                             <div class="col-8">
-                                <label id='view-domain' class="form-control"></label>
+                                <input type="text" id='delay_backink' onkeypress="acceptPositiveNumber(event)"
+                                    class="form-control" data-focus=" Delay" value="">
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-4 col-form-label">Delay (giây)</label>
+                            <label class="col-2 col-form-label">Số lần muốn bơm</label>
                             <div class="col-8">
-                                    <label id='view-delay-suggest' class="form-control"></label>
+                                <select id='suggestTime_backlink' class="form-control">
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                    <option value="5000">5000</option>
+                                    <option value="10000">10000</option>
+                                </select>
                             </div>
                         </div>
-
-                        <div class="form-group row">
-                            <label class="col-4 col-form-label">Số lần muốn bơm</label>
-                            <div class="col-8">
-                                <label id='view-suggestTime' class="form-control"></label>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label class="col-4 col-form-label">Công cụ tìm kiếm</label>
-                            <div class="col-8">
-                                <label id='view-searchingTools' class="form-control"></label>
-                            </div>
-                        </div>
-                        
                     </div>
-
-
                     <div class="col-md-6">
                         <div class="row form-group">
                             <div class="checkbox">
@@ -69,11 +60,11 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="form-group row" style="visibility: hidden">
                             <div class="checkbox">
-                                <input id="checkbox3" type="checkbox" checked disabled>
-                                <label for="checkbox3">
-                                    Tự động click ngẫu nhiên url<br> sau khi view web
+                                <input id="" type="checkbox">
+                                <label for="">
+                                    .
                                 </label>
                             </div>
                         </div>
@@ -87,25 +78,24 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group row">
-                            <label class="col-12 col-form-label pr-2">UserAgent hiện tại: <span id='currentUserAgent'
+                            <label class="col-12 col-form-label pr-2">UserAgent hiện tại: <span id=''
                                     class="text-muted col-form-label"></span></label>
                         </div>
+
                     </div>
                 </div>
-
                 <div class="row">
-
                     <div class="col-md-12" style="padding: 0 0 10px 10px;">
-                        <div class="logBox" id="view-logBox">
-                            <ul id="view-listLogSuggest">
+                        <div class="logBox">
+                            <ul id="listLogBacklink">
                             </ul>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
