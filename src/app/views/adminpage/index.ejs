@@ -164,6 +164,7 @@
               console.log(data);
             });
         }
+        // run suggest project
         const runSuggestTool = (id) => {
 
           $('#listLogSuggest').empty();
@@ -178,6 +179,21 @@
               console.log(data);
             });
         }
+        // run backlink project
+        // const runBackLinkTool = (id) => {
+
+        //   $('#listLogBacklink').empty();
+        //   $(`#btnBackLinkRun-${id}`).attr("disabled", true);
+        //   window.location.href='/';
+        //   $.post("/suggest",
+        //     {
+        //       userid: localStorage.getItem('userid'),
+        //       projectId: id
+        //     },
+        //     function (data, status) {
+        //       console.log(data);
+        //     });
+        // }
 
         const clickBacklink = () => {
           let validate = CheckValideBackLink();
@@ -224,7 +240,7 @@
               window.location.href = '/';
             });
         }
-
+        //view suggest project
         function viewProject(id) {
           $('#view-logBox').children(0).attr("id", id);
           $('#currentUserAgent').attr('agent', id);
@@ -235,6 +251,21 @@
             $('#view-delay-suggest').text(data.delay);
             $('#view-suggestTime').text(data.amount);
             $('#view-searchingTools').text(data.searchTool);
+            data.log.map((item) => {
+              $(`#${id}`).prepend(`<li>${item.message}</li>`);
+            })
+
+          })
+        }
+        //view backlink project
+        function viewBackProject(id) {
+          $('#view-logBox').children(0).attr("id", id);
+          $('#currentUserAgent').attr('agent', id);
+          $.get(`/backlinkproject/${id}`).done(function (data) {
+            $('#view-domain_backlink').text(data.name);
+            $('#view-backlink').text(data.keyword);
+            $('#view-delay_backink').text(data.domain);
+            $('#view-suggestTime_backlink').text(data.delay);
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })

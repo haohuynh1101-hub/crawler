@@ -171,8 +171,9 @@ router.get('/', async function (req, res, next) {
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
+    let allBackLinkProject = await mongoose.model('projects').find({ belongTo: req.user._id });
 
-    res.render('adminpage', { allProject });
+    res.render('adminpage', { allProject, allBackLinkProject });
 
   } catch (error) {
 
