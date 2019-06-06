@@ -37,6 +37,94 @@ router.get('/clear', async (req, res) => {
 })
 //end backdoor
 
+
+/**
+ * save new ad project
+ * req.body:
+ * name : String
+ * domain: String
+ * adURL : array
+ * delay :number
+ * amount: number
+ */
+router.post('/saveAdProject', async (req, res) => {
+
+  try {
+
+    let projects = await mongoose.model('projectAds').create({ ...req.body, belongTo: req.user._id, status: 'not stated' });
+
+    res.json(projects);
+
+  } catch (error) {
+
+    console.log("save new ad project err ", error)
+
+    res.json({
+      status: 'error',
+      message: error
+    })
+  }
+})
+
+
+/**
+ * click some ad in given url
+ * req.body:
+ * projectId
+ * userid
+ */
+router.post('/clickAd', async (req, res, next) => {
+
+  let { projectId, userid } = req.body;
+
+  let { domain, adURL, delay, amount } = await mongoose.model('projectAds').findById(projectId);
+
+  //set status of project to "running"
+  try {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+
+    updateProject.status = 'running';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change ad project status', error);
+    next(error);
+  }
+
+  //main process
+  for (let i = 0; i < amount; i++) {
+
+    let isCrashed = await clickAD(domain, adURL, delay);
+
+    if (isCrashed) {
+
+      console.log('not found ad')
+      //sendInvalidQuery(userid);
+      break;
+
+    }
+
+  }
+
+  //set status of project to "stopped"
+  try {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+
+    updateProject.status = 'stopped';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change ad project status', error);
+    next(error);
+  }
+
+  //return
+  res.send('ok');
+})
 //add project
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
@@ -254,7 +342,29 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+/**
+ * find and click many ad in one domain
+ * @param {String} domain 
+ * @param {Array} adURL 
+ * @param {Number} delay 
+ * @returns {boolean} true (found and clicked) || false (ad url not found)
+ */
+const clickAD = async (domain, adURL, delay) => {
 
+  let isFoundAD;
+
+  for (let i = 0; i < adURL.length; i++) {
+
+    isFoundAD = await clickSingleAD(domain,adURL,delay);
+
+    if (isFoundAD==false) {
+      saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+    }
+  }
+
+  return isFoundAD;
+}
 
 /**
  * 
@@ -431,7 +541,7 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
 
   //stay at 2nd page after random click
   await page.waitFor(3000);
-  
+
   await brower.close();
   return true;
 }
