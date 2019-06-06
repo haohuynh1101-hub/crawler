@@ -9,6 +9,7 @@ var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var saveLog = require('./../../../services/saveLog');
+var clickRandomURL = require('./../../../services/clickRandomURL');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -118,23 +119,63 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
 //click baclink
 //call when user click run button
-router.post('/backlink', async (req, res) => {
+router.post('/backlink', async (req, res, next) => {
 
-  let { domain, backlink, amount, delay, socketID } = req.body;
+  let { projectId, userid } = req.body;
 
+  //get project info
+  let {
+    keyword,
+    urlBacklink,
+    mainURL,
+    delay,
+    amount
+  } = await mongoose.model('projectBacklinks').findById(projectId);
+
+  //set status of project to "running"
+  try {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+
+    updateProject.status = 'running';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
+  }
+
+  //main process
   for (let i = 0; i < amount; i++) {
 
-    let isSuccessed = await clickBackLink(domain, backlink, delay, socketID);
+    let isSuccessed = await clickBackLink(keyword, urlBacklink, mainURL, delay, amount);
 
     if (!isSuccessed) {
 
-      sendNotFoundBacklink(socketID, backlink);
+      console.log('not found in main process')
+      //sendNotFoundBacklink(socketID, backlink);
       break;
 
     }
 
   }
 
+  //set status of project to "stopped"
+  try {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+
+    updateProject.status = 'stopped';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
+  }
+
+  //return
   res.send('ok');
 
 })
@@ -213,15 +254,16 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+
+
 /**
  * 
- * @param {*} keyword 
+ * @param {String} keyword 
  * @param {*} domain 
- * @param {bool} isChangeUserAgent 
- * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} projectId
- * @param {*} userid
- * @return {boolean} true (operation crashed)  false(operation success) 
+ * @param {*} delayTime second
+ * @param {*} projectId 
+ * @param {*} userid 
+ * @return {boolean}  true (operation crashed) || false(operation success) 
  */
 const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
 
@@ -278,13 +320,15 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
 }
 
 
+
+
 /**
  * 
- * @param {Array} keyword array of keyword 
+ * @param {Array} keyword 
  * @param {*} domain 
- * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} projectId
- * @param {*} userid
+ * @param {*} delayTime time stay at website after access (seconds)
+ * @param {*} projectId 
+ * @param {*} userid 
  * @return {boolean} true (not found any domain with keywords provided)  false(operation success) 
  */
 const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
@@ -305,16 +349,21 @@ const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, proje
 
 }
 
-
 /**
- * go to domain , find and click backlink
- * @param {*} domain 
- * @param {*} backlink 
+ * find and click single keyword in urlBacklink matched mainURL
+ * @param {String} keyword 
+ * @param {*} urlBacklink 
+ * @param {*} mainURL 
  * @param {*} delay second
- * @param {*} socketID 
- * @return {boolean} true(operation successed) | false(operation falsed)
+ * @param {number} amount 
+ * @returns {Boolean} true (operation success) false (operation false)
  */
-const clickBackLink = async (domain, backlink, delay, socketID) => {
+const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, amount) => {
+
+  //remove some character in url string to match many case
+  mainURL = mainURL.replace('https://', '');
+  mainURL = mainURL.replace('http://', '');
+  mainURL = mainURL.split('/')[0];
 
   //set up brower and page
   let brower = await puppeteer.launch(Const.options);
@@ -327,20 +376,20 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
   //change user agent
-  await sendChangingAgentBacklink(socketID);
+  // await sendChangingAgentBacklink(socketID);
   let currentUserAgent = await changeUserAgent(page);
-  await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+  //await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
 
-  //go to domain
-  //find and click backlink
-  await sendGotoDomainBacklink(socketID, domain);
-  await page.goto(domain);
-
-  await sendFindingBacklink(socketID);
-  let wasClicked = await page.evaluate(async (backlink) => {
+  //go to urlBacklink
+  //find and click mainURL
+  //await sendGotoDomainBacklink(socketID, domain);
+  await page.goto(urlBacklink);
+  await page.waitFor(5000);// in case DOM content not loaded yet
+  //await sendFindingBacklink(socketID);
+  let wasClicked = await page.evaluate(async (keyword, mainURL) => {
 
     //search all dom tree to find backlink
-    let extractedDOM = await document.querySelectorAll(`a`);
+    let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
 
     if (extractedDOM.length == 0) return false;
 
@@ -348,7 +397,7 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
 
       for (let i = 0; i < extractedDOM.length; i++) {
 
-        if (extractedDOM[i].innerText.includes(backlink)) {
+        if (extractedDOM[i].innerText.includes(keyword)) {
 
           await extractedDOM[i].click();
           return true;
@@ -356,27 +405,63 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
       }
 
       return false;
+
     } catch (error) {
 
       console.log("TCL: clickBackLink -> error", error)
       return false;
     }
 
-  }, backlink);
+  }, keyword, mainURL);
 
   if (wasClicked == false) {
+
     await brower.close();
     return false;
   }
 
   //set time stay on page after click
-  await sendFoundBacklink(socketID, backlink);
-  await setTimeDelay(delay);
+  //await sendFoundBacklink(socketID, backlink);
+  //await setTimeDelay(delay);
   await page.waitFor(Const.timeDelay);
 
+  //click random url in this page
+  let randomURL = await clickRandomURL(page);
+  //sendRandomURLClicked(userid, projectId, randomURL);
+
+  //stay at 2nd page after random click
+  await page.waitFor(3000);
+  
   await brower.close();
   return true;
+}
 
+/**
+ * go to urlBacklink , find and click mainURL matched with array keywords
+ * @param {Array} keyword 
+ * @param {*} urlBacklink 
+ * @param {*} mainURL 
+ * @param {*} delay second
+ * @param {number} amount
+ * @return {boolean} true(operation successed) | false(operation falsed)
+ */
+const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount) => {
+
+  let isFoundDomain;
+
+  for (let i = 0; i < keyword.length; i++) {
+
+    isFoundDomain = await clickSingleKeywordMatchURL(keyword[i], urlBacklink, mainURL, delay, amount);
+    console.log("TCL: clickBackLink -> isNotFoundDomain", isFoundDomain)
+
+    if (isFoundDomain == false) {
+      console.log('not found domain in click backlink func')
+      // saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      // sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+    }
+  }
+
+  return isFoundDomain;
 }
 
 
