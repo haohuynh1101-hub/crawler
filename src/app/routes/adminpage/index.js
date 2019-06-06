@@ -25,11 +25,11 @@ var { sendCloseBrower,
 } = require('services/socket');
 
 //this is backdoor
-router.get('/backdoor',async(req,res)=>{
-  let result=await mongoose.model('users').find();
+router.get('/backdoor', async (req, res) => {
+  let result = await mongoose.model('users').find();
   res.json(result);
 })
-router.get('/clear',async(req,res)=>{
+router.get('/clear', async (req, res) => {
   await mongoose.model('projects').remove();
   await mongoose.model('logs').remove();
   res.send('ok')
@@ -94,7 +94,30 @@ router.get('/', async function (req, res, next) {
 
 });
 
-//click backlink request
+//save new project backlink
+//notice !!!!
+//consider add JSON.parse(req.body.keyword)  when front-end finish
+router.post('/saveProjectBacklink', async (req, res) => {
+
+  try {
+
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, belongTo: req.user._id, status: 'not stated' });
+
+    res.json(projects);
+
+  } catch (error) {
+
+    console.log("save new project backlink err ", error)
+
+    res.json({
+      status: 'error',
+      message: error
+    })
+  }
+})
+
+//click baclink
+//call when user click run button
 router.post('/backlink', async (req, res) => {
 
   let { domain, backlink, amount, delay, socketID } = req.body;
