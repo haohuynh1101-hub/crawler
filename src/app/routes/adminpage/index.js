@@ -171,7 +171,7 @@ router.get('/', async function (req, res, next) {
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
-    let allBackLinkProject = await mongoose.model('projects').find({ belongTo: req.user._id });
+    let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
 
     res.render('adminpage', { allProject, allBackLinkProject });
 
@@ -184,15 +184,22 @@ router.get('/', async function (req, res, next) {
 
 });
 
-//save new project backlink
-//notice !!!!
-//consider add JSON.parse(req.body.keyword)  when front-end finish
+//
+/**
+ * save new project backlink
+ * req.body:
+ * keyword: Array
+ * urlBacklink
+ * mainURL
+ * amount
+ * name
+ */
 router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, belongTo: req.user._id, status: 'not stated' });
-
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
+    console.log(projects);
     res.json(projects);
 
   } catch (error) {
@@ -206,8 +213,30 @@ router.post('/saveProjectBacklink', async (req, res) => {
   }
 })
 
-//click baclink
-//call when user click run button
+//get backlink project info by id
+//use when user click view detail button
+router.get('/backlinkproject/:id', async (req, res) => {
+
+  try {
+
+    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id);
+    res.json(projectInfo);
+
+  } catch (error) {
+
+    console.log('view backlink detail err: ' + error);
+  }
+
+})
+
+
+/**
+ * click baclink
+ * call when user click run button
+ * req.body:
+ * userid
+ * projectId
+ */
 router.post('/backlink', async (req, res, next) => {
 
   let { projectId, userid } = req.body;
@@ -238,12 +267,12 @@ router.post('/backlink', async (req, res, next) => {
   //main process
   for (let i = 0; i < amount; i++) {
 
-    let isSuccessed = await clickBackLink(keyword, urlBacklink, mainURL, delay, amount);
+    let isSuccessed = await clickBackLink(keyword, urlBacklink, mainURL, delay, amount, projectId, userid);
 
     if (!isSuccessed) {
 
-      console.log('not found in main process')
-      //sendNotFoundBacklink(socketID, backlink);
+      sendNotFoundBacklink(socketID, backlink);
+      saveLog(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
       break;
 
     }
@@ -541,7 +570,7 @@ const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, proje
  * @param {number} amount 
  * @returns {Boolean} true (operation success) false (operation false)
  */
-const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, amount) => {
+const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
   //remove some character in url string to match many case
   mainURL = mainURL.replace('https://', '');
@@ -559,16 +588,21 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
   //change user agent
-  // await sendChangingAgentBacklink(socketID);
+  await sendChangingAgentBacklink(userid, projectId);
+  await saveLog(projectId, 'Đang thay đổi user agent ...');
   let currentUserAgent = await changeUserAgent(page);
-  //await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+  await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
+  await saveLog(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
   //go to urlBacklink
   //find and click mainURL
-  //await sendGotoDomainBacklink(socketID, domain);
+  await sendGotoDomainBacklink(userid, projectId, urlBacklink);
+  await saveLog(projectId,'Đang truy cập: '+urlBacklink);
   await page.goto(urlBacklink);
   await page.waitFor(5000);// in case DOM content not loaded yet
-  //await sendFindingBacklink(socketID);
+
+  await sendFindingBacklink(userid,projectId);
+  await saveLog(projectId,`Đang tìm kiếm keyword ${keyword} trên trang ${urlBacklink}` );
   let wasClicked = await page.evaluate(async (keyword, mainURL) => {
 
     //search all dom tree to find backlink
@@ -600,17 +634,21 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
   if (wasClicked == false) {
 
     await brower.close();
+    await saveLog(projectId,'Đang đóng trình duyệt ...');
     return false;
   }
 
-  //set time stay on page after click
-  //await sendFoundBacklink(socketID, backlink);
-  //await setTimeDelay(delay);
+  
+  await sendFoundBacklink(socketID, backlink);
+  saveLog(projectId,`Đã tìm thấy url ${mainURL} khớp với keyword ${keyword}, đang truy cập ...`);
+  
+  //delay in page after click
+  await setTimeDelay(delay);
   await page.waitFor(Const.timeDelay);
 
   //click random url in this page
   let randomURL = await clickRandomURL(page);
-  //sendRandomURLClicked(userid, projectId, randomURL);
+  sendRandomURLClicked(userid, projectId, randomURL);
 
   //stay at 2nd page after random click
   await page.waitFor(3000);
@@ -628,19 +666,18 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
  * @param {number} amount
  * @return {boolean} true(operation successed) | false(operation falsed)
  */
-const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount) => {
+const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
   let isFoundDomain;
 
   for (let i = 0; i < keyword.length; i++) {
 
-    isFoundDomain = await clickSingleKeywordMatchURL(keyword[i], urlBacklink, mainURL, delay, amount);
-    console.log("TCL: clickBackLink -> isNotFoundDomain", isFoundDomain)
+    isFoundDomain = await clickSingleKeywordMatchURL(keyword[i], urlBacklink, mainURL, delay, amount, projectId, userid);
 
     if (isFoundDomain == false) {
-      console.log('not found domain in click backlink func')
-      // saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
-      // sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+
+      saveLog(projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + keyword[i]);
+      sendNotFoundURLWithKeywordBacklink(userid, projectId, keyword[i]);
     }
   }
 

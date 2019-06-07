@@ -10,20 +10,39 @@
             <div class="modal-body pb-0">
                 <div class="row">
                     <div class="col-md-6">
+
                         <div class="form-group row">
-                            <label class="col-2 col-form-label pr-0">Website</label>
+                            <label class="col-2 col-form-label pr-0">Tên dự án</label>
                             <div class="col-8">
-                                <input id='domain_backlink' type="text" class="form-control pl-0" data-focus=" Website"
+                                <input id='projectName_backlink' type="text" class="form-control pl-0" data-focus=" Website"
                                     value="">
                             </div>
                         </div>
+
                         <div class="form-group row">
-                            <label class="col-2 col-form-label pr-0">Backlink</label>
+                            <label class="col-2 col-form-label pr-0">URL Backlink</label>
                             <div class="col-8">
-                                <input id='backlink' type="text" class="form-control pl-0" data-focus=" Backlink"
+                                <input id='url_backlink' type="text" class="form-control pl-0" data-focus=" Website"
                                     value="">
                             </div>
                         </div>
+
+                        <div class="form-group row">
+                            <label class="col-2 col-form-label pr-0">URl chính cần view</label>
+                            <div class="col-8">
+                                <input id='main_url' type="text" class="form-control pl-0" data-focus=" Backlink"
+                                    value="">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-2 col-form-label pr-0">Từ khóa (cách nhau bởi dấu ",")</label>
+                            <div class="col-8">
+                                <input id='keyword_backlink' type="text" class="form-control pl-0"
+                                    data-focus=" Backlink" value="">
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <label class="col-2 col-form-label">Delay (giây)</label>
                             <div class="col-8">
@@ -31,10 +50,11 @@
                                     class="form-control" data-focus=" Delay" value="">
                             </div>
                         </div>
+
                         <div class="form-group row">
-                            <label class="col-2 col-form-label">Số lần muốn bơm</label>
+                            <label class="col-2 col-form-label">Số lượng traffic</label>
                             <div class="col-8">
-                                <select id='suggestTime_backlink' class="form-control">
+                                <select id='amount_backlink' class="form-control">
                                     <option value="500">500</option>
                                     <option value="1000">1000</option>
                                     <option value="5000">5000</option>
@@ -42,6 +62,7 @@
                                 </select>
                             </div>
                         </div>
+
                     </div>
                     <div class="col-md-6">
                         <div class="row form-group">

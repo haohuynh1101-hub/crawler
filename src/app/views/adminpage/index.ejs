@@ -105,7 +105,7 @@
           appendLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
         })
 
-        socket.on('send-id', async(id) => {
+        socket.on('send-id', async (id) => {
           console.log(id);
           await localStorage.setItem('id', id);
           await sendNewSocketAndUserID();
@@ -133,9 +133,7 @@
         })
 
         socket.on('not-found-backlink', (link) => {
-          appendLogBacklink('Không tìm thấy ' + link);
-          appendLogBacklink('Vui lòng kiểm tra lại ');
-          alert('Không tìm thấy backlink, vui lòng kiểm tra lại ');
+          appendLogBacklink('Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
         })
 
         socket.on('send-random-url', data => {
@@ -169,7 +167,7 @@
 
           $('#listLogSuggest').empty();
           $(`#btnRun-${id}`).attr("disabled", true);
-          window.location.href='/';
+          window.location.href = '/';
           $.post("/suggest",
             {
               userid: localStorage.getItem('userid'),
@@ -180,42 +178,45 @@
             });
         }
         // run backlink project
-        // const runBackLinkTool = (id) => {
+        const runBackLinkTool = (id) => {
 
+          $('#listLogBacklink').empty();
+          $(`#btnBackLinkRun-${id}`).attr("disabled", true);
+
+          window.location.href='/';
+
+          $.post("/backlink",
+            {
+              userid: localStorage.getItem('userid'),
+              projectId: id
+            },
+            function (data, status) {
+              
+              console.log(data);
+            });
+        }
+
+        // const clickBacklink = () => {
+        //   let validate = CheckValideBackLink();
+        //   if (validate.err) {
+        //     alert("Please insert" + validate.message);
+        //     return false;
+        //   }
         //   $('#listLogBacklink').empty();
-        //   $(`#btnBackLinkRun-${id}`).attr("disabled", true);
-        //   window.location.href='/';
-        //   $.post("/suggest",
+
+        //   $.post("/backlink",
         //     {
-        //       userid: localStorage.getItem('userid'),
-        //       projectId: id
+        //       domain: $('#domain_backlink').val(),
+        //       delay: $('#delay_backink').val(),
+        //       amount: $('#suggestTime_backlink').val(),
+        //       socketID: localStorage.getItem('id'),
+        //       backlink: $('#backlink').val()
+
         //     },
         //     function (data, status) {
         //       console.log(data);
         //     });
         // }
-
-        const clickBacklink = () => {
-          let validate = CheckValideBackLink();
-          if (validate.err) {
-            alert("Please insert" + validate.message);
-            return false;
-          }
-          $('#listLogBacklink').empty();
-
-          $.post("/backlink",
-            {
-              domain: $('#domain_backlink').val(),
-              delay: $('#delay_backink').val(),
-              amount: $('#suggestTime_backlink').val(),
-              socketID: localStorage.getItem('id'),
-              backlink: $('#backlink').val()
-
-            },
-            function (data, status) {
-              console.log(data);
-            });
-        }
         //save config
         function saveProject() {
           let validate = CheckValideSuggest();
@@ -262,10 +263,11 @@
           $('#view-logBox').children(0).attr("id", id);
           $('#currentUserAgent').attr('agent', id);
           $.get(`/backlinkproject/${id}`).done(function (data) {
-            $('#view-domain_backlink').text(data.name);
-            $('#view-backlink').text(data.keyword);
-            $('#view-delay_backink').text(data.domain);
-            $('#view-suggestTime_backlink').text(data.delay);
+            $('#view-url_backlink').text(data.urlBacklink);
+            $('#view-main_url_backlink').text(data.mainURL);
+            $('#view-keyword').text(data.keyword);
+            $('#view-delay_backink').text(data.delay);
+            $('#view-amount_backlink').text(data.amount);
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -336,11 +338,27 @@
             });
         }
 
-        // //send new socket id when page load
-        // $(window).on('load',async function () {
-        //   console.log('send new socket')
-        //   await sendNewSocketAndUserID();
-        // });
+        const saveBackLinkProject = () => {
+
+          let validate = CheckValideBackLink();
+          if (validate.err) {
+            alert("Please insert" + validate.message);
+            return false;
+          }
+
+          $.post("/saveProjectBacklink",
+            {
+              keyword: JSON.stringify($('#keyword_backlink').val().split(',')),
+              urlBacklink: $('#url_backlink').val(),
+              mainURL:$('#main_url').val(),
+              delay: $('#delay_backink').val(),
+              amount: $('#amount_backlink').val(),
+              name: $('#projectName_backlink').val()
+            },
+            function (data, status) {
+              window.location.href = '/';
+            });
+        }
 
       </script>
 </body>
