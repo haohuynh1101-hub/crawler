@@ -342,6 +342,77 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+const clickSingleAD = async (domain, adURL, delay) => {
+
+  //set up brower and page
+  let brower = await puppeteer.launch(Const.options);
+  const page = await brower.newPage();
+  await page.setCacheEnabled(false);
+  await page.setViewport({
+    width: 1366,
+    height: 768,
+  });
+  await page.on('console', consoleObj => console.log(consoleObj.text()));
+
+  //change user agent
+  // await sendChangingAgentBacklink(socketID);
+  let currentUserAgent = await changeUserAgent(page);
+  //await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+
+  //go to domain
+  //find and click ad 
+  await page.goto(domain);
+
+
+  let wasClicked = await page.evaluate(async (adURL) => {
+
+    //search all dom tree to find ad url
+    let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
+
+    if (extractedDOM.length == 0) return false;
+
+    try {
+
+      for (let i = 0; i < extractedDOM.length; i++) {
+
+        if (extractedDOM[i].innerText.includes(keyword)) {
+
+          await extractedDOM[i].click();
+          return true;
+        }
+      }
+
+      return false;
+
+    } catch (error) {
+
+      console.log("TCL: clickBackLink -> error", error)
+      return false;
+    }
+
+  }, adURL);
+
+  if (wasClicked == false) {
+
+    await brower.close();
+    return false;
+  }
+
+  //set time stay on page after click
+  //await sendFoundBacklink(socketID, backlink);
+  //await setTimeDelay(delay);
+  await page.waitFor(Const.timeDelay);
+
+  //click random url in this page
+  let randomURL = await clickRandomURL(page);
+  //sendRandomURLClicked(userid, projectId, randomURL);
+
+  //stay at 2nd page after random click
+  await page.waitFor(3000);
+
+  await brower.close();
+  return true;
+}
 /**
  * find and click many ad in one domain
  * @param {String} domain 
@@ -355,11 +426,12 @@ const clickAD = async (domain, adURL, delay) => {
 
   for (let i = 0; i < adURL.length; i++) {
 
-    isFoundAD = await clickSingleAD(domain,adURL,delay);
+    isFoundAD = await clickSingleAD(domain, adURL, delay);
 
-    if (isFoundAD==false) {
-      saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
-      sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+    if (isFoundAD == false) {
+      console.log('not found ad')
+      //saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      //sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
     }
   }
 
