@@ -1,7 +1,7 @@
 var fs=require('fs');
 module.exports = {
     options: {
-        headless: false, 
+        headless: true, 
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     },
     //listProxy: fs.readFileSync('src/app/public/proxy.txt').toString().split("\n"),
