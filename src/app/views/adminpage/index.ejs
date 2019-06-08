@@ -37,11 +37,14 @@
                 aria-controls="suggest" aria-selected="true">Suggest</a>
               <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink"
                 role="tab" aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
+              <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad"
+                role="tab" aria-controls="click-ad" aria-selected="false">Click Ad</a>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
-            <% include ./feature-partials/click-backlink %>
-            <% include ./feature-partials/suggest %>
+            <% include ./feature-partials/click-backlink/click-backlink %>
+            <% include ./feature-partials/suggest/suggest %>
+            <% include ./feature-partials/click-ad/click-ad %>
           </div>
         </div> <!-- container -->
 
