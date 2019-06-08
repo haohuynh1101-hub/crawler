@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content pb-0">
             <div class="modal-header">
-                <h4 class="modal-title" id="ad-form">Backlink Form</h4>
+                <h4 class="modal-title" id="ad-form">Tạo dự án</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <div class="modal-body pb-0">
@@ -20,33 +20,26 @@
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">URL Backlink</label>
+                            <label class="col-3 col-form-label pr-0">Trang chứa quảng cáo cần click</label>
                             <div class="col-8">
-                                <input id='url_ad' type="text" class="form-control pl-0" data-focus=" Website"
+                                <input id='main_url_ad' type="text" class="form-control pl-0" data-focus=" Website"
                                     value="">
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">URl chính cần view</label>
+                            <label class="col-3 col-form-label pr-0">URL quảng cáo (Nhiều url cách nhau bởi dấu ",")</label>
                             <div class="col-8">
-                                <input id='main_url' type="text" class="form-control pl-0" data-focus=" Backlink"
+                                <input id='ad_url' type="text" class="form-control pl-0" data-focus=" Backlink"
                                     value="">
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">Từ khóa (cách nhau bởi dấu ",")</label>
-                            <div class="col-8">
-                                <input id='keyword_backlink' type="text" class="form-control pl-0"
-                                    data-focus=" Backlink" value="">
-                            </div>
-                        </div>
 
                         <div class="form-group row">
                             <label class="col-3 col-form-label">Delay (giây)</label>
                             <div class="col-8">
-                                <input type="text" id='delay_backink' onkeypress="acceptPositiveNumber(event)"
+                                <input type="text" id='delay_ad' onkeypress="acceptPositiveNumber(event)"
                                     class="form-control" data-focus=" Delay" value="">
                             </div>
                         </div>
@@ -101,7 +94,7 @@
                             <div class="col-9"></div>
                             <div class="col-3">
                                 <div class="row">
-                                    <button id='btnStartAd'  type="button"
+                                    <button id='btnStartAd' onclick="saveAD()" type="button"
                                         class="btn btn-outline-success w-100 btn-lg">Lưu</button>
                                 </div>
                             </div>

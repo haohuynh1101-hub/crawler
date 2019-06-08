@@ -58,7 +58,7 @@ router.post('/saveAdProject', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectAds').create({ ...req.body, belongTo: req.user._id, status: 'not stated' });
+    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.user._id, status: 'not stated' });
 
     res.json(projects);
 
@@ -179,8 +179,10 @@ router.get('/', async function (req, res, next) {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
+    let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
+    console.log("TCL: addAdProject", allAdProject)
 
-    res.render('adminpage', { allProject, allBackLinkProject });
+    res.render('adminpage', { allProject, allBackLinkProject, allAdProject });
 
   } catch (error) {
 
