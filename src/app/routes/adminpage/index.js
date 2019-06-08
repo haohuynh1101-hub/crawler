@@ -8,7 +8,7 @@ var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
-var saveLog = require('./../../../services/saveLog');
+var { saveLog, saveLogBacklink } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
 var { sendCloseBrower,
   sendGotoGoogle,
@@ -22,7 +22,8 @@ var { sendCloseBrower,
   sendFindingBacklink,
   sendFoundBacklink,
   sendNotFoundBacklink,
-  sendNotFoundDomainWithKeyword
+  sendNotFoundDomainWithKeyword,
+  sendRandomURLClicked
 } = require('services/socket');
 
 //this is backdoor
@@ -33,6 +34,12 @@ router.get('/backdoor', async (req, res) => {
 router.get('/clear', async (req, res) => {
   await mongoose.model('projects').remove();
   await mongoose.model('logs').remove();
+  res.send('ok')
+})
+router.get('/test', async (req, res) => {
+
+  let result = await mongoose.model('projects').findById('5cf9de56ce0c2f19ec78cd73');
+  console.log(result);
   res.send('ok')
 })
 //end backdoor
@@ -219,7 +226,8 @@ router.get('/backlinkproject/:id', async (req, res) => {
 
   try {
 
-    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id);
+    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
+    console.log("TCL: projectInfo", projectInfo)
     res.json(projectInfo);
 
   } catch (error) {
@@ -271,8 +279,8 @@ router.post('/backlink', async (req, res, next) => {
 
     if (!isSuccessed) {
 
-      sendNotFoundBacklink(socketID, backlink);
-      saveLog(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
+      sendNotFoundBacklink(userid, projectId);
+      saveLogBacklink(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
       break;
 
     }
@@ -589,20 +597,20 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
 
   //change user agent
   await sendChangingAgentBacklink(userid, projectId);
-  await saveLog(projectId, 'Đang thay đổi user agent ...');
+  await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
   let currentUserAgent = await changeUserAgent(page);
   await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
-  await saveLog(projectId, 'User agent hiện tại: ' + currentUserAgent);
+  await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
   //go to urlBacklink
   //find and click mainURL
   await sendGotoDomainBacklink(userid, projectId, urlBacklink);
-  await saveLog(projectId,'Đang truy cập: '+urlBacklink);
+  await saveLogBacklink(projectId, 'Đang truy cập: ' + urlBacklink);
   await page.goto(urlBacklink);
   await page.waitFor(5000);// in case DOM content not loaded yet
 
-  await sendFindingBacklink(userid,projectId);
-  await saveLog(projectId,`Đang tìm kiếm keyword ${keyword} trên trang ${urlBacklink}` );
+  await sendFindingBacklink(userid, projectId, keyword, urlBacklink);
+  await saveLogBacklink(projectId, `Đang tìm kiếm keyword ${keyword} trên trang ${urlBacklink}`);
   let wasClicked = await page.evaluate(async (keyword, mainURL) => {
 
     //search all dom tree to find backlink
@@ -634,26 +642,32 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
   if (wasClicked == false) {
 
     await brower.close();
-    await saveLog(projectId,'Đang đóng trình duyệt ...');
+    await sendCloseBrower(userid, projectId);
+    await saveLogBacklink(projectId, 'Đang đóng trình duyệt ...');
     return false;
   }
 
-  
-  await sendFoundBacklink(socketID, backlink);
-  saveLog(projectId,`Đã tìm thấy url ${mainURL} khớp với keyword ${keyword}, đang truy cập ...`);
-  
-  //delay in page after click
-  await setTimeDelay(delay);
-  await page.waitFor(Const.timeDelay);
+
+  await sendFoundBacklink(userid, projectId, mainURL, keyword);
+  saveLogBacklink(projectId, `Đã tìm thấy url ${mainURL} khớp với keyword ${keyword}, đang truy cập ...`);
+
+
+
 
   //click random url in this page
+  await page.waitForNavigation({ waitUntil: 'networkidle0' });
   let randomURL = await clickRandomURL(page);
   sendRandomURLClicked(userid, projectId, randomURL);
+  await saveLogBacklink(projectId, 'Đang click url ngẫu nhiên trên trang ...');
+  await saveLogBacklink(projectId, 'URL hiện tại: ' + randomURL);
 
   //stay at 2nd page after random click
   await page.waitFor(3000);
 
   await brower.close();
+  await sendCloseBrower(userid, projectId);
+  await saveLogBacklink(projectId, 'Đang đóng trình duyệt ...');
+
   return true;
 }
 
@@ -676,7 +690,7 @@ const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount, proje
 
     if (isFoundDomain == false) {
 
-      saveLog(projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + keyword[i]);
+      saveLogBacklink(projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, keyword[i]);
     }
   }

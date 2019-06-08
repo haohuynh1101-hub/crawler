@@ -111,13 +111,15 @@ module.exports = {
   },
 
   //finding keyword matched url in url backlink
-  sendFindingBacklink: async (userid,projectId) => {
+  sendFindingBacklink: async (userid,projectId,keyword,urlBacklink) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('finding-backlink',projectId);
+    userSocket.emit('finding-backlink',{projectId,keyword,urlBacklink});
   },
-  sendFoundBacklink: async (userid, link) => {
+
+  //found url matched with keyword
+  sendFoundBacklink: async (userid,projectId, mainURL,keyword) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('found-backlink', link);
+    userSocket.emit('found-backlink', {projectId,mainURL,keyword});
   },
   
   //not found any keyword match with main url

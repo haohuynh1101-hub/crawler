@@ -97,8 +97,6 @@
 
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
-          $('#currentUserAgent').text('');
-          $('#currentURL').text('');
         })
 
         socket.on('next-page', (projectId) => {
@@ -111,35 +109,40 @@
           await sendNewSocketAndUserID();
         })
 
-        socket.on('changing-agent-backlink', () => {
-          appendLogBacklink('Đang thay đổi user agent ...');
+        socket.on('changing-agent-backlink', (projectId) => {
+          appendLog(projectId,'Đang thay đổi user agent ...');
         })
 
         socket.on('agent-backlink', (data) => {
-          appendLogBacklink('User agent hiện tại: ' + data);
+          $(`span[agent="${data.projectId}"]`).text(data.data);
+          appendLog(data.projectId,'User agent hiện tại: ' + data.data);
         })
 
-        socket.on('send-domain-backlink', (domain) => {
-          appendLogBacklink('Đang truy cập: ' + domain);
+        socket.on('send-domain-backlink', (data) => {
+          appendLog(data.projectId,'Đang truy cập: ' + data.domain);
         })
 
-        socket.on('finding-backlink', () => {
-          appendLogBacklink('Đang tìm backlink ... ');
+        socket.on('finding-backlink', (data) => {
+          appendLog(data.projectId,`Đang tìm kiếm keyword ${data.keyword} trên trang ${data.urlBacklink}` )
         })
 
-        socket.on('found-backlink', (link) => {
-          appendLogBacklink('Đã tìm thấy backlink, đang truy cập ' + link);
-          appendLogBacklink('Delay ...')
+        socket.on('found-backlink', (data) => {
+          appendLog(data.projectId,`Đã tìm thấy url ${data.mainURL} khớp với keyword ${data.keyword}, đang truy cập ...`);
         })
 
-        socket.on('not-found-backlink', (link) => {
-          appendLogBacklink('Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
+        socket.on('not-found-backlink', (projectId) => {
+          appendLog(projectId,'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
         })
 
         socket.on('send-random-url', data => {
           appendLog(data.projectId, 'Đang click url ngẫu nhiên trên trang ...');
           appendLog(data.projectId, 'URL hiện tại: ' + data.url);
         })
+
+        socket.on('not-found-keyword-backlink', data => {
+          appendLog(data.projectId, 'Không tìm thấy url cần tìm ứng với keyword '+data.keyword);
+        })
+
 
         const runTool = (e) => {
           $('#listLogSuggest').empty();
@@ -260,14 +263,18 @@
         }
         //view backlink project
         function viewBackProject(id) {
-          $('#view-logBox').children(0).attr("id", id);
-          $('#currentUserAgent').attr('agent', id);
+
+          //set up some id to render view detail
+          $('#viewLogbox_backlink').children(0).attr("id", id);
+          $('#currentAgent_backlink').attr('agent', id);
+
           $.get(`/backlinkproject/${id}`).done(function (data) {
             $('#view-url_backlink').text(data.urlBacklink);
             $('#view-main_url_backlink').text(data.mainURL);
             $('#view-keyword').text(data.keyword);
             $('#view-delay_backink').text(data.delay);
             $('#view-amount_backlink').text(data.amount);
+            console.log(data)
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -318,14 +325,14 @@
           $(`#${projectId}`).prepend(`<li>${log}</li>`);
         }
 
-        function appendLogBacklink(messageLog) {
-          let timeLog = new Date();
-          let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-            + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-            + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-            + `  ${messageLog}`;
-          $("#listLogBacklink").prepend(`<li>${log}</li>`);
-        }
+        // function appendLogBacklink(projectId,messageLog) {
+        //   let timeLog = new Date();
+        //   let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
+        //     + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
+        //     + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
+        //     + `  ${messageLog}`;
+        //   $("#listLogBacklink").prepend(`<li>${log}</li>`);
+        // }
 
         const sendNewSocketAndUserID = () => {
           $.post("/sendSocket",
