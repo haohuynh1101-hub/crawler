@@ -295,8 +295,14 @@
           return (CheckValide([projectName, suggestKeyword, domain, delaySuggest]));
         }
 
-
-
+        //validate data click ad
+        function CheckValideAD() {
+          let name = $('#projectName_ad');
+          let main_url = $('#main_url_ad');
+          let ad_url = $('#ad_url');
+          let delay = $("#delay_ad")
+          return (CheckValide([name, main_url, ad_url, delay]));
+        }
 
         // accept only positve number in input
         function acceptPositiveNumber(event) {
@@ -350,11 +356,11 @@
         //save new ad project
         const saveAD = () => {
 
-          // let validate = CheckValideAD();//implement this function
-          // if (validate.err) {
-          //   alert("Please insert" + validate.message);
-          //   return false;
-          // }
+          let validate = CheckValideAD();
+          if (validate.err) {
+            alert("Please insert " + validate.message);
+            return false;
+          }
 
           $.post("/saveAdProject",
             {
@@ -372,15 +378,15 @@
         const viewAdProject = (id) => {
 
           //set up some id to render view detail
-          $('#viewLogbox_backlink').children(0).attr("id", id);
-          $('#currentAgent_backlink').attr('agent', id);
+          $('#viewLogbox_ad').children(0).attr("id", id);
+          $('#currentAgent_ad').attr('agent', id);
 
-          $.get(`/backlinkproject/${id}`).done(function (data) {
-            $('#view-url_backlink').text(data.urlBacklink);
-            $('#view-main_url_backlink').text(data.mainURL);
-            $('#view-keyword').text(data.keyword);
-            $('#view-delay_backink').text(data.delay);
-            $('#view-amount_backlink').text(data.amount);
+          $.get(`/ad/${id}`).done(function (data) {
+            $('#view-name_ad').text(data.name);
+            $('#view-ad_url').text(data.adURL);
+            $('#view-main_url_ad').text(data.domain);
+            $('#view-delay_ad').text(data.delay);
+            $('#view-amount_ad').text(data.amount);
             console.log(data)
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
@@ -389,6 +395,24 @@
           })
         }
 
+
+        const runAdLinkTool=(id)=>{
+
+          
+          $(`#btnADRun-${id}`).attr("disabled", true);
+
+          window.location.href = '/';
+
+          $.post("/clickAd",
+            {
+              userid: localStorage.getItem('userid'),
+              projectId: id
+            },
+            function (data, status) {
+
+              console.log(data);
+            });
+        }
       </script>
 </body>
 

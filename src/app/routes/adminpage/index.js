@@ -8,7 +8,7 @@ var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
-var { saveLog, saveLogBacklink } = require('./../../../services/saveLog');
+var { saveLog, saveLogBacklink,saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
 var { sendCloseBrower,
   sendGotoGoogle,
@@ -103,12 +103,14 @@ router.post('/clickAd', async (req, res, next) => {
   //main process
   for (let i = 0; i < amount; i++) {
 
-    let isCrashed = await clickAD(domain, adURL, delay);
+    let isCrashed = await clickAD(domain, adURL, delay,projectId,userid);
 
     if (isCrashed) {
 
-      console.log('not found ad')
-      //sendInvalidQuery(userid);
+      
+      saveLogAD(projectId,'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+      sendNotFoundAD(userid,projectId);
+      
       break;
 
     }
@@ -132,7 +134,36 @@ router.post('/clickAd', async (req, res, next) => {
   //return
   res.send('ok');
 })
-//add project
+
+
+/**
+ * get ad project by id
+ * req.param:
+ * id (project id)
+ * @return :
+ * adURL : Array
+ * domain: string
+ * delay: number
+ * amount :number
+ * name : string
+ */
+router.get('/ad/:id', async (req, res) => {
+
+  try {
+
+    let result = await mongoose.model('projectAds').findById(req.params.id).populate('log');
+    console.log("TCL: result", result)
+    res.json(result);
+
+  } catch (error) {
+
+    console.log('err get ad project info: '+error);
+  }
+
+})
+
+
+//add project suggest
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
   try {
@@ -153,8 +184,7 @@ router.post('/addproject', async (req, res) => {
 
 });
 
-//get project by id
-
+//get project suggest by id
 //call when client click view detail button
 router.get('/project/:id', async (req, res) => {
 
@@ -382,7 +412,7 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
-const clickSingleAD = async (domain, adURL, delay) => {
+const clickSingleAD = async (domain, adURL, delay,projectId,userid) => {
 
   //set up brower and page
   let brower = await puppeteer.launch(Const.options);
@@ -395,12 +425,17 @@ const clickSingleAD = async (domain, adURL, delay) => {
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
   //change user agent
-  // await sendChangingAgentBacklink(socketID);
+
+  await sendChangingAgentAD(userid,projectId);
+  await saveLogAD(projectId,'Đang thay đổi user agent ...');
   let currentUserAgent = await changeUserAgent(page);
-  //await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+  await sendCurrentUserAgentAD(userid,projectId, currentUserAgent);
+  await saveLogAD(`User agent hiện tại: ${currentUserAgent}`);
 
   //go to domain
   //find and click ad 
+  await sendGoToDomainAD(userid,projectId,domain);
+  await saveLogAD(projectId,`Đang truy cập "${domain}"`);
   await page.goto(domain);
 
 
@@ -460,18 +495,19 @@ const clickSingleAD = async (domain, adURL, delay) => {
  * @param {Number} delay 
  * @returns {boolean} true (found and clicked) || false (ad url not found)
  */
-const clickAD = async (domain, adURL, delay) => {
+const clickAD = async (domain, adURL, delay,projectId,userid) => {
 
   let isFoundAD;
 
   for (let i = 0; i < adURL.length; i++) {
 
-    isFoundAD = await clickSingleAD(domain, adURL, delay);
+    isFoundAD = await clickSingleAD(domain, adURL, delay,projectId,userid);
 
     if (isFoundAD == false) {
-      console.log('not found ad')
-      //saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
-      //sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+      
+      saveLogAD(projectId,`Không tìm thấy url quảng cáo "${adURL}"`);
+      sendNotFoundSingleAD(userid,projectId,adURL);
+      
     }
   }
 
