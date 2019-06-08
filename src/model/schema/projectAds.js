@@ -1,0 +1,26 @@
+var mongoose = require('mongoose');
+
+var projectAds = new mongoose.Schema({
+    name: String,
+    domain:String,
+    adURL: [
+        {
+            type: String
+        }
+    ],
+    delay: Number,
+    amount: Number,
+    log: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'logAds'
+        }
+    ],
+    status: String,
+    belongTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'users'
+    }
+})
+
+module.exports = projectAds;

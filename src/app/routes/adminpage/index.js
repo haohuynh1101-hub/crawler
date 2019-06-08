@@ -9,6 +9,7 @@ var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var saveLog = require('./../../../services/saveLog');
+var clickRandomURL = require('./../../../services/clickRandomURL');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -25,17 +26,105 @@ var { sendCloseBrower,
 } = require('services/socket');
 
 //this is backdoor
-router.get('/backdoor',async(req,res)=>{
-  let result=await mongoose.model('users').find();
+router.get('/backdoor', async (req, res) => {
+  let result = await mongoose.model('users').find();
   res.json(result);
 })
-router.get('/clear',async(req,res)=>{
+router.get('/clear', async (req, res) => {
   await mongoose.model('projects').remove();
   await mongoose.model('logs').remove();
   res.send('ok')
 })
 //end backdoor
 
+
+/**
+ * save new ad project
+ * req.body:
+ * name : String
+ * domain: String
+ * adURL : array
+ * delay :number
+ * amount: number
+ */
+router.post('/saveAdProject', async (req, res) => {
+
+  try {
+
+    let projects = await mongoose.model('projectAds').create({ ...req.body, belongTo: req.user._id, status: 'not stated' });
+
+    res.json(projects);
+
+  } catch (error) {
+
+    console.log("save new ad project err ", error)
+
+    res.json({
+      status: 'error',
+      message: error
+    })
+  }
+})
+
+
+/**
+ * click some ad in given url
+ * req.body:
+ * projectId
+ * userid
+ */
+router.post('/clickAd', async (req, res, next) => {
+
+  let { projectId, userid } = req.body;
+
+  let { domain, adURL, delay, amount } = await mongoose.model('projectAds').findById(projectId);
+
+  //set status of project to "running"
+  try {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+
+    updateProject.status = 'running';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change ad project status', error);
+    next(error);
+  }
+
+  //main process
+  for (let i = 0; i < amount; i++) {
+
+    let isCrashed = await clickAD(domain, adURL, delay);
+
+    if (isCrashed) {
+
+      console.log('not found ad')
+      //sendInvalidQuery(userid);
+      break;
+
+    }
+
+  }
+
+  //set status of project to "stopped"
+  try {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+
+    updateProject.status = 'stopped';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change ad project status', error);
+    next(error);
+  }
+
+  //return
+  res.send('ok');
+})
 //add project
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
@@ -82,8 +171,9 @@ router.get('/', async function (req, res, next) {
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
+    let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
 
-    res.render('adminpage', { allProject });
+    res.render('adminpage', { allProject, allBackLinkProject });
 
   } catch (error) {
 
@@ -94,24 +184,116 @@ router.get('/', async function (req, res, next) {
 
 });
 
-//click backlink request
-router.post('/backlink', async (req, res) => {
+//
+/**
+ * save new project backlink
+ * req.body:
+ * keyword: Array
+ * urlBacklink
+ * mainURL
+ * amount
+ * name
+ */
+router.post('/saveProjectBacklink', async (req, res) => {
 
-  let { domain, backlink, amount, delay, socketID } = req.body;
+  try {
 
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
+    console.log(projects);
+    res.json(projects);
+
+  } catch (error) {
+
+    console.log("save new project backlink err ", error)
+
+    res.json({
+      status: 'error',
+      message: error
+    })
+  }
+})
+
+//get backlink project info by id
+//use when user click view detail button
+router.get('/backlinkproject/:id', async (req, res) => {
+
+  try {
+
+    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id);
+    res.json(projectInfo);
+
+  } catch (error) {
+
+    console.log('view backlink detail err: ' + error);
+  }
+
+})
+
+
+/**
+ * click baclink
+ * call when user click run button
+ * req.body:
+ * userid
+ * projectId
+ */
+router.post('/backlink', async (req, res, next) => {
+
+  let { projectId, userid } = req.body;
+
+  //get project info
+  let {
+    keyword,
+    urlBacklink,
+    mainURL,
+    delay,
+    amount
+  } = await mongoose.model('projectBacklinks').findById(projectId);
+
+  //set status of project to "running"
+  try {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+
+    updateProject.status = 'running';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
+  }
+
+  //main process
   for (let i = 0; i < amount; i++) {
 
-    let isSuccessed = await clickBackLink(domain, backlink, delay, socketID);
+    let isSuccessed = await clickBackLink(keyword, urlBacklink, mainURL, delay, amount, projectId, userid);
 
     if (!isSuccessed) {
 
       sendNotFoundBacklink(socketID, backlink);
+      saveLog(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
       break;
 
     }
 
   }
 
+  //set status of project to "stopped"
+  try {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+
+    updateProject.status = 'stopped';
+    updateProject.save();
+
+  } catch (error) {
+
+    console.log('error when change project status', error);
+    next(error);
+  }
+
+  //return
   res.send('ok');
 
 })
@@ -190,15 +372,110 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+const clickSingleAD = async (domain, adURL, delay) => {
+
+  //set up brower and page
+  let brower = await puppeteer.launch(Const.options);
+  const page = await brower.newPage();
+  await page.setCacheEnabled(false);
+  await page.setViewport({
+    width: 1366,
+    height: 768,
+  });
+  await page.on('console', consoleObj => console.log(consoleObj.text()));
+
+  //change user agent
+  // await sendChangingAgentBacklink(socketID);
+  let currentUserAgent = await changeUserAgent(page);
+  //await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+
+  //go to domain
+  //find and click ad 
+  await page.goto(domain);
+
+
+  let wasClicked = await page.evaluate(async (adURL) => {
+
+    //search all dom tree to find ad url
+    let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
+
+    if (extractedDOM.length == 0) return false;
+
+    try {
+
+      for (let i = 0; i < extractedDOM.length; i++) {
+
+        if (extractedDOM[i].innerText.includes(keyword)) {
+
+          await extractedDOM[i].click();
+          return true;
+        }
+      }
+
+      return false;
+
+    } catch (error) {
+
+      console.log("TCL: clickBackLink -> error", error)
+      return false;
+    }
+
+  }, adURL);
+
+  if (wasClicked == false) {
+
+    await brower.close();
+    return false;
+  }
+
+  //set time stay on page after click
+  //await sendFoundBacklink(socketID, backlink);
+  //await setTimeDelay(delay);
+  await page.waitFor(Const.timeDelay);
+
+  //click random url in this page
+  let randomURL = await clickRandomURL(page);
+  //sendRandomURLClicked(userid, projectId, randomURL);
+
+  //stay at 2nd page after random click
+  await page.waitFor(3000);
+
+  await brower.close();
+  return true;
+}
+/**
+ * find and click many ad in one domain
+ * @param {String} domain 
+ * @param {Array} adURL 
+ * @param {Number} delay 
+ * @returns {boolean} true (found and clicked) || false (ad url not found)
+ */
+const clickAD = async (domain, adURL, delay) => {
+
+  let isFoundAD;
+
+  for (let i = 0; i < adURL.length; i++) {
+
+    isFoundAD = await clickSingleAD(domain, adURL, delay);
+
+    if (isFoundAD == false) {
+      console.log('not found ad')
+      //saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      //sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+    }
+  }
+
+  return isFoundAD;
+}
+
 /**
  * 
- * @param {*} keyword 
+ * @param {String} keyword 
  * @param {*} domain 
- * @param {bool} isChangeUserAgent 
- * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} projectId
- * @param {*} userid
- * @return {boolean} true (operation crashed)  false(operation success) 
+ * @param {*} delayTime second
+ * @param {*} projectId 
+ * @param {*} userid 
+ * @return {boolean}  true (operation crashed) || false(operation success) 
  */
 const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
 
@@ -255,13 +532,15 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
 }
 
 
+
+
 /**
  * 
- * @param {Array} keyword array of keyword 
+ * @param {Array} keyword 
  * @param {*} domain 
- * @param {number} delayTime time stay at website after access (seconds)
- * @param {*} projectId
- * @param {*} userid
+ * @param {*} delayTime time stay at website after access (seconds)
+ * @param {*} projectId 
+ * @param {*} userid 
  * @return {boolean} true (not found any domain with keywords provided)  false(operation success) 
  */
 const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
@@ -282,16 +561,21 @@ const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, proje
 
 }
 
-
 /**
- * go to domain , find and click backlink
- * @param {*} domain 
- * @param {*} backlink 
+ * find and click single keyword in urlBacklink matched mainURL
+ * @param {String} keyword 
+ * @param {*} urlBacklink 
+ * @param {*} mainURL 
  * @param {*} delay second
- * @param {*} socketID 
- * @return {boolean} true(operation successed) | false(operation falsed)
+ * @param {number} amount 
+ * @returns {Boolean} true (operation success) false (operation false)
  */
-const clickBackLink = async (domain, backlink, delay, socketID) => {
+const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
+
+  //remove some character in url string to match many case
+  mainURL = mainURL.replace('https://', '');
+  mainURL = mainURL.replace('http://', '');
+  mainURL = mainURL.split('/')[0];
 
   //set up brower and page
   let brower = await puppeteer.launch(Const.options);
@@ -304,20 +588,25 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
   //change user agent
-  await sendChangingAgentBacklink(socketID);
+  await sendChangingAgentBacklink(userid, projectId);
+  await saveLog(projectId, 'Đang thay đổi user agent ...');
   let currentUserAgent = await changeUserAgent(page);
-  await sendCurrentUserAgentBacklink(socketID, currentUserAgent);
+  await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
+  await saveLog(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
-  //go to domain
-  //find and click backlink
-  await sendGotoDomainBacklink(socketID, domain);
-  await page.goto(domain);
+  //go to urlBacklink
+  //find and click mainURL
+  await sendGotoDomainBacklink(userid, projectId, urlBacklink);
+  await saveLog(projectId,'Đang truy cập: '+urlBacklink);
+  await page.goto(urlBacklink);
+  await page.waitFor(5000);// in case DOM content not loaded yet
 
-  await sendFindingBacklink(socketID);
-  let wasClicked = await page.evaluate(async (backlink) => {
+  await sendFindingBacklink(userid,projectId);
+  await saveLog(projectId,`Đang tìm kiếm keyword ${keyword} trên trang ${urlBacklink}` );
+  let wasClicked = await page.evaluate(async (keyword, mainURL) => {
 
     //search all dom tree to find backlink
-    let extractedDOM = await document.querySelectorAll(`a`);
+    let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
 
     if (extractedDOM.length == 0) return false;
 
@@ -325,7 +614,7 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
 
       for (let i = 0; i < extractedDOM.length; i++) {
 
-        if (extractedDOM[i].innerText.includes(backlink)) {
+        if (extractedDOM[i].innerText.includes(keyword)) {
 
           await extractedDOM[i].click();
           return true;
@@ -333,27 +622,66 @@ const clickBackLink = async (domain, backlink, delay, socketID) => {
       }
 
       return false;
+
     } catch (error) {
 
       console.log("TCL: clickBackLink -> error", error)
       return false;
     }
 
-  }, backlink);
+  }, keyword, mainURL);
 
   if (wasClicked == false) {
+
     await brower.close();
+    await saveLog(projectId,'Đang đóng trình duyệt ...');
     return false;
   }
 
-  //set time stay on page after click
+  
   await sendFoundBacklink(socketID, backlink);
+  saveLog(projectId,`Đã tìm thấy url ${mainURL} khớp với keyword ${keyword}, đang truy cập ...`);
+  
+  //delay in page after click
   await setTimeDelay(delay);
   await page.waitFor(Const.timeDelay);
 
+  //click random url in this page
+  let randomURL = await clickRandomURL(page);
+  sendRandomURLClicked(userid, projectId, randomURL);
+
+  //stay at 2nd page after random click
+  await page.waitFor(3000);
+
   await brower.close();
   return true;
+}
 
+/**
+ * go to urlBacklink , find and click mainURL matched with array keywords
+ * @param {Array} keyword 
+ * @param {*} urlBacklink 
+ * @param {*} mainURL 
+ * @param {*} delay second
+ * @param {number} amount
+ * @return {boolean} true(operation successed) | false(operation falsed)
+ */
+const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
+
+  let isFoundDomain;
+
+  for (let i = 0; i < keyword.length; i++) {
+
+    isFoundDomain = await clickSingleKeywordMatchURL(keyword[i], urlBacklink, mainURL, delay, amount, projectId, userid);
+
+    if (isFoundDomain == false) {
+
+      saveLog(projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + keyword[i]);
+      sendNotFoundURLWithKeywordBacklink(userid, projectId, keyword[i]);
+    }
+  }
+
+  return isFoundDomain;
 }
 
 

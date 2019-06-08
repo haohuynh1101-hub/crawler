@@ -93,40 +93,50 @@ module.exports = {
   },
   sendNextPage: async (userid, projectId) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    console.log('domain not found, finding in next page ...');
     userSocket.emit('next-page', projectId);
   },
-  sendChangingAgentBacklink: async (userid) => {
+  sendChangingAgentBacklink: async (userid,projectId) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    console.log('changing user agent ...');
-    userSocket.emit('changing-agent-backlink');
+    userSocket.emit('changing-agent-backlink',projectId);
   },
-  sendCurrentUserAgentBacklink: async (userid, data) => {
+  sendCurrentUserAgentBacklink: async (userid,projectId, data) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('agent-backlink', data);
+    userSocket.emit('agent-backlink', {data,projectId});
   },
-  sendGotoDomainBacklink: async (userid, domain) => {
+
+  //go to url backlink
+  sendGotoDomainBacklink: async (userid,projectId, domain) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-domain-backlink', domain);
+    userSocket.emit('send-domain-backlink', {domain,projectId});
   },
-  sendFindingBacklink: async (userid) => {
+
+  //finding keyword matched url in url backlink
+  sendFindingBacklink: async (userid,projectId) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('finding-backlink');
+    userSocket.emit('finding-backlink',projectId);
   },
   sendFoundBacklink: async (userid, link) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('found-backlink', link);
   },
-  sendNotFoundBacklink: async (userid, link) => {
+  
+  //not found any keyword match with main url
+  sendNotFoundBacklink: async (userid, projectId) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-backlink', link);
+    userSocket.emit('not-found-backlink', projectId);
   },
   sendNotFoundDomainWithKeyword: async (userid, projectId, keyword) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('domain-not-found-suggest', { keyword, projectId });
   },
+
+  //click random url after view main url backlink
   sendRandomURLClicked:async(userid,projectId,url)=>{
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-random-url', { url, projectId });
+  },
+  sendNotFoundURLWithKeywordBacklink:async(userid,projectId,keyword)=>{
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not-found-keyword-backlink', { keyword, projectId });
   }
 } 
