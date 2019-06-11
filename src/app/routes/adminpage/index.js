@@ -40,6 +40,10 @@ router.get('/backdoor', async (req, res) => {
 router.get('/clear', async (req, res) => {
   await mongoose.model('projects').remove();
   await mongoose.model('logs').remove();
+  await mongoose.model('projectBacklinks').remove();
+  await mongoose.model('projectAds').remove();
+  await mongoose.model('logBacklinks').remove();
+  await mongoose.model('logAds').remove();
   res.send('ok')
 })
 router.get('/test', async (req, res) => {
