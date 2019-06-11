@@ -8,7 +8,7 @@ var setTimeDelay = require('./../../../services/setTimeDelay');
 var clickRandom = require('./../../../services/clickRandom');
 var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
-var { saveLog, saveLogBacklink,saveLogAD } = require('./../../../services/saveLog');
+var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
 var { sendCloseBrower,
   sendGotoGoogle,
@@ -23,7 +23,13 @@ var { sendCloseBrower,
   sendFoundBacklink,
   sendNotFoundBacklink,
   sendNotFoundDomainWithKeyword,
-  sendRandomURLClicked
+  sendRandomURLClicked,
+  sendChangingAgentAD,
+  sendNotFoundAD,
+  sendNotFoundSingleAD,
+  sendCurrentUserAgentAD,
+  sendGoToDomainAD,
+  sendFoundAD
 } = require('services/socket');
 
 //this is backdoor
@@ -103,14 +109,14 @@ router.post('/clickAd', async (req, res, next) => {
   //main process
   for (let i = 0; i < amount; i++) {
 
-    let isCrashed = await clickAD(domain, adURL, delay,projectId,userid);
+    let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
 
-    if (isCrashed) {
+    if (isSuccessed == false) {
 
-      
-      saveLogAD(projectId,'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
-      sendNotFoundAD(userid,projectId);
-      
+
+      saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+      sendNotFoundAD(userid, projectId);
+
       break;
 
     }
@@ -152,12 +158,12 @@ router.get('/ad/:id', async (req, res) => {
   try {
 
     let result = await mongoose.model('projectAds').findById(req.params.id).populate('log');
-    console.log("TCL: result", result)
+
     res.json(result);
 
   } catch (error) {
 
-    console.log('err get ad project info: '+error);
+    console.log('err get ad project info: ' + error);
   }
 
 })
@@ -210,7 +216,7 @@ router.get('/', async function (req, res, next) {
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
-    console.log("TCL: addAdProject", allAdProject)
+
 
     res.render('adminpage', { allProject, allBackLinkProject, allAdProject });
 
@@ -412,7 +418,7 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
-const clickSingleAD = async (domain, adURL, delay,projectId,userid) => {
+const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
   //set up brower and page
   let brower = await puppeteer.launch(Const.options);
@@ -423,70 +429,85 @@ const clickSingleAD = async (domain, adURL, delay,projectId,userid) => {
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
+  
 
-  //change user agent
+  //start job
+  try {
 
-  await sendChangingAgentAD(userid,projectId);
-  await saveLogAD(projectId,'Đang thay đổi user agent ...');
-  let currentUserAgent = await changeUserAgent(page);
-  await sendCurrentUserAgentAD(userid,projectId, currentUserAgent);
-  await saveLogAD(`User agent hiện tại: ${currentUserAgent}`);
+    //change user agent
+    await sendChangingAgentAD(userid, projectId);
+    await saveLogAD(projectId, 'Đang thay đổi user agent ...');
+    let currentUserAgent = await changeUserAgent(page);
+    await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
+    await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
-  //go to domain
-  //find and click ad 
-  await sendGoToDomainAD(userid,projectId,domain);
-  await saveLogAD(projectId,`Đang truy cập "${domain}"`);
-  await page.goto(domain);
+    //extract real ad url
+    adURL = adURL.replace('https://', '');
+    adURL = adURL.replace('http://', '');
+    adURL = adURL.split('/')[0];
+
+    //go to domain
+    //find and click ad 
+    await sendGoToDomainAD(userid, projectId, domain);
+    await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
 
-  let wasClicked = await page.evaluate(async (adURL) => {
+    await page.goto(domain, { 'waitUntil': 'networkidle0' });
 
-    //search all dom tree to find ad url
-    let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
+    let wasClicked = await page.evaluate(async (adURL) => {
 
-    if (extractedDOM.length == 0) return false;
+      //search all dom tree to find ad url
+      let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
+      console.log("TCL: clickSingleAD -> extractedDOM out", extractedDOM.length)
 
-    try {
+      //search in frame tags if no ad url found
+      if (extractedDOM.length == 0) {
 
-      for (let i = 0; i < extractedDOM.length; i++) {
-
-        if (extractedDOM[i].innerText.includes(keyword)) {
-
-          await extractedDOM[i].click();
-          return true;
-        }
+        extractedDOM = await document.querySelectorAll(`iframe`);
+        console.log("TCL: clickSingleAD -> extractedDOM", extractedDOM.length)
       }
 
-      return false;
+      if (extractedDOM.length == 0) return false;
 
-    } catch (error) {
+      try {
 
-      console.log("TCL: clickBackLink -> error", error)
+        await extractedDOM[0].click();
+        return true;
+
+      } catch (error) {
+
+        console.log("error click single ad ", error)
+        return false;
+      }
+
+    }, adURL);
+
+    if (wasClicked == false) {
+
+      sendCloseBrower(userid, projectId);
+      saveLogAD(projectId, 'Đang đóng trình duyệt ...');
+      await brower.close();
       return false;
     }
 
-  }, adURL);
+    //set time stay on page after click
+    await sendFoundAD(userid, projectId, adURL);
+    await saveLogAD(projectId, `Đã tìm thấy url quảng cáo : ${adURL}, đang truy cập ...`);
+    await setTimeDelay(delay);
+    await page.waitFor(Const.timeDelay);
 
-  if (wasClicked == false) {
-
+    //close brower
+    sendCloseBrower(userid, projectId);
+    saveLogAD(projectId, 'Đang đóng trình duyệt ...');
     await brower.close();
-    return false;
+    return true;
+
+  } catch (error) {
+
+    console.log('error in catch block of clickSingleAD ' + error);
+    await brower.close();
   }
 
-  //set time stay on page after click
-  //await sendFoundBacklink(socketID, backlink);
-  //await setTimeDelay(delay);
-  await page.waitFor(Const.timeDelay);
-
-  //click random url in this page
-  let randomURL = await clickRandomURL(page);
-  //sendRandomURLClicked(userid, projectId, randomURL);
-
-  //stay at 2nd page after random click
-  await page.waitFor(3000);
-
-  await brower.close();
-  return true;
 }
 /**
  * find and click many ad in one domain
@@ -495,19 +516,19 @@ const clickSingleAD = async (domain, adURL, delay,projectId,userid) => {
  * @param {Number} delay 
  * @returns {boolean} true (found and clicked) || false (ad url not found)
  */
-const clickAD = async (domain, adURL, delay,projectId,userid) => {
+const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
   let isFoundAD;
 
   for (let i = 0; i < adURL.length; i++) {
 
-    isFoundAD = await clickSingleAD(domain, adURL, delay,projectId,userid);
+    isFoundAD = await clickSingleAD(domain, adURL[0], delay, projectId, userid);
 
     if (isFoundAD == false) {
-      
-      saveLogAD(projectId,`Không tìm thấy url quảng cáo "${adURL}"`);
-      sendNotFoundSingleAD(userid,projectId,adURL);
-      
+
+      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}"`);
+      sendNotFoundSingleAD(userid, projectId, adURL);
+
     }
   }
 

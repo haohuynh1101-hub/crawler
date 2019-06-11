@@ -146,6 +146,32 @@
           appendLog(data.projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + data.keyword);
         })
 
+        socket.on('not-found-ad', data => {
+          appendLog(data.projectId,'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+        })
+
+        socket.on('not-found-single-ad', data => {
+          appendLog(data.projectId,`Không tìm thấy url quảng cáo "${data.adURL}"`);
+        })
+
+        socket.on('send-changing-agent-ad', data => {
+          appendLog(data.projectId,'Đang thay đổi user agent ...');
+        })
+
+        socket.on('send-current-agent-ad', data => {
+          $(`span[agent=${data.projectId}]`).text(data.agent);
+          appendLog(data.projectId,`User agent hiện tại: ${data.agent}`);
+        })
+
+        socket.on('send-gotodomain-ad', data => {
+          appendLog(data.projectId,`Đang truy cập "${data.domain}"`); 
+        })
+
+        socket.on('send-found-ad', data => {
+          appendLog(data.projectId,`Đã tìm thấy url quảng cáo : ${data.adURL}, đang truy cập ...`); 
+        })
+
+        
 
         const runTool = (e) => {
           $('#listLogSuggest').empty();
@@ -165,7 +191,7 @@
 
             },
             function (data, status) {
-              console.log(data);
+              //console.log(data);
             });
         }
         // run suggest project
@@ -180,7 +206,7 @@
               projectId: id
             },
             function (data, status) {
-              console.log(data);
+              //console.log(data);
             });
         }
         // run backlink project
@@ -198,7 +224,7 @@
             },
             function (data, status) {
 
-              console.log(data);
+             // console.log(data);
             });
         }
 
@@ -257,7 +283,7 @@
             $('#view-keyword').text(data.keyword);
             $('#view-delay_backink').text(data.delay);
             $('#view-amount_backlink').text(data.amount);
-            console.log(data)
+            
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -387,7 +413,8 @@
             $('#view-main_url_ad').text(data.domain);
             $('#view-delay_ad').text(data.delay);
             $('#view-amount_ad').text(data.amount);
-            console.log(data)
+            
+            
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -396,9 +423,9 @@
         }
 
 
-        const runAdLinkTool=(id)=>{
+        const runAdLinkTool = (id) => {
 
-          
+
           $(`#btnADRun-${id}`).attr("disabled", true);
 
           window.location.href = '/';
@@ -410,7 +437,7 @@
             },
             function (data, status) {
 
-              console.log(data);
+              //console.log(data);
             });
         }
       </script>

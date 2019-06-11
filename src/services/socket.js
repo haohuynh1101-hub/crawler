@@ -170,5 +170,11 @@ module.exports = {
 
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-gotodomain-ad', { projectId ,domain});
+  },
+
+  sendFoundAD:async(userid,projectId,adURL)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-found-ad', { projectId ,adURL});
   }
 } 
