@@ -4,5 +4,7 @@ module.exports = {
   logs:require('./logs'),
   project:require('./projects'),
   projectBacklinks:require('./projectBacklinks'),
-  logBacklinks:require('./logBacklinks')
+  logBacklinks:require('./logBacklinks'),
+  projectAds:require('./projectAds'),
+  logAds:require('./logAds')
 };

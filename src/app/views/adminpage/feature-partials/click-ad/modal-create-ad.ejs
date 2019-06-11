@@ -1,49 +1,61 @@
 <!--  Modal content for the above example -->
-<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="view-modal-backlink"
-    aria-labelledby="view-form" aria-hidden="true" style="display: none;">
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="ad-modal"
+    aria-labelledby="ad-form" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content pb-0">
             <div class="modal-header">
-                <h4 class="modal-title" id="view-form">Backink Form</h4>
+                <h4 class="modal-title" id="ad-form">Tạo dự án</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body pb-0">
                 <div class="row">
                     <div class="col-md-6">
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">URL Backlink</label>
+                            <label class="col-3 col-form-label pr-0">Tên dự án</label>
                             <div class="col-8">
-                                <label id='view-url_backlink' class="form-control"></label>
+                                <input id='projectName_ad' type="text" class="form-control pl-0" data-focus="Name"
+                                    value="">
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">URL chính cần view</label>
+                            <label class="col-3 col-form-label pr-0">Trang chứa quảng cáo cần click</label>
                             <div class="col-8">
-                                <label id='view-main_url_backlink' class="form-control"></label>
+                                <input id='main_url_ad' type="text" class="form-control pl-0" data-focus="domain"
+                                    value="">
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">Từ khóa (cách nhau bởi dấu ",")</label>
+                            <label class="col-3 col-form-label pr-0">URL quảng cáo (Nhiều url cách nhau bởi dấu ",")</label>
                             <div class="col-8">
-                                <label id='view-keyword' class="form-control"></label>
+                                <input id='ad_url' type="text" class="form-control pl-0" data-focus="ad url"
+                                    value="">
                             </div>
                         </div>
+
 
                         <div class="form-group row">
                             <label class="col-3 col-form-label">Delay (giây)</label>
                             <div class="col-8">
-                                <label id='view-delay_backink' class="form-control"></label>
+                                <input type="text" id='delay_ad' onkeypress="acceptPositiveNumber(event)"
+                                    class="form-control" data-focus="Delay" value="">
                             </div>
                         </div>
+
                         <div class="form-group row">
                             <label class="col-3 col-form-label">Số lượng traffic</label>
                             <div class="col-8">
-                                <label id='view-amount_backlink' class="form-control"></label>
+                                <select id='amount_ad' class="form-control">
+                                    <option value="500">500</option>
+                                    <option value="1000">1000</option>
+                                    <option value="5000">5000</option>
+                                    <option value="10000">10000</option>
+                                </select>
                             </div>
                         </div>
+
                     </div>
                     <div class="col-md-6">
                         <div class="row form-group">
@@ -78,22 +90,14 @@
                                 </label>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
                         <div class="form-group row">
-                            <label class="col-12 col-form-label pr-2">UserAgent hiện tại: <span id='currentAgent_backlink'
-                                    class="text-muted col-form-label"></span></label>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12" style="padding: 0 0 10px 10px;">
-                        <div class="logBox" id=viewLogbox_backlink>
-                            <ul id="listLogBacklink">
-                            </ul>
+                            <div class="col-9"></div>
+                            <div class="col-3">
+                                <div class="row">
+                                    <button id='btnStartAd' onclick="saveAD()" type="button"
+                                        class="btn btn-outline-success w-100 btn-lg">Lưu</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,57 @@
+<div class="tab-pane fade" id="click-ad" role="tabpanel" aria-labelledby="nav-ad-tab">
+    <div class="col-xl-12 col-md-12 pl-0">
+
+        <div class="card-box">
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card-box table-responsive">
+                        <button class="btn btn-primary waves-effect waves-light mb-1" data-toggle="modal"
+                            data-target="#ad-modal">Thêm dự án</button>
+                        <% include ./modal-create-ad %>
+                        <table id="datatable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">STT</th>
+                                    <th style="width: 30%">Tên dự án</th>
+                                    <th style="width: 25%">Trạng thái</th>
+                                    <th style="width: 25%">Hành động</th>
+                                </tr>
+                            </thead>
+                            
+                                <% (typeof allAdProject == 'undefined') ? 'nothing' : allAdProject.map((item, index) => { %>
+                                    <tr>
+                                            <td><%- index+1 %></td>
+                                            <td><%- item.name %></td>
+                                            <td><%- item.status %></td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-info btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    onclick="viewAdProject('<%- item._id %>')" data-toggle="modal"
+                                                    data-target="#view-modal-ad">Xem</button>
+                                                <% include ./modal-view-ad %>
+                                                <button type="button"
+                                                    class="btn btn-success btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    id="btnADRun-<%- item._id %>"
+                                                    <% if(item.status != 'running') { %>
+                                                    onclick="runAdLinkTool('<%- item._id %>')"
+                                                    <% } else { %> 
+                                                    disabled
+                                                    <% } %>
+                                                    >Chạy</button>
+            
+                                            </td>
+                                    </tr>
+                                <% }) %>
+                             
+
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- end row -->
+        </div>
+    </div><!-- end col -->
+</div>

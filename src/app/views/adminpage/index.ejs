@@ -37,11 +37,14 @@
                 aria-controls="suggest" aria-selected="true">Suggest</a>
               <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink"
                 role="tab" aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
+              <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad" role="tab"
+                aria-controls="click-ad" aria-selected="false">Click Ad</a>
             </div>
           </nav>
           <div class="tab-content" id="nav-tabContent">
-            <% include ./feature-partials/click-backlink %>
-            <% include ./feature-partials/suggest %>
+            <% include ./feature-partials/click-backlink/click-backlink %>
+            <% include ./feature-partials/suggest/suggest %>
+            <% include ./feature-partials/click-ad/click-ad %>
           </div>
         </div> <!-- container -->
 
@@ -110,28 +113,28 @@
         })
 
         socket.on('changing-agent-backlink', (projectId) => {
-          appendLog(projectId,'Đang thay đổi user agent ...');
+          appendLog(projectId, 'Đang thay đổi user agent ...');
         })
 
         socket.on('agent-backlink', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
-          appendLog(data.projectId,'User agent hiện tại: ' + data.data);
+          appendLog(data.projectId, 'User agent hiện tại: ' + data.data);
         })
 
         socket.on('send-domain-backlink', (data) => {
-          appendLog(data.projectId,'Đang truy cập: ' + data.domain);
+          appendLog(data.projectId, 'Đang truy cập: ' + data.domain);
         })
 
         socket.on('finding-backlink', (data) => {
-          appendLog(data.projectId,`Đang tìm kiếm keyword ${data.keyword} trên trang ${data.urlBacklink}` )
+          appendLog(data.projectId, `Đang tìm kiếm keyword ${data.keyword} trên trang ${data.urlBacklink}`)
         })
 
         socket.on('found-backlink', (data) => {
-          appendLog(data.projectId,`Đã tìm thấy url ${data.mainURL} khớp với keyword ${data.keyword}, đang truy cập ...`);
+          appendLog(data.projectId, `Đã tìm thấy url ${data.mainURL} khớp với keyword ${data.keyword}, đang truy cập ...`);
         })
 
         socket.on('not-found-backlink', (projectId) => {
-          appendLog(projectId,'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
+          appendLog(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
         })
 
         socket.on('send-random-url', data => {
@@ -140,9 +143,35 @@
         })
 
         socket.on('not-found-keyword-backlink', data => {
-          appendLog(data.projectId, 'Không tìm thấy url cần tìm ứng với keyword '+data.keyword);
+          appendLog(data.projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + data.keyword);
         })
 
+        socket.on('not-found-ad', data => {
+          appendLog(data.projectId,'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+        })
+
+        socket.on('not-found-single-ad', data => {
+          appendLog(data.projectId,`Không tìm thấy url quảng cáo "${data.adURL}"`);
+        })
+
+        socket.on('send-changing-agent-ad', data => {
+          appendLog(data.projectId,'Đang thay đổi user agent ...');
+        })
+
+        socket.on('send-current-agent-ad', data => {
+          $(`span[agent=${data.projectId}]`).text(data.agent);
+          appendLog(data.projectId,`User agent hiện tại: ${data.agent}`);
+        })
+
+        socket.on('send-gotodomain-ad', data => {
+          appendLog(data.projectId,`Đang truy cập "${data.domain}"`); 
+        })
+
+        socket.on('send-found-ad', data => {
+          appendLog(data.projectId,`Đã tìm thấy url quảng cáo : ${data.adURL}, đang truy cập ...`); 
+        })
+
+        
 
         const runTool = (e) => {
           $('#listLogSuggest').empty();
@@ -162,7 +191,7 @@
 
             },
             function (data, status) {
-              console.log(data);
+              //console.log(data);
             });
         }
         // run suggest project
@@ -177,7 +206,7 @@
               projectId: id
             },
             function (data, status) {
-              console.log(data);
+              //console.log(data);
             });
         }
         // run backlink project
@@ -186,7 +215,7 @@
           $('#listLogBacklink').empty();
           $(`#btnBackLinkRun-${id}`).attr("disabled", true);
 
-          window.location.href='/';
+          window.location.href = '/';
 
           $.post("/backlink",
             {
@@ -194,32 +223,12 @@
               projectId: id
             },
             function (data, status) {
-              
-              console.log(data);
+
+             // console.log(data);
             });
         }
 
-        // const clickBacklink = () => {
-        //   let validate = CheckValideBackLink();
-        //   if (validate.err) {
-        //     alert("Please insert" + validate.message);
-        //     return false;
-        //   }
-        //   $('#listLogBacklink').empty();
 
-        //   $.post("/backlink",
-        //     {
-        //       domain: $('#domain_backlink').val(),
-        //       delay: $('#delay_backink').val(),
-        //       amount: $('#suggestTime_backlink').val(),
-        //       socketID: localStorage.getItem('id'),
-        //       backlink: $('#backlink').val()
-
-        //     },
-        //     function (data, status) {
-        //       console.log(data);
-        //     });
-        // }
         //save config
         function saveProject() {
           let validate = CheckValideSuggest();
@@ -274,7 +283,7 @@
             $('#view-keyword').text(data.keyword);
             $('#view-delay_backink').text(data.delay);
             $('#view-amount_backlink').text(data.amount);
-            console.log(data)
+            
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -311,6 +320,16 @@
           let projectName = $("#projectName")
           return (CheckValide([projectName, suggestKeyword, domain, delaySuggest]));
         }
+
+        //validate data click ad
+        function CheckValideAD() {
+          let name = $('#projectName_ad');
+          let main_url = $('#main_url_ad');
+          let ad_url = $('#ad_url');
+          let delay = $("#delay_ad")
+          return (CheckValide([name, main_url, ad_url, delay]));
+        }
+
         // accept only positve number in input
         function acceptPositiveNumber(event) {
           return (event.charCode >= 48 && event.charCode <= 57) ? true : event.preventDefault();
@@ -325,14 +344,7 @@
           $(`#${projectId}`).prepend(`<li>${log}</li>`);
         }
 
-        // function appendLogBacklink(projectId,messageLog) {
-        //   let timeLog = new Date();
-        //   let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-        //     + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-        //     + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-        //     + `  ${messageLog}`;
-        //   $("#listLogBacklink").prepend(`<li>${log}</li>`);
-        // }
+
 
         const sendNewSocketAndUserID = () => {
           $.post("/sendSocket",
@@ -357,7 +369,7 @@
             {
               keyword: JSON.stringify($('#keyword_backlink').val().split(',')),
               urlBacklink: $('#url_backlink').val(),
-              mainURL:$('#main_url').val(),
+              mainURL: $('#main_url').val(),
               delay: $('#delay_backink').val(),
               amount: $('#amount_backlink').val(),
               name: $('#projectName_backlink').val()
@@ -367,6 +379,67 @@
             });
         }
 
+        //save new ad project
+        const saveAD = () => {
+
+          let validate = CheckValideAD();
+          if (validate.err) {
+            alert("Please insert " + validate.message);
+            return false;
+          }
+
+          $.post("/saveAdProject",
+            {
+              adURL: JSON.stringify($('#ad_url').val().split(',')),
+              domain: $('#main_url_ad').val(),
+              delay: $('#delay_ad').val(),
+              amount: $('#amount_ad').val(),
+              name: $('#projectName_ad').val()
+            },
+            function (data, status) {
+              window.location.href = '/';
+            });
+        }
+
+        const viewAdProject = (id) => {
+
+          //set up some id to render view detail
+          $('#viewLogbox_ad').children(0).attr("id", id);
+          $('#currentAgent_ad').attr('agent', id);
+
+          $.get(`/ad/${id}`).done(function (data) {
+            $('#view-name_ad').text(data.name);
+            $('#view-ad_url').text(data.adURL);
+            $('#view-main_url_ad').text(data.domain);
+            $('#view-delay_ad').text(data.delay);
+            $('#view-amount_ad').text(data.amount);
+            
+            
+            data.log.map((item) => {
+              $(`#${id}`).prepend(`<li>${item.message}</li>`);
+            })
+
+          })
+        }
+
+
+        const runAdLinkTool = (id) => {
+
+
+          $(`#btnADRun-${id}`).attr("disabled", true);
+
+          window.location.href = '/';
+
+          $.post("/clickAd",
+            {
+              userid: localStorage.getItem('userid'),
+              projectId: id
+            },
+            function (data, status) {
+
+              //console.log(data);
+            });
+        }
       </script>
 </body>
 
