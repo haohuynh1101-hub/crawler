@@ -29,7 +29,8 @@ var { sendCloseBrower,
   sendNotFoundSingleAD,
   sendCurrentUserAgentAD,
   sendGoToDomainAD,
-  sendFoundAD
+  sendFoundAD,
+  sendNotFoundURLWithKeywordBacklink
 } = require('services/socket');
 
 //this is backdoor
