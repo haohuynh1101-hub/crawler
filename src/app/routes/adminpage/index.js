@@ -458,14 +458,6 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       //search all dom tree to find ad url
       let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
-      console.log("TCL: clickSingleAD -> extractedDOM out", extractedDOM.length)
-
-      //search in frame tags if no ad url found
-      if (extractedDOM.length == 0) {
-
-        extractedDOM = await document.querySelectorAll(`iframe`);
-        console.log("TCL: clickSingleAD -> extractedDOM", extractedDOM.length)
-      }
 
       if (extractedDOM.length == 0) return false;
 
