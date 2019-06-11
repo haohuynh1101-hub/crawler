@@ -69,6 +69,13 @@ router.get('/reset',async(req,res)=>{
 })
 //end backdoor
 
+//test
+
+router.get('/users',async(req,res)=>{
+
+  res.render('admin');
+})
+//end test
 
 /**
  * save new ad project
