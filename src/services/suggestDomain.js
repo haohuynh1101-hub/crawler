@@ -5,7 +5,7 @@ var { sendCurrentURL,
 } = require('services/socket');
 
 var clickRandomURL = require('./../services/clickRandomURL');
-var saveLog=require('./saveLog');
+var {saveLog}=require('./saveLog');
 
 async function autoScroll(page) {
   await page.evaluate(async () => {
