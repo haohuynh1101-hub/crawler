@@ -39,12 +39,14 @@ router.get('/backdoor', async (req, res) => {
   res.json(result);
 })
 router.get('/clear', async (req, res) => {
+
   await mongoose.model('projects').remove();
   await mongoose.model('logs').remove();
   await mongoose.model('projectBacklinks').remove();
   await mongoose.model('projectAds').remove();
   await mongoose.model('logBacklinks').remove();
   await mongoose.model('logAds').remove();
+  
   res.send('ok')
 })
 router.get('/test', async (req, res) => {
@@ -52,6 +54,18 @@ router.get('/test', async (req, res) => {
   let result = await mongoose.model('projects').findById('5cf9de56ce0c2f19ec78cd73');
   console.log(result);
   res.send('ok')
+})
+router.get('/reset',async(req,res)=>{
+
+  
+
+  await mongoose.model('projects').updateMany({status:'stopped'});
+  
+  await mongoose.model('projectBacklinks').updateMany({status:'stopped'});
+
+  await mongoose.model('projectAds').updateMany({status:'stopped'});
+
+  res.send('ok');
 })
 //end backdoor
 

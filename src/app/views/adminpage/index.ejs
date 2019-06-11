@@ -113,6 +113,7 @@
         })
 
         socket.on('changing-agent-backlink', (projectId) => {
+          console.log('id nhan dc: '+projectId);
           appendLog(projectId, 'Đang thay đổi user agent ...');
         })
 
@@ -212,7 +213,7 @@
         // run backlink project
         const runBackLinkTool = (id) => {
 
-          $('#listLogBacklink').empty();
+          
           $(`#btnBackLinkRun-${id}`).attr("disabled", true);
 
           window.location.href = '/';
