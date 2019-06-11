@@ -284,7 +284,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
   try {
 
     let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
-    console.log("TCL: projectInfo", projectInfo)
+    
     res.json(projectInfo);
 
   } catch (error) {
