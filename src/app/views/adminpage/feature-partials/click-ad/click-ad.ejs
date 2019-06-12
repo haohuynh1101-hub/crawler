@@ -26,12 +26,15 @@
                                             <td><%- item.status %></td>
                                             <td>
                                                 <button type="button"
-                                                    class="btn btn-info btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
                                                     onclick="viewAdProject('<%- item._id %>')" data-toggle="modal"
                                                     data-target="#view-modal-ad">Xem</button>
-                                                <% include ./modal-view-ad %>
                                                 <button type="button"
-                                                    class="btn btn-success btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    class="btn btn-warning btn-bordred waves-effect waves-light m-b-5" data-toggle="modal"
+                                                    onclick="getID('<%- item._id %>')"
+                                                    data-target="#setTimer-modal">Hẹn giờ</button>
+                                                <button type="button"
+                                                    class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
                                                     id="btnADRun-<%- item._id %>"
                                                     <% if(item.status != 'running') { %>
                                                     onclick="runAdLinkTool('<%- item._id %>')"
@@ -55,3 +58,5 @@
         </div>
     </div><!-- end col -->
 </div>
+
+<% include ./modal-view-ad %>
