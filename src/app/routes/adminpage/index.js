@@ -73,7 +73,8 @@ router.get('/reset',async(req,res)=>{
 
 router.get('/users',async(req,res)=>{
   let users = await mongoose.model('users').find();
-  res.render('admin', {users});
+  let roles = await mongoose.model('role').find();
+  res.render('admin', {users, roles});
 })
 //end test
 

@@ -41,8 +41,10 @@
                                     <div class="col-6 text-right">
                                         <button type="button"
                                             class="btn btn-primary waves-effect w-xl waves-light m-b-5"
-                                            data-toggle="modal" data-target="#create-users-modal">Thêm quản trị
-                                            viên</button>
+                                            data-toggle="modal" data-target="#create-users-modal">Thêm quản trị viên</button>
+                                        <button type="button"
+                                            class="btn btn-success waves-effect w-xl waves-light m-b-5"
+                                            data-toggle="modal" data-target="#create-group-users-modal">Thêm nhóm người dùng</button>
                                     </div>
                                 </div>
 
@@ -101,6 +103,7 @@
 
 
     <% include ./createUserModal %>
+    <% include ./createGroupModal %>
     <% include ../partials/scripts %>
     <script type="text/javascript">
 

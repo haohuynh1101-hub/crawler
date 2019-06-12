@@ -9,5 +9,6 @@ module.exports = {
   projectBacklinks: mongoose.model('projectBacklinks', schema.projectBacklinks),
   logBacklinks: mongoose.model('logBacklinks', schema.logBacklinks),
   projectAds:mongoose.model('projectAds',schema.projectAds),
-  logAds:mongoose.model('logAds',schema.logAds)
+  logAds:mongoose.model('logAds',schema.logAds),
+  role:mongoose.model('role',schema.role)
 }
