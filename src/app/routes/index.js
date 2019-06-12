@@ -4,7 +4,7 @@ var { IS_USER } = require('config/constants')
 
 router.use('/login', require('./login'));
 
-router.use('/', checkPermission(IS_USER), require('./adminpage'));
 router.use('/setup',require('./setup'));
+router.use('/', checkPermission(IS_USER), require('./adminpage'));
 
 module.exports = router;

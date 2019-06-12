@@ -72,7 +72,8 @@ router.get('/reset',async(req,res)=>{
 //test
 
 router.get('/users',async(req,res)=>{
-  let users = await mongoose.model('users').find();
+  let users = await mongoose.model('users').find().populate('role');
+  
   let roles = await mongoose.model('role').find();
   res.render('admin', {users, roles});
 })
@@ -243,9 +244,9 @@ router.get('/', async function (req, res, next) {
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
+    let role = await mongoose.model('role').findOne({_id: req.user.role})
 
-
-    res.render('adminpage', { allProject, allBackLinkProject, allAdProject });
+    res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role });
 
   } catch (error) {
 

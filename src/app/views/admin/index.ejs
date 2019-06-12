@@ -62,12 +62,12 @@
 
 
                                     <tbody>
-
+                                        <% (typeof users == 'undefined') ? '' : users.map((user, index) => { %>
                                         <tr>
-                                            <td>Donna Snider</td>
-                                            <td>Customer Support</td>
-                                            <td>New York</td>
-                                            <td>27</td>
+                                            <td><%- index %></td>
+                                            <td><%- user.username %></td>
+                                            <td><%- user.fullname %></td>
+                                            <td><%- user.role.name %></td>
                                             <td class="text-center">
                                                 <button type="button"
                                                     class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
@@ -80,6 +80,7 @@
                                                 </button>
                                             </td>
                                         </tr>
+                                        <% }) %>
                                     </tbody>
                                 </table>
                             </div>
