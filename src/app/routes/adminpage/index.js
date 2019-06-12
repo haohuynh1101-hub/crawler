@@ -70,6 +70,9 @@ router.get('/reset',async(req,res)=>{
 //end backdoor
 
 
+
+
+
 /**
  * save new ad project
  * req.body:
@@ -98,14 +101,7 @@ router.post('/saveAdProject', async (req, res) => {
   }
 })
 
-
-/**
- * click some ad in given url
- * req.body:
- * projectId
- * userid
- */
-router.post('/clickAd', async (req, res, next) => {
+const clickADTask=async(req,res,next)=>{
 
   let { projectId, userid } = req.body;
 
@@ -158,6 +154,17 @@ router.post('/clickAd', async (req, res, next) => {
 
   //return
   res.send('ok');
+}
+
+/**
+ * click some ad in given url
+ * req.body:
+ * projectId
+ * userid
+ */
+router.post('/clickAd', async (req, res, next) => {
+
+  clickADTask(req,res,next);
 })
 
 
