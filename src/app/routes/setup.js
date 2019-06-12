@@ -2,6 +2,7 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 
+var {setSchedule} = require('services/setSchedule')
 var {strDocAgents} = require('config/listAgents');
 var { success } = require('services/returnToUser')
 var { randomAgent } = require('services/randomAgent');
@@ -32,6 +33,15 @@ router.get("/UserAgents", async (req, res, next) => {
     } catch (error) {
       next(error);
     }
+})
+//test set schedule
+router.get("/schedule", async (req, res, next) => {
+  let d = new Date();
+  let start = new Date(d + 5000)
+  setSchedule(start, function(){
+    console.log("test set schedule.............")
+  })
+  res.send('test')
 })
 
 
