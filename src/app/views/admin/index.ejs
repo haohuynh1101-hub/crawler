@@ -32,6 +32,14 @@
             <!-- Start content -->
             <div class="content">
                 <div class="container-fluid">
+                    <% if(typeof error != 'undefined') { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style=" position: absolute; width: 20%; z-index: 999999999; left: 0; color: white; background: #ff0000e0; ">
+                        <strong>Lỗi!</strong> <%- error %>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <% } %>
 
                     <div class="row">
                         <div class="col-12">
@@ -41,10 +49,12 @@
                                     <div class="col-6 text-right">
                                         <button type="button"
                                             class="btn btn-primary waves-effect w-xl waves-light m-b-5"
-                                            data-toggle="modal" data-target="#create-users-modal">Thêm quản trị viên</button>
+                                            data-toggle="modal" data-target="#create-users-modal">Thêm quản trị
+                                            viên</button>
                                         <button type="button"
                                             class="btn btn-success waves-effect w-xl waves-light m-b-5"
-                                            data-toggle="modal" data-target="#create-group-users-modal">Thêm nhóm người dùng</button>
+                                            data-toggle="modal" data-target="#create-group-users-modal">Thêm nhóm người
+                                            dùng</button>
                                     </div>
                                 </div>
 
@@ -132,9 +142,24 @@
 
             return (CheckValide([username, password, fullname, userGroup]));
         }
+        function CheckValideGroupUserData() {
+            let groupName = $('input[name="groupName"]');
+
+            return (CheckValide([groupName]));
+        }
 
         function validateData(event) {
             let validate = CheckValideUserData();
+
+            if (validate.err) {
+                alert("Please insert" + validate.message);
+                event.preventDefault()
+                return false;
+            }
+
+        }
+        function validateDataGroupUser(event) {
+            let validate = CheckValideGroupUserData();
 
             if (validate.err) {
                 alert("Please insert" + validate.message);

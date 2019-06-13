@@ -7,7 +7,7 @@
                 <h4 class="modal-title" id="create-group-users-form">Tạo nhóm người dùng mới</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
-            <form action="/users" method="post" id="form-submit-new-user" onsubmit="validateData(event)">
+            <form action="/groupUsers" method="post" id="form-submit-new-group-user" onsubmit="validateDataGroupUser(event)">
                 <div class="modal-body pb-0">
 
                     <div class="row">
@@ -15,7 +15,7 @@
                             <div class="form-group row">
                                 <label class="col-3 col-form-label pr-0">Tên nhóm</label>
                                 <div class="col-8">
-                                    <input name="name" type="text" class="form-control pl-0" data-focus=" Username"
+                                    <input name="groupName" type="text" class="form-control pl-0" data-focus=" Tên nhóm"
                                         value="">
                                 </div>
                             </div>
@@ -25,7 +25,7 @@
                         <label class="col-12 col-form-label pr-0 d-block">Chức năng</label>
                         <div class="col-12 form-group">
                             <div class="checkbox">
-                                <input id="Click-BackLink" type="checkbox" value="Click BackLink">
+                                <input id="Click-BackLink" type="checkbox" name="canBacklink" value=true>
                                 <label for="Click-BackLink">
                                     Click BackLink
                                 </label>
@@ -33,7 +33,7 @@
                         </div>
                         <div class="col-12 form-group">
                             <div class="checkbox">
-                                <input id="Suggest-Domain" type="checkbox" value="Suggest Domain">
+                                <input id="Suggest-Domain" type="checkbox" name="canSuggest" value=true>
                                 <label for="Suggest-Domain">
                                     Suggest Domain
                                 </label>
@@ -41,7 +41,7 @@
                         </div>
                         <div class="col-12 form-group">
                             <div class="checkbox">
-                                <input id="Click-AD" type="checkbox" value="Click AD">
+                                <input id="Click-AD" type="checkbox" name="canClickAD" value=true>
                                 <label for="Click-AD">
                                     Click AD
                                 </label>
@@ -49,7 +49,7 @@
                         </div>
                         <div class="col-12 form-group">
                             <div class="checkbox">
-                                <input id="Admin" type="checkbox" value="Admin">
+                                <input id="Admin" type="checkbox" name="canManageUser" value=true>
                                 <label for="Admin">
                                     Admin
                                 </label>

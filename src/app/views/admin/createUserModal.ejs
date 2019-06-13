@@ -44,7 +44,7 @@
                             <div class="form-group row">
                                     <label class="col-3 col-form-label pr-0">Nhóm người dùng</label>
                                     <div class="col-8">
-                                        <select name='userGroup' class="form-control">
+                                        <select name='role' class="form-control">
                                             <% (typeof roles == 'undefined') ? '' : roles.map (item => { %>
                                                 <option value="<%- item._id %>"><%- item.name %></option>
                                                 <% }) %>

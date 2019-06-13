@@ -1,5 +1,6 @@
 var router = require('express').Router();
 var mongoose = require('mongoose');
+var bcrypt = require('bcryptjs');
 var puppeteer = require('puppeteer');
 var Const = require("Const");
 var searchByKeyWord = require('./../../../services/searchByKeyWord');
@@ -46,7 +47,7 @@ router.get('/clear', async (req, res) => {
   await mongoose.model('projectAds').remove();
   await mongoose.model('logBacklinks').remove();
   await mongoose.model('logAds').remove();
-  
+
   res.send('ok')
 })
 router.get('/test', async (req, res) => {
@@ -55,15 +56,15 @@ router.get('/test', async (req, res) => {
   console.log(result);
   res.send('ok')
 })
-router.get('/reset',async(req,res)=>{
+router.get('/reset', async (req, res) => {
 
-  
 
-  await mongoose.model('projects').updateMany({status:'stopped'});
-  
-  await mongoose.model('projectBacklinks').updateMany({status:'stopped'});
 
-  await mongoose.model('projectAds').updateMany({status:'stopped'});
+  await mongoose.model('projects').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectBacklinks').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectAds').updateMany({ status: 'stopped' });
 
   res.send('ok');
 })
@@ -71,13 +72,65 @@ router.get('/reset',async(req,res)=>{
 
 //test
 
-router.get('/users',async(req,res)=>{
+router.get('/users', async (req, res) => {
   let users = await mongoose.model('users').find().populate('role');
-  
+
   let roles = await mongoose.model('role').find();
-  res.render('admin', {users, roles});
+  res.render('admin', { users, roles });
 })
-//end test
+
+
+//users create router
+router.post('/users', async function (req, res, next) {
+
+  try {
+    let users = await mongoose.model('users').find().populate('role');
+    let roles = await mongoose.model('role').find();
+
+    let insert = {
+      ...req.body
+    }
+    const saltRounds = 10;
+    let oldUser = await mongoose.model('users').findOne({ username: insert.username })
+    if (oldUser) {
+      return res.render('admin', { users, roles, error: "Username đã tồn tại!!" });
+    }
+
+    bcrypt.hash(insert.password, saltRounds, async (err, hash) => {
+      insert.password = hash;
+      await mongoose.model('users').create(insert)
+    });
+    return res.redirect('/users');
+  } catch (error) {
+
+    console.log("render admin page error: ", error)
+    next(error);
+  }
+
+
+});
+//users create router
+router.post('/groupUsers', async function (req, res, next) {
+
+  try {
+
+    let insert = {
+      name: req.body.groupName,
+      canSuggest: (req.body.canSuggest == 'true') ? true : false,
+      canBacklink: (req.body.canBacklink == 'true') ? true : false,
+      canClickAD: (req.body.canClickAD == 'true') ? true : false,
+      canManageUser: (req.body.canManageUser == 'true') ? true : false,
+    }
+    await mongoose.model('role').create(insert);
+    return res.redirect('/users');
+  } catch (error) {
+
+    console.log("render admin page error: ", error)
+    next(error);
+  }
+
+
+});
 
 /**
  * save new ad project
@@ -244,7 +297,7 @@ router.get('/', async function (req, res, next) {
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
-    let role = await mongoose.model('role').findOne({_id: req.user.role})
+    let role = await mongoose.model('role').findOne({ _id: req.user.role })
 
     res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role });
 
@@ -256,6 +309,8 @@ router.get('/', async function (req, res, next) {
 
 
 });
+
+
 
 //
 /**
@@ -293,7 +348,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
   try {
 
     let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
-    
+
     res.json(projectInfo);
 
   } catch (error) {
@@ -457,7 +512,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-  
+
 
   //start job
   try {
