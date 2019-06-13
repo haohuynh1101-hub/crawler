@@ -46,7 +46,7 @@ router.get('/clear', async (req, res) => {
   await mongoose.model('projectAds').remove();
   await mongoose.model('logBacklinks').remove();
   await mongoose.model('logAds').remove();
-  
+
   res.send('ok')
 })
 router.get('/test', async (req, res) => {
@@ -55,20 +55,35 @@ router.get('/test', async (req, res) => {
   console.log(result);
   res.send('ok')
 })
-router.get('/reset',async(req,res)=>{
+router.get('/reset', async (req, res) => {
 
-  
 
-  await mongoose.model('projects').updateMany({status:'stopped'});
-  
-  await mongoose.model('projectBacklinks').updateMany({status:'stopped'});
 
-  await mongoose.model('projectAds').updateMany({status:'stopped'});
+  await mongoose.model('projects').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectBacklinks').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectAds').updateMany({ status: 'stopped' });
 
   res.send('ok');
 })
 //end backdoor
 
+//test
+var schedule = require('node-schedule');
+const a = () => {
+  console.log('dm')
+}
+
+const setSchedule = (time, func) => {
+  let endTime = new Date(time + 3600);
+  var j = schedule.scheduleJob({ start: time, end: endTime, rule: `${time.getSeconds()} ${time.getMinutes()} ${time.getHours()} ${time.getDate()} ${time.getMonth() + 1} ${time.getDay()}` }, func());
+}
+router.get('/timer', async (req, res) => {
+
+  setSchedule(new Date(2019, 6, 12, 22, 41, 12), a);
+})
+//end test
 
 
 
@@ -101,7 +116,7 @@ router.post('/saveAdProject', async (req, res) => {
   }
 })
 
-const clickADTask=async(req,res,next)=>{
+const clickADTask = async (req, res, next) => {
 
   let { projectId, userid } = req.body;
 
@@ -163,8 +178,8 @@ const clickADTask=async(req,res,next)=>{
  * userid
  */
 router.post('/clickAd', async (req, res, next) => {
-
-  clickADTask(req,res,next);
+  setSchedule(new Date(2019, 6, 12, 22, 32, 12), clickADTask(req, res, next));
+  //clickADTask(req,res,next);
 })
 
 
@@ -291,7 +306,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
   try {
 
     let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
-    
+
     res.json(projectInfo);
 
   } catch (error) {
@@ -455,7 +470,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-  
+
 
   //start job
   try {
