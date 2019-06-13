@@ -109,6 +109,17 @@ router.post('/users', async function (req, res, next) {
 
 
 });
+
+
+router.delete('/users/:id', async (req, res, next) => {
+  try {
+    await mongoose.model('users').findOneAndDelete({_id: req.params.id});
+    return res.redirect('/users')
+  } catch (error) {
+    console.log(error);
+    next(error)
+  }
+})
 //users create router
 router.post('/groupUsers', async function (req, res, next) {
 

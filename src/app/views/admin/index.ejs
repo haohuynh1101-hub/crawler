@@ -33,7 +33,8 @@
             <div class="content">
                 <div class="container-fluid">
                     <% if(typeof error != 'undefined') { %>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style=" position: absolute; width: 20%; z-index: 999999999; left: 0; color: white; background: #ff0000e0; ">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert"
+                        style=" position: absolute; width: 20%; z-index: 999999999; left: 0; color: white; background: #ff0000e0; ">
                         <strong>Lỗi!</strong> <%- error %>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -84,10 +85,10 @@
                                                     data-toggle="modal" data-target="">
                                                     Sửa
                                                 </button>
-                                                <button type="button"
-                                                    class="btn btn-danger btn-bordred waves-effect waves-light m-b-5">
-                                                    Xóa
-                                                </button>
+                                                <button
+                                                    class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                                    data-toggle="modal" data-target="#delete-modal"
+                                                    onclick="getID('<%- user._id %>')">Xóa</button>
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -115,9 +116,28 @@
 
     <% include ./createUserModal %>
     <% include ./createGroupModal %>
+    <% include ./modal-delete %>
     <% include ../partials/scripts %>
+    <script>
+        var selectedId = '';
+    </script>
     <script type="text/javascript">
-
+     function getID(id) {
+      selectedId = id;
+    }
+        //
+        function deleteUser() {
+            $.ajax({
+                method: 'DELETE',
+                url: `/users/${selectedId}`,
+                success: function (idDeleted) {
+                    alert("Delete product success");
+                    location.reload();
+                },
+                error: function (err) {
+                }
+            })
+        }
         //valide data
         function CheckValide(listInput) {
             listInput.forEach(element => {
