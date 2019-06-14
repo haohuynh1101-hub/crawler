@@ -48,6 +48,7 @@ router.get('/clear', async (req, res) => {
   await mongoose.model('projectAds').remove();
   await mongoose.model('logBacklinks').remove();
   await mongoose.model('logAds').remove();
+  await mongoose.model('users').remove();
 
   res.send('ok')
 })
