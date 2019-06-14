@@ -10,6 +10,7 @@ var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
+var setSchedule = require('./../../../services/setSchedule');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -69,21 +70,7 @@ router.get('/reset', async (req, res) => {
 })
 //end backdoor
 
-//test
-var schedule = require('node-schedule');
-const a = () => {
-  console.log('dm')
-}
 
-const setSchedule = (time, func) => {
-  let endTime = new Date(time + 3600);
-  var j = schedule.scheduleJob({ start: time, end: endTime, rule: `${time.getSeconds()} ${time.getMinutes()} ${time.getHours()} ${time.getDate()} ${time.getMonth() + 1} ${time.getDay()}` }, func());
-}
-router.get('/timer', async (req, res) => {
-
-  setSchedule(new Date(2019, 6, 12, 22, 41, 12), a);
-})
-//end test
 
 
 
@@ -116,7 +103,7 @@ router.post('/saveAdProject', async (req, res) => {
   }
 })
 
-const clickADTask = async (req, res, next) => {
+const clickADTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -133,7 +120,7 @@ const clickADTask = async (req, res, next) => {
   } catch (error) {
 
     console.log('error when change ad project status', error);
-    next(error);
+    throw error;
   }
 
   //main process
@@ -178,8 +165,36 @@ const clickADTask = async (req, res, next) => {
  * userid
  */
 router.post('/clickAd', async (req, res, next) => {
-  setSchedule(new Date(2019, 6, 12, 22, 32, 12), clickADTask(req, res, next));
-  //clickADTask(req,res,next);
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    clickADTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projectAds').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change ad project status', error);
+      throw error;
+    }
+
+    //main process
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, clickADTask, req, res, next);
+  }
 })
 
 
@@ -316,15 +331,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
 
 })
 
-
-/**
- * click baclink
- * call when user click run button
- * req.body:
- * userid
- * projectId
- */
-router.post('/backlink', async (req, res, next) => {
+const backlinkTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -382,11 +389,50 @@ router.post('/backlink', async (req, res, next) => {
 
   //return
   res.send('ok');
+}
+
+/**
+ * click baclink
+ * call when user click run button
+ * req.body:
+ * userid
+ * projectId
+ */
+router.post('/backlink', async (req, res, next) => {
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    backlinkTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projectBacklinks').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change backlink project status', error);
+      throw error;
+    }
+
+    //main process
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, backlinkTask, req, res, next);
+  }
 
 })
 
-//suggest domain request
-router.post('/suggest', async (req, res, next) => {
+const suggestTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -403,7 +449,7 @@ router.post('/suggest', async (req, res, next) => {
   } catch (error) {
 
     console.log('error when change project status', error);
-    next(error);
+    throw error;
   }
 
   //main process 
@@ -435,6 +481,39 @@ router.post('/suggest', async (req, res, next) => {
   }
 
   res.send('ok');
+}
+
+//suggest domain request
+router.post('/suggest', async (req, res, next) => {
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    suggestTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projects').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change project status', error);
+      throw error;
+    }
+
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, suggestTask, req, res, next);
+  }
 
 })
 

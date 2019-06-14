@@ -9,7 +9,8 @@ module.exports = {
             userAgent = userAgent.document;
             return userAgent;
         } catch (error) {
-            next(error);
+            
+            console.log('random agent err: '+error);
         }
     }
 }

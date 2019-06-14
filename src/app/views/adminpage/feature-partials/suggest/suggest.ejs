@@ -18,35 +18,37 @@
                                     <th style="width: 25%">Hành động</th>
                                 </tr>
                             </thead>
-                            
-                                <% allProject.map((item, index) => { %>
-                                    <tr>
-                                            <td><%- index+1 %></td>
-                                            <td><%- item.name %></td>
-                                            <td><%- item.status %></td>
-                                            <td>
-                                                <button type="button"
-                                                    class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
-                                                    onclick="viewProject('<%- item._id %>')" data-toggle="modal"
-                                                    data-target="#view-modal-suggest">Xem</button>
-                                                <button type="button"
-                                                    class="btn btn-warning btn-bordred waves-effect waves-light m-b-5" data-toggle="modal"
-                                                    onclick="getID('<%- item._id %>')"
-                                                    data-target="#setTimer-modal">Hẹn giờ chạy</button>
-                                                <button type="button"
-                                                    class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
-                                                    id="btnRun-<%- item._id %>"
-                                                    <% if(item.status != 'running') { %>
-                                                    onclick="runSuggestTool('<%- item._id %>')"
-                                                    <% } else { %> 
-                                                    disabled
-                                                    <% } %>
-                                                    >Chạy ngay</button>
-            
-                                            </td>
-                                    </tr>
-                                <% }) %>
-                             
+
+                            <% allProject.map((item, index) => { %>
+                            <tr>
+                                <td><%- index+1 %></td>
+                                <td><%- item.name %></td>
+                                <td><%- item.status %></td>
+                                <td>
+                                    <button type="button"
+                                        class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
+                                        onclick="viewProject('<%- item._id %>')" data-toggle="modal"
+                                        data-target="#view-modal-suggest">Xem</button>
+                                    <button type="button"
+                                        class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
+                                        data-toggle="modal"
+                                        id='btnSchedule-<%- item._id%>' 
+                                        <% if(item.status =='not started' || item.status =='stopped') { %>
+                                        onclick="saveID('<%- item._id %>')"
+                                        <% } else { %>
+                                        disabled
+                                        <% } %>
+                                        data-target="#setTimer-suggest-modal">Hẹn giờ chạy</button>
+                                    <button type="button"
+                                        class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
+                                        id="btnRun-<%- item._id %>" <% if(item.status =='not started' || item.status =='stopped') { %>
+                                        onclick="runSuggestTool('<%- item._id %>',true)" <% } else { %> disabled
+                                        <% } %>>Chạy ngay</button>
+
+                                </td>
+                            </tr>
+                            <% }) %>
+
 
                             <tbody>
 
@@ -59,4 +61,5 @@
     </div><!-- end col -->
 </div>
 
-                                                <% include ./modal-view-suggest %>
+<% include ./modal-setTimer-suggest.ejs %>
+<% include ./modal-view-suggest %>

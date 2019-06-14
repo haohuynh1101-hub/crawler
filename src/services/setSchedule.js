@@ -1,16 +1,26 @@
 var schedule = require('node-schedule');
 
 
-
 /**
-* hàm đặt lịch chạy cho function nào đó theo mốc thời gian đã định trước
-* @param {DateTime} time THời gian muốn chạy function, phải có đủ các dữ liệu: phút giờ, ngày tháng
-* @param {*} func hàm sẽ được khởi chạy tại thời điểm time đã định trước
-*/
-const setSchedule = (time, func) => {
-    console.log('int there')
-    // let endTime = new Date(time + 3600);
-    // var j = schedule.scheduleJob({ start: time, end: endTime, rule: `${time.getSeconds()} ${time.getMinutes()} ${time.getHours()} ${time.getDate()} ${time.getMonth() + 1} ${time.getDay()}` }, func());
+ * set schedule for specific function, run once only
+ * @param {*} day 
+ * @param {*} month 
+ * @param {*} hour 
+ * @param {*} minute 
+ * @param {*} second 
+ * @param {*} callback 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
+const setSchedule = (day, month, hour, minute, second, callback,req,res,next) => {
+    console.log('inside setSchedule')
+    var job = schedule.scheduleJob(`${second} ${minute} ${hour} ${day} ${month} *`, function(){
+        
+        callback(req,res,next);
+        job.cancelNext(false);
+    });
+    
 }
 
-module.exports={setSchedule};
+module.exports=setSchedule;

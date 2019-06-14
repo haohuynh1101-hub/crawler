@@ -31,12 +31,17 @@
                                                     data-target="#view-modal-ad">Xem</button>
                                                 <button type="button"
                                                     class="btn btn-warning btn-bordred waves-effect waves-light m-b-5" data-toggle="modal"
-                                                    onclick="getID('<%- item._id %>')"
-                                                    data-target="#setTimer-modal">Hẹn giờ chạy</button>
+                                                    id='btnSchedule-<%- item._id%>' 
+                                                    <% if(item.status =='not started' || item.status =='stopped') { %>
+                                                    onclick="saveID('<%- item._id %>')"
+                                                    <% } else { %>
+                                                    disabled
+                                                    <% } %>
+                                                    data-target="#setTimer-ad-modal">Hẹn giờ chạy</button>
                                                 <button type="button"
                                                     class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
                                                     id="btnADRun-<%- item._id %>"
-                                                    <% if(item.status != 'running') { %>
+                                                    <% if(item.status =='not started' || item.status =='stopped') { %>
                                                     onclick="runAdLinkTool('<%- item._id %>')"
                                                     <% } else { %> 
                                                     disabled
@@ -59,4 +64,5 @@
     </div><!-- end col -->
 </div>
 
+<% include ./modal-setTimer-ad.ejs %>
 <% include ./modal-view-ad %>
