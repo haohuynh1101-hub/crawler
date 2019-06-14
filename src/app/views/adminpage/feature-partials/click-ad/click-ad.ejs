@@ -26,19 +26,27 @@
                                             <td><%- item.status %></td>
                                             <td>
                                                 <button type="button"
-                                                    class="btn btn-info btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
                                                     onclick="viewAdProject('<%- item._id %>')" data-toggle="modal"
                                                     data-target="#view-modal-ad">Xem</button>
-                                                <% include ./modal-view-ad %>
                                                 <button type="button"
-                                                    class="btn btn-success btn-bordred waves-effect w-md waves-light m-b-5"
+                                                    class="btn btn-warning btn-bordred waves-effect waves-light m-b-5" data-toggle="modal"
+                                                    id='btnSchedule-<%- item._id%>' 
+                                                    <% if(item.status =='not started' || item.status =='stopped') { %>
+                                                    onclick="saveID('<%- item._id %>')"
+                                                    <% } else { %>
+                                                    disabled
+                                                    <% } %>
+                                                    data-target="#setTimer-ad-modal">Hẹn giờ chạy</button>
+                                                <button type="button"
+                                                    class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
                                                     id="btnADRun-<%- item._id %>"
-                                                    <% if(item.status != 'running') { %>
+                                                    <% if(item.status =='not started' || item.status =='stopped') { %>
                                                     onclick="runAdLinkTool('<%- item._id %>')"
                                                     <% } else { %> 
                                                     disabled
                                                     <% } %>
-                                                    >Chạy</button>
+                                                    >Chạy ngay</button>
             
                                             </td>
                                     </tr>
@@ -55,3 +63,6 @@
         </div>
     </div><!-- end col -->
 </div>
+
+<% include ./modal-setTimer-ad.ejs %>
+<% include ./modal-view-ad %>

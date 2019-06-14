@@ -10,6 +10,7 @@ var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
+var setSchedule = require('./../../../services/setSchedule');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -46,7 +47,7 @@ router.get('/clear', async (req, res) => {
   await mongoose.model('projectAds').remove();
   await mongoose.model('logBacklinks').remove();
   await mongoose.model('logAds').remove();
-  
+
   res.send('ok')
 })
 router.get('/test', async (req, res) => {
@@ -55,19 +56,23 @@ router.get('/test', async (req, res) => {
   console.log(result);
   res.send('ok')
 })
-router.get('/reset',async(req,res)=>{
+router.get('/reset', async (req, res) => {
 
-  
 
-  await mongoose.model('projects').updateMany({status:'stopped'});
-  
-  await mongoose.model('projectBacklinks').updateMany({status:'stopped'});
 
-  await mongoose.model('projectAds').updateMany({status:'stopped'});
+  await mongoose.model('projects').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectBacklinks').updateMany({ status: 'stopped' });
+
+  await mongoose.model('projectAds').updateMany({ status: 'stopped' });
 
   res.send('ok');
 })
 //end backdoor
+
+
+
+
 
 
 /**
@@ -98,14 +103,7 @@ router.post('/saveAdProject', async (req, res) => {
   }
 })
 
-
-/**
- * click some ad in given url
- * req.body:
- * projectId
- * userid
- */
-router.post('/clickAd', async (req, res, next) => {
+const clickADTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -122,7 +120,7 @@ router.post('/clickAd', async (req, res, next) => {
   } catch (error) {
 
     console.log('error when change ad project status', error);
-    next(error);
+    throw error;
   }
 
   //main process
@@ -158,6 +156,45 @@ router.post('/clickAd', async (req, res, next) => {
 
   //return
   res.send('ok');
+}
+
+/**
+ * click some ad in given url
+ * req.body:
+ * projectId
+ * userid
+ */
+router.post('/clickAd', async (req, res, next) => {
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    clickADTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projectAds').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change ad project status', error);
+      throw error;
+    }
+
+    //main process
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, clickADTask, req, res, next);
+  }
 })
 
 
@@ -284,7 +321,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
   try {
 
     let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
-    
+
     res.json(projectInfo);
 
   } catch (error) {
@@ -294,15 +331,7 @@ router.get('/backlinkproject/:id', async (req, res) => {
 
 })
 
-
-/**
- * click baclink
- * call when user click run button
- * req.body:
- * userid
- * projectId
- */
-router.post('/backlink', async (req, res, next) => {
+const backlinkTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -360,11 +389,50 @@ router.post('/backlink', async (req, res, next) => {
 
   //return
   res.send('ok');
+}
+
+/**
+ * click baclink
+ * call when user click run button
+ * req.body:
+ * userid
+ * projectId
+ */
+router.post('/backlink', async (req, res, next) => {
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    backlinkTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projectBacklinks').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change backlink project status', error);
+      throw error;
+    }
+
+    //main process
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, backlinkTask, req, res, next);
+  }
 
 })
 
-//suggest domain request
-router.post('/suggest', async (req, res, next) => {
+const suggestTask = async (req, res) => {
 
   let { projectId, userid } = req.body;
 
@@ -381,7 +449,7 @@ router.post('/suggest', async (req, res, next) => {
   } catch (error) {
 
     console.log('error when change project status', error);
-    next(error);
+    throw error;
   }
 
   //main process 
@@ -413,6 +481,39 @@ router.post('/suggest', async (req, res, next) => {
   }
 
   res.send('ok');
+}
+
+//suggest domain request
+router.post('/suggest', async (req, res, next) => {
+
+  if (JSON.parse(req.body.isRunNow) == true) {
+
+    suggestTask(req, res);
+  }
+  else {
+
+    //set status of project to "waiting"
+    try {
+
+      let updateProject = await mongoose.model('projects').findById(req.body.projectId);
+
+      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+      updateProject.save();
+
+    } catch (error) {
+
+      console.log('error when change project status', error);
+      throw error;
+    }
+
+    let day = parseInt(req.body.day);
+    let month = parseInt(req.body.month);
+    let hour = parseInt(req.body.hour);
+    let minute = parseInt(req.body.minute);
+    let second = parseInt(req.body.second);
+
+    setSchedule(day, month, hour, minute, second, suggestTask, req, res, next);
+  }
 
 })
 
@@ -448,7 +549,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-  
+
 
   //start job
   try {

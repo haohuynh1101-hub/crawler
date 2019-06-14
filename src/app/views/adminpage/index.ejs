@@ -67,9 +67,14 @@
       </div>
       <!-- END wrapper -->
 
+      <% include ./modal-setTimer %>
+
       <% include ../partials/scripts %>
       <script src="/socket.io/socket.io.js"></script>
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+      <script>
+        var selectedId = '';
+      </script>
       <script>
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
@@ -113,7 +118,7 @@
         })
 
         socket.on('changing-agent-backlink', (projectId) => {
-          console.log('id nhan dc: '+projectId);
+          console.log('id nhan dc: ' + projectId);
           appendLog(projectId, 'Đang thay đổi user agent ...');
         })
 
@@ -148,55 +153,56 @@
         })
 
         socket.on('not-found-ad', data => {
-          appendLog(data.projectId,'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+          appendLog(data.projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
         })
 
         socket.on('not-found-single-ad', data => {
-          appendLog(data.projectId,`Không tìm thấy url quảng cáo "${data.adURL}"`);
+          appendLog(data.projectId, `Không tìm thấy url quảng cáo "${data.adURL}"`);
         })
 
         socket.on('send-changing-agent-ad', data => {
-          appendLog(data.projectId,'Đang thay đổi user agent ...');
+          appendLog(data.projectId, 'Đang thay đổi user agent ...');
         })
 
         socket.on('send-current-agent-ad', data => {
           $(`span[agent=${data.projectId}]`).text(data.agent);
-          appendLog(data.projectId,`User agent hiện tại: ${data.agent}`);
+          appendLog(data.projectId, `User agent hiện tại: ${data.agent}`);
         })
 
         socket.on('send-gotodomain-ad', data => {
-          appendLog(data.projectId,`Đang truy cập "${data.domain}"`); 
+          appendLog(data.projectId, `Đang truy cập "${data.domain}"`);
         })
 
         socket.on('send-found-ad', data => {
-          appendLog(data.projectId,`Đã tìm thấy url quảng cáo : ${data.adURL}, đang truy cập ...`); 
+          appendLog(data.projectId, `Đã tìm thấy url quảng cáo : ${data.adURL}, đang truy cập ...`);
         })
 
-        
-
-        const runTool = (e) => {
-          $('#listLogSuggest').empty();
-          let validate = CheckValide();
-          if (validate.err) {
-            alert("Please insert" + validate.message);
-            return false;
-          }
-          $.post("/run",
-            {
-              keyword: $('#keyword').val(),
-              title: $('#title').val(),
-              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-              delayTime: 5,
-              numberOfClick: $('#numberOfClick').val(),
-              socketID: localStorage.getItem('id')
-
-            },
-            function (data, status) {
-              //console.log(data);
-            });
+        //save selected project id in javascript tag to use later
+        const saveID = (id) => {
+          selectedId = id;
         }
-        // run suggest project
-        const runSuggestTool = (id) => {
+
+        //these functions is just a supporters to pass project id to main functions berfore run
+        const scheduleSupportRunSuggest = () => {
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_suggest').val()} ${$('#date_suggest').val()}`);
+          runSuggestTool(selectedId, false);
+        }
+        const scheduleSupportRunBacklink = () => {
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_backlink').val()} ${$('#date_backlink').val()}`);
+          runBackLinkTool(selectedId, false);
+        }
+        const scheduleSupportRunAD = () => {
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
+          runAdLinkTool(selectedId, false);
+        }
+
+
+        /**
+         * run suggest tool
+         * id: projectid
+         * isRunNow {boolean} run now or run later (base on schedule)
+        */
+        const runSuggestTool = (id, isRunNow) => {
 
           $('#listLogSuggest').empty();
           $(`#btnRun-${id}`).attr("disabled", true);
@@ -204,16 +210,27 @@
           $.post("/suggest",
             {
               userid: localStorage.getItem('userid'),
-              projectId: id
+              projectId: id,
+              isRunNow: isRunNow,
+              day: $('#date_suggest').val().split('-')[2],
+              month: $('#date_suggest').val().split('-')[1],
+              hour: $('#clock_suggest').val().split(':')[0],
+              minute: $('#clock_suggest').val().split(':')[1],
+              second: 0
             },
             function (data, status) {
               //console.log(data);
             });
         }
-        // run backlink project
-        const runBackLinkTool = (id) => {
 
-          
+        /**
+         * run backlink project
+         * id: projectid
+         * isRunNow {boolean} run now or run later (base on schedule)
+        */
+        const runBackLinkTool = (id, isRunNow) => {
+
+
           $(`#btnBackLinkRun-${id}`).attr("disabled", true);
 
           window.location.href = '/';
@@ -221,11 +238,17 @@
           $.post("/backlink",
             {
               userid: localStorage.getItem('userid'),
-              projectId: id
+              projectId: id,
+              isRunNow: isRunNow,
+              day: $('#date_backlink').val().split('-')[2],
+              month: $('#date_backlink').val().split('-')[1],
+              hour: $('#clock_backlink').val().split(':')[0],
+              minute: $('#clock_backlink').val().split(':')[1],
+              second: 0
             },
             function (data, status) {
 
-             // console.log(data);
+              // console.log(data);
             });
         }
 
@@ -284,7 +307,7 @@
             $('#view-keyword').text(data.keyword);
             $('#view-delay_backink').text(data.delay);
             $('#view-amount_backlink').text(data.amount);
-            
+
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -414,8 +437,8 @@
             $('#view-main_url_ad').text(data.domain);
             $('#view-delay_ad').text(data.delay);
             $('#view-amount_ad').text(data.amount);
-            
-            
+
+
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -423,9 +446,12 @@
           })
         }
 
-
-        const runAdLinkTool = (id) => {
-
+        /**
+         * run click ad tool
+        * id: projectid
+        * isRunNow {boolean} run now or run later (base on schedule)
+        */
+        const runAdLinkTool = (id,isRunNow) => {
 
           $(`#btnADRun-${id}`).attr("disabled", true);
 
@@ -434,7 +460,13 @@
           $.post("/clickAd",
             {
               userid: localStorage.getItem('userid'),
-              projectId: id
+              projectId: id,
+              isRunNow: isRunNow,
+              day: $('#date_ad').val().split('-')[2],
+              month: $('#date_ad').val().split('-')[1],
+              hour: $('#clock_ad').val().split(':')[0],
+              minute: $('#clock_ad').val().split(':')[1],
+              second: 0
             },
             function (data, status) {
 

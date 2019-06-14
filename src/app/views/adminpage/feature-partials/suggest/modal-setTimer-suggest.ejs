@@ -1,0 +1,46 @@
+<!--  Modal content for the above example -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="setTimer-suggest-modal"
+    aria-labelledby="setTimer-form" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content pb-0">
+            <div class="modal-header">
+                <h4 class="modal-title" id="setTimer-form">Timer Form suggest</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <div class="modal-body pb-0">
+                <div class="row">
+                    <div class="col-md-6">
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-default"
+                                    style="padding-right: 25px">Giờ</span>
+                            </div>
+                            <input id='clock_suggest' type="time" class="form-control" aria-label="Default"
+                                aria-describedby="inputGroup-sizing-default">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-default">Ngày</span>
+                            </div>
+                            <input id='date_suggest' type="date" class="form-control" aria-label="Default"
+                                aria-describedby="inputGroup-sizing-default">
+                        </div>
+                        
+
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group row">
+                            <div class="col-8"></div>
+                            <div class="col-4 text-right">
+                                <button id='btnTimer' type="button" onclick='scheduleSupportRunSuggest()'
+                                    class="btn btn-outline-success px-4 mr-2">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
