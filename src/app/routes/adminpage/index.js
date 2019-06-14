@@ -167,7 +167,7 @@ router.post('/saveAdProject', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.user._id, status: 'not stated' });
+    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.user._id, status: 'not started' });
 
     res.json(projects);
 
@@ -309,7 +309,7 @@ router.get('/ad/:id', async (req, res) => {
 router.post('/addproject', async (req, res) => {
   try {
     console.log(req.body)
-    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
+    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not started' });
 
     res.json(projects);
 
@@ -389,7 +389,7 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not stated' });
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not started' });
     console.log(projects);
     res.json(projects);
 
