@@ -71,8 +71,16 @@ router.get('/reset', async (req, res) => {
 })
 //end backdoor
 
-//test
+//logout router
+router.post('/logout',async(req,res)=>{
 
+  if(req.isAuthenticated()){
+    req.logOut();
+  }
+  return res.redirect('/login');
+})
+
+//user management page
 router.get('/users', async (req, res) => {
   let users = await mongoose.model('users').find().populate('role');
 
@@ -121,7 +129,8 @@ router.delete('/users/:id', async (req, res, next) => {
     next(error)
   }
 })
-//users create router
+
+//create group router
 router.post('/groupUsers', async function (req, res, next) {
 
   try {
