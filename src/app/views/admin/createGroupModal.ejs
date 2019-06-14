@@ -23,7 +23,7 @@
                     </div>
                     <div class="row">
                         <label class="col-12 col-form-label pr-0 d-block">Chức năng</label>
-                        <div class="col-12 form-group">
+                        <div class="col-12 form-group" id="div-backlink">
                             <div class="checkbox">
                                 <input id="Click-BackLink" type="checkbox" name="canBacklink" value=true>
                                 <label for="Click-BackLink">
@@ -31,7 +31,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-12 form-group">
+                        <div class="col-12 form-group" id="div-suggest">
                             <div class="checkbox">
                                 <input id="Suggest-Domain" type="checkbox" name="canSuggest" value=true>
                                 <label for="Suggest-Domain">
@@ -39,7 +39,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="col-12 form-group">
+                        <div class="col-12 form-group" id="div-ad">
                             <div class="checkbox">
                                 <input id="Click-AD" type="checkbox" name="canClickAD" value=true>
                                 <label for="Click-AD">
@@ -49,7 +49,7 @@
                         </div>
                         <div class="col-12 form-group">
                             <div class="checkbox">
-                                <input id="Admin" type="checkbox" name="canManageUser" value=true>
+                                <input id="Admin" type="checkbox" name="canManageUser" onclick="adminCheck()" value=true>
                                 <label for="Admin">
                                     Admin
                                 </label>

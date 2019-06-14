@@ -76,7 +76,7 @@ router.get('/users', async (req, res) => {
   let users = await mongoose.model('users').find().populate('role');
 
   let roles = await mongoose.model('role').find();
-  res.render('admin', { users, roles });
+  res.render('admin', { users, roles, currentUser: req.user._id });
 })
 
 
@@ -300,9 +300,18 @@ router.get('/project/:id', async (req, res) => {
 })
 
 
-//homepage router
-router.get('/', async function (req, res, next) {
+function returnAdminpage(){
+  return async (req, res, next) => {
+    let role = await mongoose.model('role').findOne({_id: req.user.role});
+    if(role.canManageUser){
+      return res.redirect('/users')
+    }
+    next();
+  }
+}
 
+//homepage router
+router.get('/',returnAdminpage(), async function (req, res, next) {
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });

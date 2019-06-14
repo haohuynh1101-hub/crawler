@@ -80,15 +80,12 @@
                                             <td><%- user.fullname %></td>
                                             <td><%- user.role.name %></td>
                                             <td class="text-center">
-                                                <button type="button"
-                                                    class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
-                                                    data-toggle="modal" data-target="">
-                                                    Sửa
-                                                </button>
+                                                <% if(user._id.toString() != currentUser.toString()) { %>
                                                 <button
                                                     class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
                                                     data-toggle="modal" data-target="#delete-modal"
                                                     onclick="getID('<%- user._id %>')">Xóa</button>
+                                                <% } %>
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -122,9 +119,9 @@
         var selectedId = '';
     </script>
     <script type="text/javascript">
-     function getID(id) {
-      selectedId = id;
-    }
+        function getID(id) {
+            selectedId = id;
+        }
         //
         function deleteUser() {
             $.ajax({
@@ -187,6 +184,29 @@
                 return false;
             }
 
+        }
+
+
+        function adminCheck() {
+            var checkBox = document.getElementById("Admin");
+            var Click_BackLink = document.getElementById("div-backlink");
+            var Suggest_Domain = document.getElementById("div-suggest");
+            var Click_AD = document.getElementById("div-ad");
+            var inputClick_BackLink = document.getElementById("Click-BackLink");
+            var inputSuggest_Domain = document.getElementById("Suggest-Domain");
+            var inputClick_AD = document.getElementById("Click-AD");
+            if (checkBox.checked == true) {
+                Click_BackLink.style.display = "none";
+                Suggest_Domain.style.display = "none";
+                Click_AD.style.display = "none";
+                inputClick_BackLink.checked = false
+                inputSuggest_Domain.checked = false
+                inputClick_AD.checked = false
+            } else {
+                Click_BackLink.style.display = "initial";
+                Suggest_Domain.style.display = "initial";
+                Click_AD.style.display = "initial";
+            }
         }
 
         $(document).ready(function () {
