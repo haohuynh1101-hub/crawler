@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-
+var moment = require('moment-timezone');
 /**
  * save log   suggest 
  * @param {*} projectId 
@@ -7,12 +7,10 @@ var mongoose = require('mongoose');
  */
 const saveLog = async (projectId, message) => {
 
-    let timeLog = new Date();
+    let timeLog=moment().utcOffset('+7');
 
-    let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-        + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-        + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-        + `  ${message}`;
+    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()} `+`${message}`;
+
 
     //save log to document logs
     let newLog = await mongoose.model('logs').create({
@@ -34,12 +32,9 @@ const saveLog = async (projectId, message) => {
  */
 const saveLogBacklink = async (projectId, message) => {
 
-    let timeLog = new Date();
+    let timeLog=moment().utcOffset('+7');
 
-    let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-        + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-        + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-        + `  ${message}`;
+    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()} `+`${message}`;
 
     //save log to document logs
     let newLog = await mongoose.model('logBacklinks').create({
@@ -56,12 +51,9 @@ const saveLogBacklink = async (projectId, message) => {
 
 const saveLogAD = async (projectId, message) => {
 
-    let timeLog = new Date();
+    let timeLog=moment().utcOffset('+7');
 
-    let log = `${timeLog.getHours() > 10 ? timeLog.getHours() : '0' + timeLog.getHours()}:`
-        + `${timeLog.getMinutes() > 10 ? timeLog.getMinutes() : '0' + timeLog.getMinutes()}:`
-        + `${timeLog.getSeconds() > 10 ? timeLog.getSeconds() : '0' + timeLog.getSeconds()}:`
-        + `  ${message}`;
+    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()} `+`${message}`;
 
     //save log to document logs
     let newLog = await mongoose.model('logAds').create({
