@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:14:52 GMT -->
+
+<head>
+    <% include ../partials/head %>
+
+</head>
+
+
+<body class="fixed-left">
+
+    <!-- Begin page -->
+    <div id="wrapper">
+
+        <!-- Top Bar Start -->
+        <% include ../partials/topbar %>
+        <!-- Top Bar End -->
+
+
+        <!-- ========== Left Sidebar Start ========== -->
+        <% include ../partials/sidebar %>
+        <!-- Left Sidebar End -->
+
+
+
+        <!-- ============================================================== -->
+        <!-- Start right Content here -->
+        <!-- ============================================================== -->
+        <div class="content-page">
+            <!-- Start content -->
+            <div class="content">
+                <div class="container-fluid">
+                    <% if(typeof error != 'undefined') { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert"
+                        style=" position: absolute; width: 20%; z-index: 999999999; left: 0; color: white; background: #ff0000e0; ">
+                        <strong>Lỗi!</strong> <%- error %>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <% } %>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card-box table-responsive">
+                                <div class="row">
+                                    <div class="col-6 header-title">Danh sách quản trị viên</div>
+                                    <div class="col-6 text-right">
+                                        <button type="button"
+                                            class="btn btn-primary waves-effect w-xl waves-light m-b-5"
+                                            data-toggle="modal" data-target="#create-users-modal">Thêm quản trị
+                                            viên</button>
+                                        <button type="button"
+                                            class="btn btn-success waves-effect w-xl waves-light m-b-5"
+                                            data-toggle="modal" data-target="#create-group-users-modal">Thêm nhóm người
+                                            dùng</button>
+                                    </div>
+                                </div>
+
+                                <table id="datatable" class="table table-striped table-bordered" cellspacing="0"
+                                    width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tài khoản</th>
+                                            <th>Họ tên</th>
+                                            <th>Nhóm người dùng</th>
+                                            <th>Hành động</th>
+                                        </tr>
+                                    </thead>
+
+
+                                    <tbody>
+                                        <% (typeof users == 'undefined') ? '' : users.map((user, index) => { %>
+                                        <tr>
+                                            <td><%- index %></td>
+                                            <td><%- user.username %></td>
+                                            <td><%- user.fullname %></td>
+                                            <td><%- user.role.name %></td>
+                                            <td class="text-center">
+                                                <% if(user._id.toString() != currentUser.toString()) { %>
+                                                <button
+                                                    class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                                    data-toggle="modal" data-target="#delete-modal"
+                                                    onclick="getID('<%- user._id %>')">Xóa</button>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end row -->
+
+                </div> <!-- container -->
+
+            </div> <!-- content -->
+
+            <footer class="footer text-right">
+                2016 - 2019 © Adminto. Coderthemes.com
+            </footer>
+
+        </div>
+
+
+    </div>
+    <!-- END wrapper -->
+
+
+    <% include ./createUserModal %>
+    <% include ./createGroupModal %>
+    <% include ./modal-delete %>
+    <% include ../partials/scripts %>
+    <script>
+        var selectedId = '';
+    </script>
+    <script type="text/javascript">
+        function getID(id) {
+            selectedId = id;
+        }
+        //
+        function deleteUser() {
+            $.ajax({
+                method: 'DELETE',
+                url: `/users/${selectedId}`,
+                success: function (idDeleted) {
+                    alert("Delete product success");
+                    location.reload();
+                },
+                error: function (err) {
+                }
+            })
+        }
+        //valide data
+        function CheckValide(listInput) {
+            listInput.forEach(element => {
+                element.css("border-color", "#E3E3E3");
+            });
+            for (let element of listInput) {
+                if (element.val() == "") {
+                    element.focus();
+                    element.css("border-color", "red")
+                    return { err: true, message: element.attr('data-focus') };
+                }
+            }
+            return { err: false };
+        }
+
+        //valide data Back link
+        function CheckValideUserData() {
+            let username = $('input[name="username"]');
+            let password = $('input[name="password"]');
+            let fullname = $('input[name="fullname"]');
+            let userGroup = $('input[name="userGroup"]');
+
+            return (CheckValide([username, password, fullname, userGroup]));
+        }
+        function CheckValideGroupUserData() {
+            let groupName = $('input[name="groupName"]');
+
+            return (CheckValide([groupName]));
+        }
+
+        function validateData(event) {
+            let validate = CheckValideUserData();
+
+            if (validate.err) {
+                alert("Please insert" + validate.message);
+                event.preventDefault()
+                return false;
+            }
+
+        }
+        function validateDataGroupUser(event) {
+            let validate = CheckValideGroupUserData();
+
+            if (validate.err) {
+                alert("Please insert" + validate.message);
+                event.preventDefault()
+                return false;
+            }
+
+        }
+
+
+        function adminCheck() {
+            var checkBox = document.getElementById("Admin");
+            var Click_BackLink = document.getElementById("div-backlink");
+            var Suggest_Domain = document.getElementById("div-suggest");
+            var Click_AD = document.getElementById("div-ad");
+            var inputClick_BackLink = document.getElementById("Click-BackLink");
+            var inputSuggest_Domain = document.getElementById("Suggest-Domain");
+            var inputClick_AD = document.getElementById("Click-AD");
+            if (checkBox.checked == true) {
+                Click_BackLink.style.display = "none";
+                Suggest_Domain.style.display = "none";
+                Click_AD.style.display = "none";
+                inputClick_BackLink.checked = false
+                inputSuggest_Domain.checked = false
+                inputClick_AD.checked = false
+            } else {
+                Click_BackLink.style.display = "initial";
+                Suggest_Domain.style.display = "initial";
+                Click_AD.style.display = "initial";
+            }
+        }
+
+        $(document).ready(function () {
+
+            // Default Datatable
+            $('#datatable').DataTable();
+
+            //Buttons examples
+            var table = $('#datatable-buttons').DataTable({
+                lengthChange: false,
+            });
+        })
+    </script>
+</body>
+
+<!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:15:13 GMT -->
+
+</html>

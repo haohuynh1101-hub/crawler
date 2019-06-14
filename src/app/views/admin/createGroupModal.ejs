@@ -1,0 +1,72 @@
+<!--  Modal content for the above example -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="create-group-users-modal"
+    aria-labelledby="create-group-users-form" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content pb-0">
+            <div class="modal-header">
+                <h4 class="modal-title" id="create-group-users-form">Tạo nhóm người dùng mới</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form action="/groupUsers" method="post" id="form-submit-new-group-user" onsubmit="validateDataGroupUser(event)">
+                <div class="modal-body pb-0">
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Tên nhóm</label>
+                                <div class="col-8">
+                                    <input name="groupName" type="text" class="form-control pl-0" data-focus=" Tên nhóm"
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-12 col-form-label pr-0 d-block">Chức năng</label>
+                        <div class="col-12 form-group" id="div-backlink">
+                            <div class="checkbox">
+                                <input id="Click-BackLink" type="checkbox" name="canBacklink" value=true>
+                                <label for="Click-BackLink">
+                                    Click BackLink
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 form-group" id="div-suggest">
+                            <div class="checkbox">
+                                <input id="Suggest-Domain" type="checkbox" name="canSuggest" value=true>
+                                <label for="Suggest-Domain">
+                                    Suggest Domain
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 form-group" id="div-ad">
+                            <div class="checkbox">
+                                <input id="Click-AD" type="checkbox" name="canClickAD" value=true>
+                                <label for="Click-AD">
+                                    Click AD
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12 form-group">
+                            <div class="checkbox">
+                                <input id="Admin" type="checkbox" name="canManageUser" onclick="adminCheck()" value=true>
+                                <label for="Admin">
+                                    Admin
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-9"></div>
+                        <div class="col-3">
+                            <div class="row">
+                                <button type="submit" class="btn btn-outline-success w-100 btn-lg">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

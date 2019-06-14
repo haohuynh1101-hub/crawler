@@ -6,5 +6,6 @@ module.exports = {
   projectBacklinks:require('./projectBacklinks'),
   logBacklinks:require('./logBacklinks'),
   projectAds:require('./projectAds'),
-  logAds:require('./logAds')
+  logAds:require('./logAds'),
+  role:require('./role'),
 };
