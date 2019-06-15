@@ -2,12 +2,11 @@ var mongoose = require('mongoose');
 
 var projectBacklinks = new mongoose.Schema({
   name:String,
-  keyword:[
+  urlBacklink:[
       {
           type:String
       }
   ],
-  urlBacklink:String,
   mainURL:String,
   delay:Number,
   amount:Number,

@@ -144,19 +144,19 @@
         })
 
         socket.on('send-domain-backlink', (data) => {
-          appendLog(data.projectId, 'Đang truy cập: ' + data.domain);
+          appendLog(data.projectId, 'Đang truy cập: ' + data.backlink);
         })
 
         socket.on('finding-backlink', (data) => {
-          appendLog(data.projectId, `Đang tìm kiếm keyword ${data.keyword} trên trang ${data.urlBacklink}`)
+          appendLog(data.projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${data.urlBacklink}`)
         })
 
         socket.on('found-backlink', (data) => {
-          appendLog(data.projectId, `Đã tìm thấy url ${data.mainURL} khớp với keyword ${data.keyword}, đang truy cập ...`);
+          appendLog(data.projectId, `Đã tìm thấy url site chính, đang truy cập ${data.mainURL}`);
         })
 
         socket.on('not-found-backlink', (projectId) => {
-          appendLog(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
+          appendLog(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
         })
 
         socket.on('send-random-url', data => {
@@ -165,7 +165,7 @@
         })
 
         socket.on('not-found-keyword-backlink', data => {
-          appendLog(data.projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + data.keyword);
+          appendLog(data.projectId, 'Không tìm thấy url cần view trên trang'+data.urlBacklink);
         })
 
         socket.on('not-found-ad', data => {
@@ -407,8 +407,7 @@
 
           $.post("/saveProjectBacklink",
             {
-              keyword: JSON.stringify($('#keyword_backlink').val().split(',')),
-              urlBacklink: $('#url_backlink').val(),
+              urlBacklink: JSON.stringify( $('#url_backlink').val().split(',')),
               mainURL: $('#main_url').val(),
               delay: $('#delay_backink').val(),
               amount: $('#amount_backlink').val(),
