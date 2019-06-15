@@ -105,21 +105,21 @@ module.exports = {
   },
 
   //go to url backlink
-  sendGotoDomainBacklink: async (userid, projectId, domain) => {
+  sendGotoDomainBacklink: async (userid, projectId, backlink) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-domain-backlink', { domain, projectId });
+    userSocket.emit('send-domain-backlink', { backlink, projectId });
   },
 
-  //finding keyword matched url in url backlink
-  sendFindingBacklink: async (userid, projectId, keyword, urlBacklink) => {
+  //finding  main url in backlink
+  sendFindingBacklink: async (userid, projectId, urlBacklink) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('finding-backlink', { projectId, keyword, urlBacklink });
+    userSocket.emit('finding-backlink', { projectId,  urlBacklink });
   },
 
   //found url matched with keyword
-  sendFoundBacklink: async (userid, projectId, mainURL, keyword) => {
+  sendFoundBacklink: async (userid, projectId, mainURL) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('found-backlink', { projectId, mainURL, keyword });
+    userSocket.emit('found-backlink', { projectId, mainURL });
   },
 
   //not found any keyword match with main url
@@ -137,9 +137,11 @@ module.exports = {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-random-url', { url, projectId });
   },
-  sendNotFoundURLWithKeywordBacklink: async (userid, projectId, keyword) => {
+
+  //not found main url in single backlink
+  sendNotFoundURLWithKeywordBacklink: async (userid, projectId, urlBacklink) => {
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-keyword-backlink', { keyword, projectId });
+    userSocket.emit('not-found-keyword-backlink', { urlBacklink, projectId });
   },
 
   sendNotFoundAD: async (userid, projectId) => {

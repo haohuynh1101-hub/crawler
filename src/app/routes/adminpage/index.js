@@ -73,9 +73,9 @@ router.get('/reset', async (req, res) => {
 //end backdoor
 
 //logout router
-router.post('/logout',async(req,res)=>{
+router.post('/logout', async (req, res) => {
 
-  if(req.isAuthenticated()){
+  if (req.isAuthenticated()) {
     req.logOut();
   }
   return res.redirect('/login');
@@ -123,7 +123,7 @@ router.post('/users', async function (req, res, next) {
 
 router.delete('/users/:id', async (req, res, next) => {
   try {
-    await mongoose.model('users').findOneAndDelete({_id: req.params.id});
+    await mongoose.model('users').findOneAndDelete({ _id: req.params.id });
     return res.redirect('/users')
   } catch (error) {
     console.log(error);
@@ -343,10 +343,10 @@ router.get('/project/:id', async (req, res) => {
 })
 
 
-function returnAdminpage(){
+function returnAdminpage() {
   return async (req, res, next) => {
-    let role = await mongoose.model('role').findOne({_id: req.user.role});
-    if(role.canManageUser){
+    let role = await mongoose.model('role').findOne({ _id: req.user.role });
+    if (role.canManageUser) {
       return res.redirect('/users')
     }
     next();
@@ -354,7 +354,7 @@ function returnAdminpage(){
 }
 
 //homepage router
-router.get('/',returnAdminpage(), async function (req, res, next) {
+router.get('/', returnAdminpage(), async function (req, res, next) {
   try {
 
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
@@ -379,8 +379,7 @@ router.get('/',returnAdminpage(), async function (req, res, next) {
 /**
  * save new project backlink
  * req.body:
- * keyword: Array
- * urlBacklink
+ * urlBacklink: Array
  * mainURL
  * amount
  * name
@@ -389,7 +388,7 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not started' });
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.user._id, status: 'not started' });
     console.log(projects);
     res.json(projects);
 
@@ -427,7 +426,6 @@ const backlinkTask = async (req, res) => {
 
   //get project info
   let {
-    keyword,
     urlBacklink,
     mainURL,
     delay,
@@ -451,12 +449,12 @@ const backlinkTask = async (req, res) => {
   //main process
   for (let i = 0; i < amount; i++) {
 
-    let isSuccessed = await clickBackLink(keyword, urlBacklink, mainURL, delay, amount, projectId, userid);
+    let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
     if (!isSuccessed) {
 
       sendNotFoundBacklink(userid, projectId);
-      saveLogBacklink(projectId, 'Không tìm thấy keyword nào khớp với url đã cấu hình, vui lòng thử lại sau !!!');
+      saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
       break;
 
     }
@@ -628,6 +626,15 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+/**
+ * go to domain, find and click adURL
+ * @param {*} domain 
+ * @param {*} adURL 
+ * @param {*} delay 
+ * @param {*} projectId 
+ * @param {*} userid 
+ * @returns {boolean} true (found and clicked) || false (ad url not found) 
+ */
 const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
   //set up brower and page
@@ -830,21 +837,18 @@ const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, proje
 
 }
 
-/**
- * find and click single keyword in urlBacklink matched mainURL
- * @param {String} keyword 
- * @param {*} urlBacklink 
- * @param {*} mainURL 
- * @param {*} delay second
- * @param {number} amount 
- * @returns {Boolean} true (operation success) false (operation false)
- */
-const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
-  //remove some character in url string to match many case
-  mainURL = mainURL.replace('https://', '');
-  mainURL = mainURL.replace('http://', '');
-  mainURL = mainURL.split('/')[0];
+
+/**
+ * go to backlink, find and click main url
+ * @param {*} backlink 
+ * @param {*} mainURL 
+ * @param {*} delay 
+ * @param {*} projectId 
+ * @param {*} userid 
+ * @returns {boolean} true (found and clicked) || false (not found)
+ */
+const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectId, userid) => {
 
   //set up brower and page
   let brower = await puppeteer.launch(Const.options);
@@ -856,103 +860,109 @@ const clickSingleKeywordMatchURL = async (keyword, urlBacklink, mainURL, delay, 
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
-  //change user agent
-  await sendChangingAgentBacklink(userid, projectId);
-  await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
-  let currentUserAgent = await changeUserAgent(page);
-  await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
-  await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
-  //go to urlBacklink
-  //find and click mainURL
-  await sendGotoDomainBacklink(userid, projectId, urlBacklink);
-  await saveLogBacklink(projectId, 'Đang truy cập: ' + urlBacklink);
-  await page.goto(urlBacklink);
-  await page.waitFor(5000);// in case DOM content not loaded yet
+  //start job
+  try {
 
-  await sendFindingBacklink(userid, projectId, keyword, urlBacklink);
-  await saveLogBacklink(projectId, `Đang tìm kiếm keyword ${keyword} trên trang ${urlBacklink}`);
-  let wasClicked = await page.evaluate(async (keyword, mainURL) => {
+    //change user agent
+    await sendChangingAgentBacklink(userid, projectId);
+    await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
+    let currentUserAgent = await changeUserAgent(page);
+    await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
+    await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
-    //search all dom tree to find backlink
-    let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
+    //extract url
+    mainURL = mainURL.replace('https://', '');
+    mainURL = mainURL.replace('http://', '');
+    mainURL = mainURL.split('/')[0];
 
-    if (extractedDOM.length == 0) return false;
+    //go to urlBacklink
+    //find and click mainURL
+    await sendGotoDomainBacklink(userid, projectId, backlink);
+    await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
+    await page.goto(backlink, { 'waitUntil': 'networkidle0' });
+    await page.waitFor(5000);// in case DOM content not loaded yet
 
-    try {
 
-      for (let i = 0; i < extractedDOM.length; i++) {
+    await sendFindingBacklink(userid, projectId, backlink);
+    await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
+    let wasClicked = await page.evaluate(async (mainURL) => {
 
-        if (extractedDOM[i].innerText.includes(keyword)) {
+      //search all dom tree to find ad url
+      let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
 
-          await extractedDOM[i].click();
-          return true;
-        }
+      if (extractedDOM.length == 0) return false;
+
+      try {
+
+        await extractedDOM[0].click();
+        return true;
+
+      } catch (error) {
+
+        console.log("error click main url in single backlink ", error)
+        return false;
       }
 
-      return false;
+    }, mainURL);
 
-    } catch (error) {
+    if (wasClicked == false) {
 
-      console.log("TCL: clickBackLink -> error", error)
+      sendCloseBrower(userid, projectId);
+      saveLogBacklink(projectId, 'Đang đóng trình duyệt ...');
+      await brower.close();
       return false;
     }
 
-  }, keyword, mainURL);
+    //found main url, acccessing
+    sendFoundBacklink(userid,projectId,mainURL);
+    saveLogBacklink(projectId,`Đã tìm thấy url site chính, đang truy cập ${mainURL}`);
 
-  if (wasClicked == false) {
+    //click random url in this page
+    await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    let randomURL = await clickRandomURL(page);
+    sendRandomURLClicked(userid, projectId, randomURL);
+    await saveLogBacklink(projectId, 'Đang click url ngẫu nhiên trên trang ...');
+    await saveLogBacklink(projectId, 'URL hiện tại: ' + randomURL);
+
+    //stay at 2nd page after random click
+    await page.waitFor(3000);
 
     await brower.close();
     await sendCloseBrower(userid, projectId);
     await saveLogBacklink(projectId, 'Đang đóng trình duyệt ...');
-    return false;
+
+    return true;
+
+  } catch (error) {
+
+    console.log('error in catch block of click single backlink ' + error);
+    await brower.close();
   }
 
-
-  await sendFoundBacklink(userid, projectId, mainURL, keyword);
-  saveLogBacklink(projectId, `Đã tìm thấy url ${mainURL} khớp với keyword ${keyword}, đang truy cập ...`);
-
-
-
-
-  //click random url in this page
-  await page.waitForNavigation({ waitUntil: 'networkidle0' });
-  let randomURL = await clickRandomURL(page);
-  sendRandomURLClicked(userid, projectId, randomURL);
-  await saveLogBacklink(projectId, 'Đang click url ngẫu nhiên trên trang ...');
-  await saveLogBacklink(projectId, 'URL hiện tại: ' + randomURL);
-
-  //stay at 2nd page after random click
-  await page.waitFor(3000);
-
-  await brower.close();
-  await sendCloseBrower(userid, projectId);
-  await saveLogBacklink(projectId, 'Đang đóng trình duyệt ...');
-
-  return true;
 }
 
+
 /**
- * go to urlBacklink , find and click mainURL matched with array keywords
- * @param {Array} keyword 
- * @param {*} urlBacklink 
+ * go to each urlBacklink , find and click mainURL
+ * @param {Array} urlBacklink 
  * @param {*} mainURL 
  * @param {*} delay second
  * @param {number} amount
  * @return {boolean} true(operation successed) | false(operation falsed)
  */
-const clickBackLink = async (keyword, urlBacklink, mainURL, delay, amount, projectId, userid) => {
+const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
   let isFoundDomain;
 
-  for (let i = 0; i < keyword.length; i++) {
+  for (let i = 0; i < urlBacklink.length; i++) {
 
-    isFoundDomain = await clickSingleKeywordMatchURL(keyword[i], urlBacklink, mainURL, delay, amount, projectId, userid);
+    isFoundDomain = await clickMainURLWithSingleBacklink(urlBacklink[i], mainURL, delay, projectId, userid);
 
     if (isFoundDomain == false) {
 
-      saveLogBacklink(projectId, 'Không tìm thấy url cần tìm ứng với keyword ' + keyword[i]);
-      sendNotFoundURLWithKeywordBacklink(userid, projectId, keyword[i]);
+      saveLogBacklink(projectId, 'Không tìm thấy url cần view trên trang'+urlBacklink);
+      sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }
 
