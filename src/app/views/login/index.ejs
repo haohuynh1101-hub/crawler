@@ -26,25 +26,30 @@
             <div class="card-box">
               <h4 class="m-t-0 m-b-30 header-title">Login</h4>
 
-              
-                <div class="form-group row">
-                  <label for="username" class="col-2 col-form-label">Username</label>
-                  <div class="col-9">
-                    <input type="text" class="form-control" id="username" placeholder="Username" name="username">
-                  </div>
+
+              <div class="form-group row">
+                <label for="username" class="col-2 col-form-label">Username</label>
+                <div class="col-9">
+                  <input type="text" class="form-control" id="username" placeholder="Username" name="username">
                 </div>
-                <div class="form-group row">
-                  <label for="password" class="col-2 col-form-label">Password</label>
-                  <div class="col-9">
-                    <input type="password" class="form-control" id="password" placeholder="Password" name="password">
-                  </div>
+              </div>
+              <div class="form-group row">
+                <label for="password" class="col-2 col-form-label">Password</label>
+                <div class="col-9">
+                  <input type="password" class="form-control" id="password" placeholder="Password" name="password">
                 </div>
-                <div class="form-group mb-0 justify-content-end row">
-                  <div class="col-9">
-                    <button onclick="login()" class="btn btn-info waves-effect waves-light">Sign in</button>
-                  </div>
+              </div>
+              <div class="form-group mb-0 justify-content-end row">
+                <div class="col-9">
+                  <button onclick="login()" class="btn btn-info waves-effect waves-light">Sign in</button>
                 </div>
-              
+              </div>
+              <% if(typeof(isExpired)=='undefined'){ %>
+                
+              <%} else{%>
+                <span>Tài khoản đã hết hạn sử dụng</span>
+                <%}%>
+
             </div>
           </div>
 
@@ -77,8 +82,8 @@
         password: $('#password').val()
       },
       function (data, status) {
-        if(data){
-          localStorage.setItem('userid',data);
+        if (data) {
+          localStorage.setItem('userid', data);
           window.location.href = '/';
         }
       });

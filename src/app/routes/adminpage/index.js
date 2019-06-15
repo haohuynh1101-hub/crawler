@@ -404,7 +404,7 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     if (isExpiredUser(req.user) == false)
       res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role, traffic });
     else
-      res.send('Tài khoản đã hết hạn sử dụng');
+      res.render('login',{isExpired:true});
 
   } catch (error) {
 
