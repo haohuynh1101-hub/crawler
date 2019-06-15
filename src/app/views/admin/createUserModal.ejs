@@ -8,63 +8,74 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             </div>
             <form action="/users" method="post" id="form-submit-new-user" onsubmit="validateData(event)">
-            <div class="modal-body pb-0">
+                <div class="modal-body pb-0">
 
-                <div class="row">
-                    <div class="col-6">
+                    <div class="row">
+                        <div class="col-6">
                             <div class="form-group row">
-                                    <label class="col-3 col-form-label pr-0">Tài khoản</label>
-                                    <div class="col-8">
-                                        <input name="username" type="text" class="form-control pl-0" data-focus=" Username"
-                                            value="">
-                                    </div>
+                                <label class="col-3 col-form-label pr-0">Tài khoản</label>
+                                <div class="col-8">
+                                    <input name="username" type="text" class="form-control pl-0" data-focus=" Username"
+                                        value="">
                                 </div>
-                    </div>
-                    <div class="col-6">
+                            </div>
+                        </div>
+                        <div class="col-6">
                             <div class="form-group row">
-                                    <label class="col-3 col-form-label pr-0">Mật khẩu</label>
-                                    <div class="col-8">
-                                        <input name="password" type="password" class="form-control pl-0" data-focus=" Password"
-                                            value="">
-                                    </div>
+                                <label class="col-3 col-form-label pr-0">Mật khẩu</label>
+                                <div class="col-8">
+                                    <input name="password" type="password" class="form-control pl-0"
+                                        data-focus=" Password" value="">
                                 </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-6">
-                            <div class="form-group row">
-                                    <label class="col-3 col-form-label pr-0">Họ tên</label>
-                                    <div class="col-8">
-                                        <input name="fullname" type="text" class="form-control pl-0" data-focus=" Fullname"
-                                            value="">
-                                    </div>
-                                </div>
-                    </div>
-                    <div class="col-6">
-                            <div class="form-group row">
-                                    <label class="col-3 col-form-label pr-0">Nhóm người dùng</label>
-                                    <div class="col-8">
-                                        <select name='role' class="form-control">
-                                            <% (typeof roles == 'undefined') ? '' : roles.map (item => { %>
-                                                <option value="<%- item._id %>"><%- item.name %></option>
-                                                <% }) %>
-                                        </select>
-                                    </div>
-                                </div>
-                    </div>
-                </div>
-                
-                <div class="form-group row">
-                        <div class="col-9"></div>
-                        <div class="col-3">
-                            <div class="row">
-                                <button type="submit"
-                                    class="btn btn-outline-success w-100 btn-lg">Lưu</button>
                             </div>
                         </div>
                     </div>
-            </div>
-        </form>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Họ tên</label>
+                                <div class="col-8">
+                                    <input name="fullname" type="text" class="form-control pl-0" data-focus=" Fullname"
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Nhóm người dùng</label>
+                                <div class="col-8">
+                                    <select name='role' class="form-control">
+                                        <% (typeof roles == 'undefined') ? '' : roles.map (item => { %>
+                                        <option value="<%- item._id %>"><%- item.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='row'>
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Số lượng traffic</label>
+                                <div class="col-8">
+                                    <input  type="number" class="form-control pl-0" data-focus="traffic" name='traffic'
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-9"></div>
+                        <div class="col-3">
+                            <div class="row">
+                                <button type="submit" class="btn btn-outline-success w-100 btn-lg">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

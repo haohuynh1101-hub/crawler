@@ -380,9 +380,11 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
-    let role = await mongoose.model('role').findOne({ _id: req.user.role })
+    let role = await mongoose.model('role').findOne({ _id: req.user.role });
+    let traffic=req.user.traffic;
+    
 
-    res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role });
+    res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role,traffic });
 
   } catch (error) {
 

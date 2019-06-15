@@ -20,7 +20,7 @@
 
 
         <!-- ========== Left Sidebar Start ========== -->
-        
+
         <!-- Left Sidebar End -->
 
 
@@ -54,9 +54,10 @@
 
                                         <button type="button"
                                             class="btn btn-success waves-effect w-xl waves-light m-b-5"
-                                            data-toggle="modal" data-target="#create-group-users-modal">Tạo nhóm người dùng</button>
+                                            data-toggle="modal" data-target="#create-group-users-modal">Tạo nhóm người
+                                            dùng</button>
 
-                                            
+
                                     </div>
                                 </div>
 
@@ -151,14 +152,15 @@
             return { err: false };
         }
 
-        //valide data Back link
+        //valide data 
         function CheckValideUserData() {
             let username = $('input[name="username"]');
             let password = $('input[name="password"]');
             let fullname = $('input[name="fullname"]');
             let userGroup = $('input[name="userGroup"]');
+            let traffic = $('input[name="traffic"]');
 
-            return (CheckValide([username, password, fullname, userGroup]));
+            return (CheckValide([username, password, fullname, userGroup,traffic]));
         }
         function CheckValideGroupUserData() {
             let groupName = $('input[name="groupName"]');
@@ -170,7 +172,7 @@
             let validate = CheckValideUserData();
 
             if (validate.err) {
-                alert("Please insert" + validate.message);
+                alert("Please insert " + validate.message);
                 event.preventDefault()
                 return false;
             }
@@ -180,14 +182,14 @@
             let validate = CheckValideGroupUserData();
 
             if (validate.err) {
-                alert("Please insert" + validate.message);
+                alert("Please insert " + validate.message);
                 event.preventDefault()
                 return false;
             }
 
         }
 
-        
+
 
         function adminCheck() {
             var checkBox = document.getElementById("Admin");
