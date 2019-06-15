@@ -28,7 +28,7 @@
                                     <button type="button"
                                         class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
                                         onclick="viewProject('<%- item._id %>')" data-toggle="modal"
-                                        data-target="#view-modal-suggest">Xem</button>
+                                        data-target="#view-modal-suggest">View log</button>
                                     <button type="button"
                                         class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
                                         data-toggle="modal"
@@ -44,6 +44,17 @@
                                         id="btnRun-<%- item._id %>" <% if(item.status =='not started' || item.status =='stopped') { %>
                                         onclick="runSuggestTool('<%- item._id %>',true)" <% } else { %> disabled
                                         <% } %>>Chạy ngay</button>
+
+                                        <button type="button"
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                        id="btnStop-<%- item._id %>" 
+                                        >Dừng</button>
+
+                                        <button type="button"
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                        id="btnDelete-<%- item._id %>" 
+                                        onclick="deleteSuggest('<%- item._id%>')"
+                                        >Xóa</button>
 
                                 </td>
                             </tr>

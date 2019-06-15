@@ -238,6 +238,26 @@ const clickADTask = async (req, res) => {
 }
 
 /**
+ * delete ad project by id
+ * req.params: 
+ * id 
+ */
+router.get('/deleteAD/:id', async (req, res) => {
+  
+  try {
+
+    await mongoose.model('projectAds').findOneAndDelete({ _id: req.params.id });
+    res.send('ok');
+
+  } catch (error) {
+
+    console.log('err when delete ad project: '+err);
+    res.send('failed');
+  }
+
+})
+
+/**
  * click some ad in given url
  * req.body:
  * projectId
@@ -451,7 +471,7 @@ const backlinkTask = async (req, res) => {
 
     let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
-    if (isSuccessed==false) {
+    if (isSuccessed == false) {
 
       sendNotFoundBacklink(userid, projectId);
       saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
@@ -478,6 +498,26 @@ const backlinkTask = async (req, res) => {
   //return
   res.send('ok');
 }
+
+/**
+ * delete backlink project by id
+ * req.params: 
+ * id 
+ */
+router.get('/deleteBacklink/:id', async (req, res) => {
+  
+  try {
+
+    await mongoose.model('projectBacklinks').findOneAndDelete({ _id: req.params.id });
+    res.send('ok');
+
+  } catch (error) {
+
+    console.log('err when delete backlink project: '+err);
+    res.send('failed');
+  }
+
+})
 
 /**
  * click baclink
@@ -570,6 +610,26 @@ const suggestTask = async (req, res) => {
 
   res.send('ok');
 }
+
+/**
+ * delete suggest project by id
+ * req.params: 
+ * id 
+ */
+router.get('/deleteSuggest/:id', async (req, res) => {
+  
+  try {
+
+    await mongoose.model('projects').findOneAndDelete({ _id: req.params.id });
+    res.send('ok');
+
+  } catch (error) {
+
+    console.log('err when delete suggest project: '+err);
+    res.send('failed');
+  }
+
+})
 
 //suggest domain request
 router.post('/suggest', async (req, res, next) => {
@@ -915,8 +975,8 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     }
 
     //found main url, acccessing
-    sendFoundBacklink(userid,projectId,mainURL);
-    saveLogBacklink(projectId,`Đã tìm thấy url site chính, đang truy cập ${mainURL}`);
+    sendFoundBacklink(userid, projectId, mainURL);
+    saveLogBacklink(projectId, `Đã tìm thấy url site chính, đang truy cập ${mainURL}`);
 
     //click random url in this page
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
@@ -961,7 +1021,7 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
 
     if (isFoundDomain == false) {
 
-      saveLogBacklink(projectId, 'Không tìm thấy url cần view trên trang'+urlBacklink);
+      saveLogBacklink(projectId, 'Không tìm thấy url cần view trên trang' + urlBacklink);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }

@@ -33,34 +33,34 @@
         <div class="container">
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <% if (role.canSuggest) { %>
+              <% if (role.canSuggest) { %>
               <a class="nav-item nav-link active" id="nav-suggest-tab" data-toggle="tab" href="#suggest" role="tab"
                 aria-controls="suggest" aria-selected="true">Suggest</a>
-                 <% } %>
-                  <% if (role.canBacklink) { %>
+              <% } %>
+              <% if (role.canBacklink) { %>
               <a class="nav-item nav-link " id="nav-click-backlink-tab" data-toggle="tab" href="#click-backlink"
                 role="tab" aria-controls="click-backlink" aria-selected="false">Click Backlink</a>
-                <% } %>
-                <% if (role.canClickAD) { %>
+              <% } %>
+              <% if (role.canClickAD) { %>
               <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad" role="tab"
                 aria-controls="click-ad" aria-selected="false">Click Ad</a>
-                <% } %>
-                
+              <% } %>
+
             </div>
           </nav>
-          
+
           <div class="tab-content" id="nav-tabContent">
-          <% if (role.canSuggest) { %>
+            <% if (role.canSuggest) { %>
             <% include ./feature-partials/suggest/suggest %>
-          <% } %>
-          <% if (role.canBacklink) { %>
+            <% } %>
+            <% if (role.canBacklink) { %>
             <% include ./feature-partials/click-backlink/click-backlink %>
-          <% } %>
-          <% if (role.canClickAD) { %>
+            <% } %>
+            <% if (role.canClickAD) { %>
             <% include ./feature-partials/click-ad/click-ad %>
-          <% } %>
-            
-            
+            <% } %>
+
+
           </div>
         </div> <!-- container -->
 
@@ -165,7 +165,7 @@
         })
 
         socket.on('not-found-keyword-backlink', data => {
-          appendLog(data.projectId, 'Không tìm thấy url cần view trên trang'+data.urlBacklink);
+          appendLog(data.projectId, 'Không tìm thấy url cần view trên trang' + data.urlBacklink);
         })
 
         socket.on('not-found-ad', data => {
@@ -407,7 +407,7 @@
 
           $.post("/saveProjectBacklink",
             {
-              urlBacklink: JSON.stringify( $('#url_backlink').val().split(',')),
+              urlBacklink: JSON.stringify($('#url_backlink').val().split(',')),
               mainURL: $('#main_url').val(),
               delay: $('#delay_backink').val(),
               amount: $('#amount_backlink').val(),
@@ -466,7 +466,7 @@
         * id: projectid
         * isRunNow {boolean} run now or run later (base on schedule)
         */
-        const runAdLinkTool = (id,isRunNow) => {
+        const runAdLinkTool = (id, isRunNow) => {
 
           $(`#btnADRun-${id}`).attr("disabled", true);
 
@@ -487,6 +487,31 @@
 
               //console.log(data);
             });
+        }
+
+
+        const deleteSuggest = (id) => {
+
+          $.get(`/deleteSuggest/${id}`).done(function (data) {
+
+            location.reload();
+          })
+        }
+
+        const deleteBacklink = (id) => {
+
+          $.get(`/deleteBacklink/${id}`).done(function (data) {
+
+            location.reload();
+          })
+        }
+
+        const deleteAD = (id) => {
+
+          $.get(`/deleteAD/${id}`).done(function (data) {
+
+            location.reload();
+          })
         }
       </script>
 </body>
