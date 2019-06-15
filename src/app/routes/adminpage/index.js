@@ -451,7 +451,7 @@ const backlinkTask = async (req, res) => {
 
     let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
-    if (!isSuccessed) {
+    if (isSuccessed==false) {
 
       sendNotFoundBacklink(userid, projectId);
       saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
