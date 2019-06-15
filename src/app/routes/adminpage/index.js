@@ -12,6 +12,7 @@ var getProject = require('./../../../services/getProject');
 var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
 var setSchedule = require('./../../../services/setSchedule');
+var moment = require('moment-timezone');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -96,10 +97,16 @@ router.post('/users', async function (req, res, next) {
   try {
     let users = await mongoose.model('users').find().populate('role');
     let roles = await mongoose.model('role').find();
+    let groupMaxDate = await mongoose.model('role').findById(req.body.role);
+    groupMaxDate = groupMaxDate.maxUsingDate;
+
 
     let insert = {
       ...req.body
     }
+    insert.expiredDate = moment(new Date()).add(groupMaxDate, 'day');
+
+
     const saltRounds = 10;
     let oldUser = await mongoose.model('users').findOne({ username: insert.username })
     if (oldUser) {
@@ -113,7 +120,7 @@ router.post('/users', async function (req, res, next) {
     return res.redirect('/users');
   } catch (error) {
 
-    console.log("render admin page error: ", error)
+    console.log("create new account error: ", error)
     next(error);
   }
 
@@ -142,6 +149,7 @@ router.post('/groupUsers', async function (req, res, next) {
       canBacklink: (req.body.canBacklink == 'true') ? true : false,
       canClickAD: (req.body.canClickAD == 'true') ? true : false,
       canManageUser: (req.body.canManageUser == 'true') ? true : false,
+      maxUsingDate: req.body.maxDate
     }
     await mongoose.model('role').create(insert);
     return res.redirect('/users');
@@ -243,7 +251,7 @@ const clickADTask = async (req, res) => {
  * id 
  */
 router.get('/deleteAD/:id', async (req, res) => {
-  
+
   try {
 
     await mongoose.model('projectAds').findOneAndDelete({ _id: req.params.id });
@@ -251,7 +259,7 @@ router.get('/deleteAD/:id', async (req, res) => {
 
   } catch (error) {
 
-    console.log('err when delete ad project: '+err);
+    console.log('err when delete ad project: ' + err);
     res.send('failed');
   }
 
@@ -373,6 +381,16 @@ function returnAdminpage() {
   }
 }
 
+const isExpiredUser = (userObject) => {
+
+  let currentDate = moment(new Date());
+  let expiredDate = moment(userObject.expiredDate);
+
+  if ((expiredDate - currentDate).valueOf() > 0) return false;
+  return true;
+}
+
+
 //homepage router
 router.get('/', returnAdminpage(), async function (req, res, next) {
   try {
@@ -381,10 +399,12 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
     let role = await mongoose.model('role').findOne({ _id: req.user.role });
-    let traffic=req.user.traffic;
-    
+    let traffic = req.user.traffic;
 
-    res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role,traffic });
+    if (isExpiredUser(req.user) == false)
+      res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role, traffic });
+    else
+      res.send('Tài khoản đã hết hạn sử dụng');
 
   } catch (error) {
 
@@ -507,7 +527,7 @@ const backlinkTask = async (req, res) => {
  * id 
  */
 router.get('/deleteBacklink/:id', async (req, res) => {
-  
+
   try {
 
     await mongoose.model('projectBacklinks').findOneAndDelete({ _id: req.params.id });
@@ -515,7 +535,7 @@ router.get('/deleteBacklink/:id', async (req, res) => {
 
   } catch (error) {
 
-    console.log('err when delete backlink project: '+err);
+    console.log('err when delete backlink project: ' + err);
     res.send('failed');
   }
 
@@ -619,7 +639,7 @@ const suggestTask = async (req, res) => {
  * id 
  */
 router.get('/deleteSuggest/:id', async (req, res) => {
-  
+
   try {
 
     await mongoose.model('projects').findOneAndDelete({ _id: req.params.id });
@@ -627,7 +647,7 @@ router.get('/deleteSuggest/:id', async (req, res) => {
 
   } catch (error) {
 
-    console.log('err when delete suggest project: '+err);
+    console.log('err when delete suggest project: ' + err);
     res.send('failed');
   }
 
