@@ -2,7 +2,7 @@
 
       <!-- LOGO -->
       <div class="topbar-left">
-        <a href="index.html" class="logo"><span>Admin<span>to</span></span><i class="mdi mdi-layers"></i></a>
+        <a href="https://webdevstudios.org/" class="logo"><span>WebDev<span> Studios</span></span><i class="mdi mdi-layers"></i></a>
       </div>
 
       <!-- Button mobile view to collapse sidebar menu -->
@@ -17,7 +17,7 @@
               </button>
             </li>
             <li class="list-inline-item">
-              <h4 class="page-title">Form Elements</h4>
+              <h4 class="page-title">Hệ thống quản lý</h4>
             </li>
           </ul>
 
@@ -30,24 +30,14 @@
                 <div class="notification-box">
                   <ul class="list-inline mb-0">
                     <li>
-                      <a href="javascript:void(0);" class="right-bar-toggle">
-                        <i class="mdi mdi-bell-outline noti-icon"></i>
-                      </a>
-                      <div class="noti-dot">
-                        <span class="dot"></span>
-                        <span class="pulse"></span>
-                      </div>
+                    <form method="POST" action="/logout">
+                  
+                  <button type="submit" class='btn btn-light'><i class="fa fa-sign-out noti-icon"></i></button>
+                </form>
                     </li>
                   </ul>
                 </div>
                 <!-- End Notification bar -->
-              </li>
-
-              <li class="hide-phone">
-                <form method="POST" action="/logout">
-                  
-                  <button type="submit" class='btn btn-primary'>Đăng xuất</button>
-                </form>
               </li>
 
             </ul>
