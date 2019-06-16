@@ -44,14 +44,10 @@ router.get("/UserAgents", async (req, res, next) => {
       next(error);
     }
 })
-//test set schedule
-router.get("/schedule", async (req, res, next) => {
-  let d = new Date();
-  let start = new Date(d + 5000)
-  setSchedule(start, function(){
-    console.log("test set schedule.............")
-  })
-  res.send('test')
+//reset role
+router.get("/resetRole", async (req, res, next) => {
+  await mongoose.model('role').deleteMany({});
+  res.send('done')
 })
 
 
