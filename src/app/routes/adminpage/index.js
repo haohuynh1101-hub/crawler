@@ -374,7 +374,7 @@ router.get('/project/:id', async (req, res) => {
 function returnAdminpage() {
   return async (req, res, next) => {
     let role = await mongoose.model('role').findOne({ _id: req.user.role });
-    if (role.canManageUser) {
+    if (role.canManageUser) { 
       return res.redirect('/users')
     }
     next();

@@ -2,51 +2,57 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 
-var {setSchedule} = require('services/setSchedule')
-var {strDocAgents} = require('config/listAgents');
+var { setSchedule } = require('services/setSchedule')
+var { strDocAgents } = require('config/listAgents');
 var { success } = require('services/returnToUser')
 var { randomAgent } = require('services/randomAgent');
 
 router.get("/", async (req, res, next) => {
-    let newRole = {
-      name: 'Admin',
-    canSuggest: true,
+  let newRole = {
+    name: 'Admin',
+    canSuggest: false,
     canBacklink: false,
     canClickAD: false,
-    canManageUser: false
-    }
-    let role_1 = await mongoose.model('role').create(newRole)
-    
-    let insert_1 = {
-        username: "admin",
-        password: "123",
-        fullname: "Admin",
-        role : role_1._id
-      }
-      const saltRounds = 10;
-          bcrypt.hash(insert_1.password, saltRounds, async (err, hash) => {
-            insert_1.password = hash;
-            let usersInfo1 = await mongoose.model('users').create(insert_1)
-            console.log(usersInfo1)
-          });
-      return success(res, "Done")
+    canManageUser: true
+  }
+  let adminGroup = await mongoose.model('role').create(newRole)
+
+  let adminAccount = {
+    username: "admin",
+    password: "123",
+    fullname: "Admin",
+    role: adminGroup._id
+  }
+  const saltRounds = 10;
+  bcrypt.hash(adminAccount.password, saltRounds, async (err, hash) => {
+    adminAccount.password = hash;
+    await mongoose.model('users').create(adminAccount)
+
+  });
+  return success(res, "Done")
 })
 //add agent
 router.get("/UserAgents", async (req, res, next) => {
-    try {
-      let arrDoc = strDocAgents.trim().split(`\n`);
-      arrDoc.forEach(async item => {
-        await mongoose.model('userAgents').create({document: item});
-      })
-      let userAgents = await mongoose.model('userAgents').find();
-      return success(res, "Done", userAgents);
-    } catch (error) {
-      next(error);
-    }
+  try {
+    let arrDoc = strDocAgents.trim().split(`\n`);
+    arrDoc.forEach(async item => {
+      await mongoose.model('userAgents').create({ document: item });
+    })
+    let userAgents = await mongoose.model('userAgents').find();
+    return success(res, "Done", userAgents);
+  } catch (error) {
+    next(error);
+  }
 })
 //reset role
 router.get("/resetRole", async (req, res, next) => {
   await mongoose.model('role').deleteMany({});
+  res.send('done')
+})
+
+//drop table users
+router.get("/dropUsers", async (req, res, next) => {
+  await mongoose.model('users').deleteMany({});
   res.send('done')
 })
 
