@@ -193,6 +193,24 @@
           appendLog(data.projectId, `Đã tìm thấy url quảng cáo : ${data.adURL}, đang truy cập ...`);
         })
 
+        socket.on('send-stop-suggest', data => {
+          console.log('stopped')
+          appendLog(data.projectId, `Đã dừng`);
+          location.reload();
+        })
+
+        socket.on('send-stop-ad', data => {
+          console.log('stopped')
+          appendLog(data.projectId, `Đã dừng`);
+          location.reload();
+        })
+
+        socket.on('send-stop-backlink', data => {
+          console.log('stopped')
+          appendLog(data.projectId, `Đã dừng`);
+          location.reload();
+        })
+
         //save selected project id in javascript tag to use later
         const saveID = (id) => {
           selectedId = id;
@@ -509,6 +527,30 @@
         const deleteAD = (id) => {
 
           $.get(`/deleteAD/${id}`).done(function (data) {
+
+            location.reload();
+          })
+        }
+
+        const stopSuggest=(id)=>{
+          console.log('stop functin')
+          $.get(`/stopSuggest/${id}`).done(function (data) {
+
+            location.reload();
+          })
+        }
+
+        const stopAD=(id)=>{
+          console.log('stop functin')
+          $.get(`/stopAD/${id}`).done(function (data) {
+
+            location.reload();
+          })
+        }
+
+        const stopBacklink=(id)=>{
+          console.log('stop functin')
+          $.get(`/stopBacklink/${id}`).done(function (data) {
 
             location.reload();
           })

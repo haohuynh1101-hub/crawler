@@ -178,5 +178,23 @@ module.exports = {
 
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-found-ad', { projectId ,adURL});
+  },
+
+  sendStopSuggest:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-suggest', { projectId });
+  },
+
+  sendStopAD:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-ad', { projectId });
+  },
+
+  sendStopBacklink:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-backlink', { projectId });
   }
 } 
