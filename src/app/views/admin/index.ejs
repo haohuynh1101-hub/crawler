@@ -77,7 +77,7 @@
                                     <tbody>
                                         <% (typeof users == 'undefined') ? '' : users.map((user, index) => { %>
                                         <tr>
-                                            <td><%- index %></td>
+                                            <td><%- index+1 %></td>
                                             <td><%- user.username %></td>
                                             <td><%- user.fullname %></td>
                                             <td><%- user.role.name %></td>
@@ -87,8 +87,16 @@
                                                     class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
                                                     data-toggle="modal" data-target="#delete-modal"
                                                     onclick="getID('<%- user._id %>')">Xóa</button>
+                                                
+
+                                                <button class='btn btn-warning' data-toggle="modal"
+                                                    data-target="#view-users-modal"
+                                                    onclick="loadUserData('<%- user._id %>')">
+                                                    Sửa
+                                                </button>
                                                 <% } %>
                                             </td>
+
                                         </tr>
                                         <% }) %>
                                     </tbody>
@@ -115,6 +123,7 @@
 
     <% include ./createUserModal %>
     <% include ./createGroupModal %>
+    <% include ./viewUserModal%>
     <% include ./modal-delete %>
     <% include ../partials/scripts %>
     <script>
@@ -130,7 +139,7 @@
                 method: 'DELETE',
                 url: `/users/${selectedId}`,
                 success: function (idDeleted) {
-                   
+
                     location.reload();
                 },
                 error: function (err) {
@@ -160,7 +169,7 @@
             let userGroup = $('input[name="userGroup"]');
             let traffic = $('input[name="traffic"]');
 
-            return (CheckValide([username, password, fullname, userGroup,traffic]));
+            return (CheckValide([username, password, fullname, userGroup, traffic]));
         }
         function CheckValideGroupUserData() {
             let groupName = $('input[name="groupName"]');
@@ -211,6 +220,19 @@
                 Suggest_Domain.style.display = "initial";
                 Click_AD.style.display = "initial";
             }
+        }
+
+        //load user data to view modal
+        const loadUserData = (id) => {
+            $('#form-update-user').attr('action',`users/${id}`);
+            $.get(`/users/${id}`, function (data, status) {
+                
+                $('#view-username').val(data.username);
+                $('#view-fullname').val(data.fullname);
+                $('#view-traffic').val(data.traffic);
+                $('#view-group option').val(data.role.name);
+                console.log(data)
+            });
         }
 
         $(document).ready(function () {

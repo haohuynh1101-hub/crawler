@@ -73,6 +73,45 @@ router.get('/reset', async (req, res) => {
 })
 //end backdoor
 
+//get user info by id
+router.get('/users/:id', async (req, res) => {
+
+  try {
+
+    let user = await mongoose.model('users').findById(req.params.id).populate('role');
+    
+    res.send(user);
+  } catch (error) {
+
+    console.log('err in get user info: ' + error);
+    res.send('can not get user info: ' + error);
+  }
+
+})
+
+//update user by id
+router.post('/users/:id', async (req, res) => {
+
+  try {
+
+    let { traffic } = req.body;
+
+    let user = await mongoose.model('users').findById(req.params.id);
+
+    user.traffic = traffic;
+
+    await user.save();
+
+    res.redirect('/users')
+
+  } catch (error) {
+
+    console.log('err in update user info: '+error);
+    res.send('can not update user: '+error);
+  }
+
+})
+
 //logout router
 router.post('/logout', async (req, res) => {
 
@@ -374,7 +413,7 @@ router.get('/project/:id', async (req, res) => {
 function returnAdminpage() {
   return async (req, res, next) => {
     let role = await mongoose.model('role').findOne({ _id: req.user.role });
-    if (role.canManageUser) { 
+    if (role.canManageUser) {
       return res.redirect('/users')
     }
     next();
@@ -404,7 +443,7 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     if (isExpiredUser(req.user) == false)
       res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role, traffic });
     else
-      res.render('login',{isExpired:true});
+      res.render('login', { isExpired: true });
 
   } catch (error) {
 
