@@ -1,0 +1,84 @@
+<!--  Modal content for the above example -->
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="view-users-modal"
+    aria-labelledby="create-users-form" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content pb-0">
+            <div class="modal-header">
+                <h4 class="modal-title" id="create-users-form">Chỉnh sửa người dùng</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form action="/users" method="post" id="form-update-user" ">
+                <div class="modal-body pb-0">
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Tài khoản</label>
+                                <div class="col-8">
+                                    <input name="username" 
+                                    id='view-username'
+                                    disabled 
+                                    type="text" class="form-control pl-0" data-focus=" Username"
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Họ tên</label>
+                                <div class="col-8">
+                                    <input 
+                                    id='view-fullname'
+                                    name="fullname" disabled type="text" class="form-control pl-0" data-focus=" Fullname"
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Nhóm người dùng</label>
+                                <div class="col-8" id='view-group'>
+                                    <select name='role' class="form-control" >
+                                        <% (typeof roles == 'undefined') ? '' : roles.map (item => { %>
+                                        <option value="<%- item._id %>"><%- item.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='row'>
+                        <div class="col-6">
+                            <div class="form-group row">
+                                <label class="col-3 col-form-label pr-0">Số lượng traffic</label>
+                                <div class="col-8">
+                                    <input 
+                                    id='view-traffic'
+                                     type="number" class="form-control pl-0" data-focus="traffic" name='traffic'
+                                        value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+
+
+                    <div class="form-group row">
+                        <div class="col-9"></div>
+                        <div class="col-3">
+                            <div class="row">
+                                <button type="submit" class="btn btn-outline-success w-100 btn-lg">Lưu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
