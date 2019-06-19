@@ -153,7 +153,7 @@ a:focus {
 
 /* Page titles */
 .page-title {
-  font-size: 20px;
+  font-size: 26px;
   margin-bottom: 0;
   margin-top: 0;
   line-height: 70px;
@@ -5515,8 +5515,9 @@ File: Menu
 
 .logo {
   color: #FF9800 !important;
-  font-size: 32px;
+  font-size: 30px;
   font-family: 'Rancho', cursive;
+  font-weight: 100;
 }
 
 .logo i {
