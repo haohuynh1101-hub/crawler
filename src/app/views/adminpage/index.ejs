@@ -280,7 +280,7 @@
 
           $.post("/addproject",
             {
-              keyword: JSON.stringify($('#suggestKeyword').val().split(',')),
+              keyword: JSON.stringify($('#suggestKeyword').val().split('\n')),
               domain: $('#domain').val(),
               isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
               delay: $('#delay-suggest').val(),
@@ -299,11 +299,17 @@
           $('#currentUserAgent').attr('agent', id);
           $.get(`/project/${id}`).done(function (data) {
             $('#view-projectName').text(data.name);
-            $('#view-suggestKeyword').text(data.keyword);
+            //$('#view-suggestKeyword').text(data.keyword);
             $('#view-domain').text(data.domain);
             $('#view-delay-suggest').text(data.delay);
             $('#view-suggestTime').text(data.amount);
             $('#view-searchingTools').text(data.searchTool);
+
+            data.keyword.map(item => {
+
+              $('#view-suggestKeyword').val($('#view-suggestKeyword').val() + `\n${item}`);
+            })
+
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -318,12 +324,14 @@
           $('#currentAgent_backlink').attr('agent', id);
 
           $.get(`/backlinkproject/${id}`).done(function (data) {
-            $('#view-url_backlink').text(data.urlBacklink);
             $('#view-main_url_backlink').text(data.mainURL);
             $('#view-keyword').text(data.keyword);
             $('#view-delay_backink').text(data.delay);
             $('#view-amount_backlink').text(data.amount);
 
+            data.urlBacklink.map(item => {
+              $('#view-url_backlink').val($('#view-url_backlink').val() + `\n${item}`);
+            })
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -407,7 +415,7 @@
 
           $.post("/saveProjectBacklink",
             {
-              urlBacklink: JSON.stringify($('#url_backlink').val().split(',')),
+              urlBacklink: JSON.stringify($('#url_backlink').val().split('\n')),
               mainURL: $('#main_url').val(),
               delay: $('#delay_backink').val(),
               amount: $('#amount_backlink').val(),
@@ -429,7 +437,7 @@
 
           $.post("/saveAdProject",
             {
-              adURL: JSON.stringify($('#ad_url').val().split(',')),
+              adURL: JSON.stringify($('#ad_url').val().split('\n')),
               domain: $('#main_url_ad').val(),
               delay: $('#delay_ad').val(),
               amount: $('#amount_ad').val(),
@@ -448,11 +456,15 @@
 
           $.get(`/ad/${id}`).done(function (data) {
             $('#view-name_ad').text(data.name);
-            $('#view-ad_url').text(data.adURL);
+            //$('#view-ad_url').text(data.adURL);
             $('#view-main_url_ad').text(data.domain);
             $('#view-delay_ad').text(data.delay);
             $('#view-amount_ad').text(data.amount);
 
+            data.adURL.map(item => {
+
+              $('#view-ad_url').val($('#view-ad_url').val() + `\n${item}`);
+            })
 
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
