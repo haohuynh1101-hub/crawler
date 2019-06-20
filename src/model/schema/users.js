@@ -9,13 +9,17 @@ var users = new mongoose.Schema({
     required: true,
     type: String,
   },
-  roles: [{
-    type: String
-  }],
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'role'
+  },
   fullname: {
     required: true,
     type: String
-  }
+  },
+  currentSocketID: String,
+  traffic: Number,
+  expiredDate: Date
 })
 
 module.exports = users;

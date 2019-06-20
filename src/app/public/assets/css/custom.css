@@ -1,4 +1,4 @@
-#logBox {
+.logBox {
     width: 100%;
     min-height: 120px;
     max-height: 140px;
@@ -16,4 +16,11 @@
 
 #nav-tabContent {
     padding: 20px 0 0 0;
+}
+
+.instruction {
+    background: #aaaaaa47;
+    width: 100%;
+    min-height: 240px;
+    border-radius: 10px
 }

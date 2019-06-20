@@ -26,7 +26,7 @@ router.post("/", passport.authenticate("local", {
         } else {
             req.session.cookie.expires = false; // Cookie expires at end of session
         }
-        res.redirect("/");
+        res.json(req.session.passport.user)
     } catch (error) {
         next(error)
     }

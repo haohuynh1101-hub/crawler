@@ -1,35 +1,12 @@
 var socketIo = require("socket.io");
 var io = socketIo();
+var mongoose = require('mongoose');
 
-// // Require module
-// const adminStartTimer = require("./sockets/adminSendStartTimer");
-// const adminSendLevelUp = require("./sockets/adminSendLevelUp");
-// const adminSendShowAnswer = require("./sockets/adminSendShowAnswer");
-// const adminSendShowHelp = require("./sockets/adminSendShowHelp");
-// const adminSendShowOption = require("./sockets/adminSendShowOption");
-// const userSendOption = require("./sockets/userSendOption");
-// const adminSendCheckResult = require("./sockets/adminSendCheckResult");
-// const adminSendRefreshInfo = require("./sockets/adminSendRefreshInfo");
-// const adminSendShowCover = require("./sockets/adminSendShowCover");
-// const adminSendHideCover = require("./sockets/adminSendHideCover");
-// const adminSendShowAnswerFlippicture = require("./sockets/adminSendShowAnswerFlipPicture");
-// const adminSendHideAnswerFlippicture = require("./sockets/adminSendHideAnswerFlipPicture");
+
 
 var socketApi = { io };
 var connectedUsers = [];
-// // Server listen and action here
-// adminStartTimer(io);
-// adminSendLevelUp(io);
-// adminSendShowAnswer(io);
-// adminSendShowHelp(io);
-// adminSendShowOption(io);
-// userSendOption(io);
-// adminSendCheckResult(io);
-// adminSendRefreshInfo(io);
-// adminSendShowCover(io);
-// adminSendHideCover(io);
-// adminSendShowAnswerFlippicture(io);
-// adminSendHideAnswerFlippicture(io);
+
 const getSocket = (userID, array) => {
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === userID) {
@@ -38,7 +15,13 @@ const getSocket = (userID, array) => {
     }
   }
 }
-var clientSocket;
+
+
+const getCurrentSocketID = async (userid) => {
+
+  let user = await mongoose.model('users').findById(userid);
+  return user.currentSocketID;
+}
 
 io.on('connection', function (socket) {
   let users = {
@@ -47,51 +30,153 @@ io.on('connection', function (socket) {
   }
 
   console.log('A user connected: ' + socket.id);
-  console.log('same '+users.id);
-  console.log('before emit '+socket.id);
-  console.log('same same '+users.id);
   socket.emit('send-id', socket.id);
   connectedUsers.push(users);
 });
 
 module.exports = {
   socketApi,
-  sendCurrentIP: (socketID, ip) => {
-    console.log('sending ip ...')
-    let userSocket = getSocket(socketID, connectedUsers);
+  sendCurrentIP: async (userid, ip) => {
+    console.log('sending ip ...');
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit("server-send-current-ip", ip)
   },
-  sendCurrentUserAgent: (socketID, data) => {
-    console.log("TCL: socketID", socketID)
-    console.log('sending user agent')
-    let userSocket = getSocket(socketID, connectedUsers);
-    //console.log("TCL: userSocket", userSocket)
-    userSocket.emit('server-send-current-useragent', data)
+  sendCurrentUserAgent: async (userid, projectId, data) => {
+    try {
+      console.log('sending user agent')
+      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+      userSocket.emit('server-send-current-useragent', { data, projectId })
+    } catch (error) {
+      console.log("TCL: error send user agent", error)
+
+    }
+
   },
-  sendCurrentURL: (socketID, url) => {
-    console.log("sending url...");
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit(`server-send-current-url`, url)
+  sendCurrentURL: async (userid, projectId, url) => {
+    try {
+      console.log("sending url...");
+      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+      userSocket.emit(`server-send-current-url`, { url, projectId })
+    } catch (error) {
+      console.log("TCL: error send url", error)
+
+    }
+
   },
-  sendNotFoundURL: (socketID) => {
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('not found url')
+  sendNotFoundURL: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not found url', projectId)
   },
-  sendInvalidQuery: (socketID) => {
+  sendInvalidQuery: async (userid) => {
     console.log('sending invalid query response ...')
-    let userSocket = getSocket(socketID, connectedUsers);
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('invalid-query');
   },
-  sendChangingAgent: (socketID) => {
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('changing-agent');
+  sendChangingAgent: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('changing-agent', projectId);
   },
-  sendGotoGoogle: (socketID) => {
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('go-google');
+  sendGotoGoogle: async (userid, projectId) => {
+    try {
+      console.log('go to google ' + projectId)
+      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+      userSocket.emit('go-google', projectId);
+    } catch (error) {
+      console.log("TCL: error go-google", error)
+
+    }
+
   },
-  sendCloseBrower: (socketID) => {
-    let userSocket = getSocket(socketID, connectedUsers);
-    userSocket.emit('close-brower');
+  sendCloseBrower: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('close-brower', projectId);
+  },
+  sendNextPage: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('next-page', projectId);
+  },
+  sendChangingAgentBacklink: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('changing-agent-backlink', projectId);
+  },
+  sendCurrentUserAgentBacklink: async (userid, projectId, data) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('agent-backlink', { data, projectId });
+  },
+
+  //go to url backlink
+  sendGotoDomainBacklink: async (userid, projectId, backlink) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-domain-backlink', { backlink, projectId });
+  },
+
+  //finding  main url in backlink
+  sendFindingBacklink: async (userid, projectId, urlBacklink) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('finding-backlink', { projectId,  urlBacklink });
+  },
+
+  //found url matched with keyword
+  sendFoundBacklink: async (userid, projectId, mainURL) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('found-backlink', { projectId, mainURL });
+  },
+
+  //not found any keyword match with main url
+  sendNotFoundBacklink: async (userid, projectId) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not-found-backlink', projectId);
+  },
+  sendNotFoundDomainWithKeyword: async (userid, projectId, keyword) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('domain-not-found-suggest', { keyword, projectId });
+  },
+
+  //click random url after view main url backlink
+  sendRandomURLClicked: async (userid, projectId, url) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-random-url', { url, projectId });
+  },
+
+  //not found main url in single backlink
+  sendNotFoundURLWithKeywordBacklink: async (userid, projectId, urlBacklink) => {
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not-found-keyword-backlink', { urlBacklink, projectId });
+  },
+
+  sendNotFoundAD: async (userid, projectId) => {
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not-found-ad', { projectId });
+  },
+
+  sendNotFoundSingleAD:async(userid,projectId,adURL)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('not-found-single-ad', { projectId,adURL });
+  },
+
+  sendChangingAgentAD:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-changing-agent-ad', { projectId });
+  },
+
+  sendCurrentUserAgentAD:async(userid,projectId,agent)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-current-agent-ad', { projectId ,agent});
+  },
+
+  sendGoToDomainAD:async(userid,projectId,domain)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-gotodomain-ad', { projectId ,domain});
+  },
+
+  sendFoundAD:async(userid,projectId,adURL)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-found-ad', { projectId ,adURL});
   }
 } 
