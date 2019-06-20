@@ -16,6 +16,23 @@ const getSocket = (userID, array) => {
   }
 }
 
+/**
+ * remove user from array if user disconnect
+ * @param {*} key key of element to remove(let null if no need)
+ * @param {*} value value of element to remove
+ * @param {*} array array containt value
+ */
+const removeElement = (key, value, array) => {
+  for (i = 0; i < array.length; i++) {
+    if (array[i] === value) {
+      array.splice(array[i], 1);
+    }
+    else if (eval(`array[${i}].${key}`) === value) {
+      array.splice(array[i], 1);
+    }
+  }
+  return array;
+}
 
 const getCurrentSocketID = async (userid) => {
 
@@ -32,6 +49,18 @@ io.on('connection', function (socket) {
   console.log('A user connected: ' + socket.id);
   socket.emit('send-id', socket.id);
   connectedUsers.push(users);
+
+  //user disconnect
+  socket.on('disconnect', async () => {
+    try {
+      
+      await removeElement('id', socket.id, connectedUsers);
+
+    } catch (error) {
+      
+      console.log('err while remove user socket: '+error);
+    }
+  })
 });
 
 module.exports = {
