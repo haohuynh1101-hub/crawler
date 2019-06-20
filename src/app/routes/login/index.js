@@ -16,17 +16,25 @@ router.get('/', async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
+
     try {
+
         let user = await mongoose.model("users").findOne({ username: req.body.username });
+
+        //check wrong username
         if (!user) {
             return res.redirect('/login');
         }
-        //check password
+
+        //check wrong password
         if (!bcrypt.compareSync(req.body.password, user.password)) {
             return res.redirect('login');
         }
+
         res.cookie('user', user._id, { signed: true });
+        res.json(user);
         return res.redirect('/');
+
     } catch (error) {
         next(error)
     }
