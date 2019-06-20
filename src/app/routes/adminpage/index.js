@@ -84,7 +84,7 @@ router.get('/users/:id', async (req, res) => {
   try {
 
     let user = await mongoose.model('users').findById(req.params.id).populate('role');
-    
+
     res.send(user);
   } catch (error) {
 
@@ -111,8 +111,8 @@ router.post('/users/:id', async (req, res) => {
 
   } catch (error) {
 
-    console.log('err in update user info: '+error);
-    res.send('can not update user: '+error);
+    console.log('err in update user info: ' + error);
+    res.send('can not update user: ' + error);
   }
 
 })
@@ -122,7 +122,7 @@ router.post('/logout', async (req, res) => {
 
   if (req.signedCookies) {
     // delete session object
-    await res.clearCookie("user", {path:"/"});
+    await res.clearCookie("user", { path: "/" });
   }
   return res.redirect('/login');
 })
@@ -219,11 +219,16 @@ router.post('/groupUsers', async function (req, res, next) {
 router.post('/saveAdProject', async (req, res) => {
 
   try {
+    let numberOfProject = await mongoose.model('projectAds').find().count();
 
-    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.signedCookies.user, status: 'not started' });
+    if (numberOfProject == 0) {
 
-    res.json(projects);
+      let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.signedCookies.user, status: 'not started' });
 
+      res.json(projects);
+    }
+
+    res.redirect('/');
   } catch (error) {
 
     console.log("save new ad project err ", error)
@@ -399,10 +404,17 @@ router.get('/ad/:id', async (req, res) => {
 //call when client click save new project button
 router.post('/addproject', async (req, res) => {
   try {
-    console.log(req.body)
-    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.signedCookies.user, status: 'not started' });
 
-    res.json(projects);
+    let numberOfProject = await mongoose.model('projects').find().count();
+
+    if (numberOfProject == 0) {
+
+      let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.signedCookies.user, status: 'not started' });
+
+      res.json(projects);
+    }
+
+    res.redirect('/');
 
   } catch (error) {
 
@@ -494,10 +506,16 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.signedCookies.user, status: 'not started' });
-    console.log(projects);
-    res.json(projects);
+    let numberOfProject = await mongoose.model('projectBacklinks').find().count();
 
+    if (numberOfProject == 0) {
+
+      let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.signedCookies.user, status: 'not started' });
+
+      res.json(projects);
+    }
+
+    res.redirect('/');
   } catch (error) {
 
     console.log("save new project backlink err ", error)
