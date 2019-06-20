@@ -36,6 +36,8 @@ router.post("/", async (req, res, next) => {
         return res.redirect('/');
 
     } catch (error) {
+
+        console.log('err in login router: '+error);
         next(error)
     }
 }
