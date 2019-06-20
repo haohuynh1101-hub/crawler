@@ -196,5 +196,26 @@ module.exports = {
 
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-stop-backlink', { projectId });
+  },
+  
+  sendInvalidUrlBacklink:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-invalid-backlink', { projectId });
+  },
+
+  //domain containt ad url  invalid
+  sendInvalidDomainAD:async(userid,projectId)=>{
+    console.log("TCL: projectId", projectId)
+    console.log("TCL: userid", userid)
+    console.log('invalid domain ad')
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-invalid-domain-ad', { projectId });
+  },
+
+  test:async(userid,projectId)=>{
+console.log('line 217')
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-test', projectId );
   }
 } 

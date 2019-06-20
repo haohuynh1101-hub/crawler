@@ -36,7 +36,9 @@ var { sendCloseBrower,
   sendNotFoundURLWithKeywordBacklink,
   sendStopSuggest,
   sendStopAD,
-  sendStopBacklink
+  sendStopBacklink,
+  sendInvalidUrlBacklink,
+  sendInvalidDomainAD, test
 } = require('services/socket');
 
 //this is backdoor
@@ -715,9 +717,14 @@ router.get('/stopSuggest/:id', async (req, res) => {
 router.get('/stopAD/:id', async (req, res) => {
 
   let updateProject = await mongoose.model('projectAds').findById(req.params.id);
-  updateProject.isForceStop = true;
-  updateProject.status = 'Đang dừng ...';
-  await updateProject.save();
+
+  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+
+    updateProject.isForceStop = true;
+    updateProject.status = 'Đang dừng ...';
+    await updateProject.save();
+  }
+
   res.redirect('/');
 });
 
@@ -729,9 +736,14 @@ router.get('/stopAD/:id', async (req, res) => {
 router.get('/stopBacklink/:id', async (req, res) => {
 
   let updateProject = await mongoose.model('projectBacklinks').findById(req.params.id);
-  updateProject.isForceStop = true;
-  updateProject.status = 'Đang dừng ...';
-  await updateProject.save();
+
+  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+
+    updateProject.isForceStop = true;
+    updateProject.status = 'Đang dừng ...';
+    await updateProject.save();
+  }
+
   res.redirect('/');
 });
 
@@ -852,8 +864,26 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendGoToDomainAD(userid, projectId, domain);
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
+    try {
 
-    await page.goto(domain, { 'waitUntil': 'networkidle0' });
+      await page.goto(domain, { 'waitUntil': 'networkidle0' });
+    } catch (error) {
+
+      console.log('invalid domain click ad feature');
+
+      //change project status to stopped 
+      //reset isForceStopped to false
+      let updateProject = await mongoose.model('projectAds').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      await sendStopAD(userid, projectId);
+
+      await brower.close();
+      return false;
+    }
+
+
 
     let wasClicked = await page.evaluate(async (adURL) => {
 
@@ -919,7 +949,7 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
     if (isFoundAD == false) {
 
-      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}"`);
+      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
       sendNotFoundSingleAD(userid, projectId, adURL);
 
     }
@@ -1064,8 +1094,27 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     //find and click mainURL
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
-    await page.goto(backlink, { 'waitUntil': 'networkidle0' });
-    await page.waitFor(5000);// in case DOM content not loaded yet
+
+    try {
+
+      await page.goto(backlink, { 'waitUntil': 'networkidle0' });
+      await page.waitFor(5000);// in case DOM content not loaded yet
+    } catch (error) {
+
+      console.log('invalid url backlink');
+
+      //change project status to stopped 
+      //reset isForceStopped to false
+      let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      sendInvalidUrlBacklink(userid, projectId);
+
+      await brower.close();
+      return false;
+    }
+
 
 
     await sendFindingBacklink(userid, projectId, backlink);
@@ -1145,7 +1194,7 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
 
     if (isFoundDomain == false) {
 
-      saveLogBacklink(projectId, 'Không tìm thấy url cần view trên trang' + urlBacklink);
+      saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }

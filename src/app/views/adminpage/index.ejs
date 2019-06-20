@@ -169,11 +169,12 @@
         })
 
         socket.on('not-found-ad', data => {
-          appendLog(data.projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+          appendLog(data.projectId, 'url backlink không hợp lệ hoặc không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
         })
 
         socket.on('not-found-single-ad', data => {
-          appendLog(data.projectId, `Không tìm thấy url quảng cáo "${data.adURL}"`);
+          appendLog(data.projectId,'dm may')
+          appendLog(data.projectId, `Không tìm thấy url quảng cáo "${data.adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
         })
 
         socket.on('send-changing-agent-ad', data => {
@@ -211,6 +212,19 @@
           location.reload();
         })
 
+        socket.on('send-invalid-backlink',data=>{
+         location.reload();
+        })
+
+        socket.on('send-invalid-domain-ad',data=>{
+          alert('asdfasdf')
+          console.log('dmddmmdsmmm')
+         //location.reload();
+        })
+
+        socket.on('send-test',projectId=>{
+          console.log('dm')
+        })
         //save selected project id in javascript tag to use later
         const saveID = (id) => {
           selectedId = id;
