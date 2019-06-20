@@ -82,8 +82,9 @@
         password: $('#password').val()
       },
       function (data, status) {
+        console.table("TCL: login -> data", data)
         if (data) {
-          localStorage.setItem('userid', data);
+          localStorage.setItem('userid', data._id);
           window.location.href = '/';
         }
       });
