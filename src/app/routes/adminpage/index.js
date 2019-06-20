@@ -115,8 +115,9 @@ router.post('/users/:id', async (req, res) => {
 //logout router
 router.post('/logout', async (req, res) => {
 
-  if (req.isAuthenticated()) {
-    req.logOut();
+  if (req.signedCookies) {
+    // delete session object
+    await res.clearCookie("user", {path:"/"});
   }
   return res.redirect('/login');
 })
@@ -126,7 +127,7 @@ router.get('/users', async (req, res) => {
   let users = await mongoose.model('users').find().populate('role');
 
   let roles = await mongoose.model('role').find();
-  res.render('admin', { users, roles, currentUser: req.user._id });
+  res.render('admin', { users, roles, currentUser: req.signedCookies.user });
 })
 
 
@@ -214,7 +215,7 @@ router.post('/saveAdProject', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.user._id, status: 'not started' });
+    let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.signedCookies.user, status: 'not started' });
 
     res.json(projects);
 
@@ -376,7 +377,7 @@ router.get('/ad/:id', async (req, res) => {
 router.post('/addproject', async (req, res) => {
   try {
     console.log(req.body)
-    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.user._id, status: 'not started' });
+    let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.signedCookies.user, status: 'not started' });
 
     res.json(projects);
 
@@ -412,7 +413,10 @@ router.get('/project/:id', async (req, res) => {
 
 function returnAdminpage() {
   return async (req, res, next) => {
-    let role = await mongoose.model('role').findOne({ _id: req.user.role });
+    let user = await mongoose.model('users').findById(req.signedCookies.user);
+    let role = await mongoose.model('role').findOne({ _id: user.role });
+    console.log("user", user)
+    console.log("role", role)
     if (role.canManageUser) {
       return res.redirect('/users')
     }
@@ -433,14 +437,14 @@ const isExpiredUser = (userObject) => {
 //homepage router
 router.get('/', returnAdminpage(), async function (req, res, next) {
   try {
+    let user = await mongoose.model('users').findById(req.signedCookies.user)
+    let allProject = await mongoose.model('projects').find({ belongTo: user._id });
+    let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: user._id });
+    let allAdProject = await mongoose.model('projectAds').find({ belongTo: user._id });
+    let role = await mongoose.model('role').findOne({ _id: user.role });
+    let traffic = user.traffic;
 
-    let allProject = await mongoose.model('projects').find({ belongTo: req.user._id });
-    let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: req.user._id });
-    let allAdProject = await mongoose.model('projectAds').find({ belongTo: req.user._id });
-    let role = await mongoose.model('role').findOne({ _id: req.user.role });
-    let traffic = req.user.traffic;
-
-    if (isExpiredUser(req.user) == false)
+    if (isExpiredUser(user) == false)
       res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role, traffic });
     else
       res.render('login', { isExpired: true });
@@ -469,7 +473,7 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.user._id, status: 'not started' });
+    let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.signedCookies.user, status: 'not started' });
     console.log(projects);
     res.json(projects);
 
