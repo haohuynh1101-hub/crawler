@@ -52,11 +52,20 @@
                                                     <button type="button"
                                                     class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
                                                     id="btnBackLinkStop-<%- item._id %>" 
+                                                    <% if(item.status =='not started' || item.status == 'Đang dừng ...' || item.status == 'stopped' || item.status.includes('Sẽ chạy')){ %>
+                                                    disabled
+                                                    <%} else { %>
+                                                    onclick='stopBacklink("<%- item._id%>")'
+                                                    <% } %>
                                                     >Dừng</button>
 
                                                     <button type="button"
                                                     class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                                    <% if(item.status =='running' || item.status == 'Đang dừng ...' || item.status.includes('Sẽ chạy')) { %>
+                                                    disabled
+                                                    <%} else { %>
                                                     onclick="deleteBacklink('<%- item._id%>')"
+                                                    <% } %>
                                                     id="btnBackLinkDelete-<%- item._id %>" 
                                                     >Xóa</button>
             

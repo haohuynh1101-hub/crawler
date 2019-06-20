@@ -17,11 +17,18 @@ var projects = new mongoose.Schema({
       }
   ],
   status:String,
+
   belongTo:{
     type:mongoose.Schema.Types.ObjectId,
     ref:'users'
   },
-  searchTool:String
+
+  searchTool:String,
+
+  isForceStop:{
+    type:Boolean,
+    default:false
+  }
 })
 
 module.exports = projects;

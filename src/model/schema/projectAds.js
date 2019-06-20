@@ -17,10 +17,16 @@ var projectAds = new mongoose.Schema({
         }
     ],
     status: String,
+
     belongTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users'
-    }
+    },
+
+    isForceStop:{
+    type:Boolean,
+    default:false
+  }
 })
 
 module.exports = projectAds;

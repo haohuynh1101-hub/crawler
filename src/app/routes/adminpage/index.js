@@ -33,7 +33,12 @@ var { sendCloseBrower,
   sendCurrentUserAgentAD,
   sendGoToDomainAD,
   sendFoundAD,
-  sendNotFoundURLWithKeywordBacklink
+  sendNotFoundURLWithKeywordBacklink,
+  sendStopSuggest,
+  sendStopAD,
+  sendStopBacklink,
+  sendInvalidUrlBacklink,
+  sendInvalidDomainAD, test
 } = require('services/socket');
 
 //this is backdoor
@@ -230,59 +235,77 @@ router.post('/saveAdProject', async (req, res) => {
   }
 })
 
+/**
+ * a function that contain "clickADTask" function to handle stopped signal from user.
+ *  Call this function instead of "clickADTask"
+ * @param {*} req 
+ * @param {*} res 
+ */
+const ADTaskContainer = async (req, res) => {
+
+  try {
+
+    await clickADTask(req, res);
+  } catch (error) {
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+
+    //send reload page socket
+    await sendStopAD(userid, projectId);
+  }
+}
+
 const clickADTask = async (req, res) => {
 
-  let { projectId, userid } = req.body;
+  return new Promise(async (resolve, reject) => {
 
-  let { domain, adURL, delay, amount } = await mongoose.model('projectAds').findById(projectId);
+    try {
 
-  //set status of project to "running"
-  try {
+      let { projectId, userid } = req.body;
 
-    let updateProject = await mongoose.model('projectAds').findById(projectId);
+      //set status of project to "running"
+      let updateProject = await mongoose.model('projectAds').findById(projectId);
+      let { amount } = updateProject;
+      updateProject.status = 'running';
+      updateProject.save();
 
-    updateProject.status = 'running';
-    updateProject.save();
+      //main process
+      for (let i = 0; i < amount; i++) {
 
-  } catch (error) {
+        let { domain, adURL, delay, isForceStop } = await mongoose.model('projectAds').findById(projectId);
 
-    console.log('error when change ad project status', error);
-    throw error;
-  }
+        if (isForceStop) throw new Error('Your ad task is forced to stopped by user !!!');
 
-  //main process
-  for (let i = 0; i < amount; i++) {
+        let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
 
-    let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
+        if (isSuccessed == false) {
 
-    if (isSuccessed == false) {
+          saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+          sendNotFoundAD(userid, projectId);
+          break;
+        }
+      }
 
+      //set status of project to "stopped"
+      //reset is force stop to fasle
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      updateProject.save();
+      await sendStopAD(userid, projectId);
 
-      saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
-      sendNotFoundAD(userid, projectId);
+      res.send('ok');
 
-      break;
+    } catch (error) {
 
+      return reject(error);
     }
-
-  }
-
-  //set status of project to "stopped"
-  try {
-
-    let updateProject = await mongoose.model('projectAds').findById(projectId);
-
-    updateProject.status = 'stopped';
-    updateProject.save();
-
-  } catch (error) {
-
-    console.log('error when change ad project status', error);
-    next(error);
-  }
-
-  //return
-  res.send('ok');
+  });
 }
 
 /**
@@ -315,7 +338,7 @@ router.post('/clickAd', async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
-    clickADTask(req, res);
+    ADTaskContainer(req, res);
   }
   else {
 
@@ -340,7 +363,7 @@ router.post('/clickAd', async (req, res, next) => {
     let minute = parseInt(req.body.minute);
     let second = parseInt(req.body.second);
 
-    setSchedule(day, month, hour, minute, second, clickADTask, req, res, next);
+    setSchedule(day, month, hour, minute, second, ADTaskContainer, req, res, next);
   }
 })
 
@@ -415,8 +438,6 @@ function returnAdminpage() {
   return async (req, res, next) => {
     let user = await mongoose.model('users').findById(req.signedCookies.user);
     let role = await mongoose.model('role').findOne({ _id: user.role });
-    console.log("user", user)
-    console.log("role", role)
     if (role.canManageUser) {
       return res.redirect('/users')
     }
@@ -505,63 +526,78 @@ router.get('/backlinkproject/:id', async (req, res) => {
 
 })
 
+/**
+ * a function that contain "backlinkTask" function to handle stopped signal from user.
+ *  Call this function instead of "backlinkTask"
+ * @param {*} req 
+ * @param {*} res 
+ */
+const backlinkTaskContainer = async (req, res) => {
+
+  try {
+
+    await backlinkTask(req, res);
+  } catch (error) {
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+
+    //send reload page socket
+    await sendStopBacklink(userid, projectId);
+  }
+}
+
 const backlinkTask = async (req, res) => {
 
-  let { projectId, userid } = req.body;
+  return new Promise(async (resolve, reject) => {
 
-  //get project info
-  let {
-    urlBacklink,
-    mainURL,
-    delay,
-    amount
-  } = await mongoose.model('projectBacklinks').findById(projectId);
+    try {
 
-  //set status of project to "running"
-  try {
+      let { projectId, userid } = req.body;
 
-    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+      //set status of project to "running"
+      let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+      let { amount } = updateProject;
+      updateProject.status = 'running';
+      await updateProject.save();
 
-    updateProject.status = 'running';
-    updateProject.save();
+      //main process
+      for (let i = 0; i < amount; i++) {
 
-  } catch (error) {
+        //get project info
+        let { urlBacklink, mainURL, delay, isForceStop } = await mongoose.model('projectBacklinks').findById(projectId);
 
-    console.log('error when change project status', error);
-    next(error);
-  }
+        if (isForceStop) throw new Error('Your backlink task is forced to stopped by user !!!');
 
-  //main process
-  for (let i = 0; i < amount; i++) {
+        let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
-    let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
+        if (isSuccessed == false) {
 
-    if (isSuccessed == false) {
+          sendNotFoundBacklink(userid, projectId);
+          saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
+          break;
+        }
+      }
 
-      sendNotFoundBacklink(userid, projectId);
-      saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
-      break;
+      //set status of project to "stopped"
+      //reset is force stop to fasle
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      updateProject.save();
+      await sendStopBacklink(userid, projectId);
 
+      res.send('ok');
+
+    } catch (error) {
+
+      return reject(error);
     }
-
-  }
-
-  //set status of project to "stopped"
-  try {
-
-    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
-
-    updateProject.status = 'stopped';
-    updateProject.save();
-
-  } catch (error) {
-
-    console.log('error when change project status', error);
-    next(error);
-  }
-
-  //return
-  res.send('ok');
+  });
 }
 
 /**
@@ -595,7 +631,7 @@ router.post('/backlink', async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
-    backlinkTask(req, res);
+    backlinkTaskContainer(req, res);
   }
   else {
 
@@ -620,61 +656,137 @@ router.post('/backlink', async (req, res, next) => {
     let minute = parseInt(req.body.minute);
     let second = parseInt(req.body.second);
 
-    setSchedule(day, month, hour, minute, second, backlinkTask, req, res, next);
+    setSchedule(day, month, hour, minute, second, backlinkTaskContainer, req, res, next);
   }
 
 })
 
+/**
+ * a function that contain "suggestTask" function to handle stopped signal from user.
+ *  Call this function instead of "suggestTask"
+ * @param {*} req 
+ * @param {*} res 
+ */
+const suggestTaskContainer = async (req, res) => {
+
+  try {
+
+    await suggestTask(req, res);
+  } catch (error) {
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await getProject(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+
+    //send reload page socket
+    await sendStopSuggest(userid, projectId);
+  }
+}
+
+
 const suggestTask = async (req, res) => {
 
-  let { projectId, userid } = req.body;
+  return new Promise(async (resolve, reject) => {
 
-  let { keyword, domain, delay, amount } = await getProject(projectId);
+    try {
 
-  //set status of project to "running"
-  try {
+      let { projectId, userid } = req.body;
 
-    let updateProject = await mongoose.model('projects').findById(projectId);
+      //set status of project to "running"
+      let updateProject = await getProject(projectId);
+      let { amount } = updateProject;
+      updateProject.status = 'running';
+      await updateProject.save();
 
-    updateProject.status = 'running';
-    updateProject.save();
+      //main process 
+      for (let i = 0; i < amount; i++) {
 
-  } catch (error) {
+        let { keyword, domain, delay, isForceStop } = await getProject(projectId);
 
-    console.log('error when change project status', error);
-    throw error;
-  }
+        if (isForceStop) throw new Error('Your suggest task is forced to stopped by user !!!');
 
-  //main process 
-  for (let i = 0; i < amount; i++) {
+        let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, projectId, userid);
 
-    let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, projectId, userid);
+        if (isCrashed) {
 
-    if (isCrashed) {
+          sendInvalidQuery(userid);
+          break;
+        }
 
-      sendInvalidQuery(userid);
-      break;
+      }
 
+      //set status of project to "stopped"
+      //reset is force stop to fasle
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+
+      res.send('ok');
+
+    } catch (error) {
+
+      return reject(error);
     }
-
-  }
-
-  //set status of project to "stopped"
-  try {
-
-    let updateProject = await mongoose.model('projects').findById(projectId);
-
-    updateProject.status = 'stopped';
-    updateProject.save();
-
-  } catch (error) {
-
-    console.log('error when change project status', error);
-    next(error);
-  }
-
-  res.send('ok');
+  });
 }
+
+/**
+ * stop project suggest
+ * update project status to "Dang dung"
+ * update isForceStop = true
+ */
+router.get('/stopSuggest/:id', async (req, res) => {
+
+  let updateProject = await getProject(req.params.id);
+  updateProject.isForceStop = true;
+  updateProject.status = 'Đang dừng ...';
+  await updateProject.save();
+  res.redirect('/');
+});
+
+/**
+ * stop project ad
+ * update project status to "Dang dung"
+ * update isForceStop = true
+ */
+router.get('/stopAD/:id', async (req, res) => {
+
+  let updateProject = await mongoose.model('projectAds').findById(req.params.id);
+
+  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+
+    updateProject.isForceStop = true;
+    updateProject.status = 'Đang dừng ...';
+    await updateProject.save();
+  }
+
+  res.redirect('/');
+});
+
+/**
+ * stop project backlink
+ * update project status to "Dang dung"
+ * update isForceStop = true
+ */
+router.get('/stopBacklink/:id', async (req, res) => {
+
+  let updateProject = await mongoose.model('projectBacklinks').findById(req.params.id);
+
+  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+
+    updateProject.isForceStop = true;
+    updateProject.status = 'Đang dừng ...';
+    await updateProject.save();
+  }
+
+  res.redirect('/');
+});
 
 /**
  * delete suggest project by id
@@ -701,7 +813,7 @@ router.post('/suggest', async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
-    suggestTask(req, res);
+    suggestTaskContainer(req, res);
   }
   else {
 
@@ -715,7 +827,7 @@ router.post('/suggest', async (req, res, next) => {
 
     } catch (error) {
 
-      console.log('error when change project status', error);
+      console.log('error when change project status to waiting', error);
       throw error;
     }
 
@@ -725,7 +837,7 @@ router.post('/suggest', async (req, res, next) => {
     let minute = parseInt(req.body.minute);
     let second = parseInt(req.body.second);
 
-    setSchedule(day, month, hour, minute, second, suggestTask, req, res, next);
+    setSchedule(day, month, hour, minute, second, suggestTaskContainer, req, res, next);
   }
 
 })
@@ -793,8 +905,26 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendGoToDomainAD(userid, projectId, domain);
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
+    try {
 
-    await page.goto(domain, { 'waitUntil': 'networkidle0' });
+      await page.goto(domain, { 'waitUntil': 'networkidle0' });
+    } catch (error) {
+
+      console.log('invalid domain click ad feature');
+
+      //change project status to stopped 
+      //reset isForceStopped to false
+      let updateProject = await mongoose.model('projectAds').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      await sendStopAD(userid, projectId);
+
+      await brower.close();
+      return false;
+    }
+
+
 
     let wasClicked = await page.evaluate(async (adURL) => {
 
@@ -860,7 +990,7 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
     if (isFoundAD == false) {
 
-      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}"`);
+      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
       sendNotFoundSingleAD(userid, projectId, adURL);
 
     }
@@ -887,7 +1017,7 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
 
     runTime++;
 
-    if (runTime > 3) return true;
+    if (runTime > 2) return true;
 
     //set up brower and page
     let brower = await puppeteer.launch(Const.options);
@@ -1005,8 +1135,27 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     //find and click mainURL
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
-    await page.goto(backlink, { 'waitUntil': 'networkidle0' });
-    await page.waitFor(5000);// in case DOM content not loaded yet
+
+    try {
+
+      await page.goto(backlink, { 'waitUntil': 'networkidle0' });
+      await page.waitFor(5000);// in case DOM content not loaded yet
+    } catch (error) {
+
+      console.log('invalid url backlink');
+
+      //change project status to stopped 
+      //reset isForceStopped to false
+      let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      sendInvalidUrlBacklink(userid, projectId);
+
+      await brower.close();
+      return false;
+    }
+
 
 
     await sendFindingBacklink(userid, projectId, backlink);
@@ -1086,7 +1235,7 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
 
     if (isFoundDomain == false) {
 
-      saveLogBacklink(projectId, 'Không tìm thấy url cần view trên trang' + urlBacklink);
+      saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }
