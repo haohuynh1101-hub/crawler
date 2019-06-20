@@ -16,6 +16,23 @@ const getSocket = (userID, array) => {
   }
 }
 
+/**
+ * remove user from array if user disconnect
+ * @param {*} key key of element to remove(let null if no need)
+ * @param {*} value value of element to remove
+ * @param {*} array array containt value
+ */
+const removeElement = (key, value, array) => {
+  for (i = 0; i < array.length; i++) {
+    if (array[i] === value) {
+      array.splice(array[i], 1);
+    }
+    else if (eval(`array[${i}].${key}`) === value) {
+      array.splice(array[i], 1);
+    }
+  }
+  return array;
+}
 
 const getCurrentSocketID = async (userid) => {
 
@@ -32,6 +49,18 @@ io.on('connection', function (socket) {
   console.log('A user connected: ' + socket.id);
   socket.emit('send-id', socket.id);
   connectedUsers.push(users);
+
+  //user disconnect
+  socket.on('disconnect', async () => {
+    try {
+      
+      await removeElement('id', socket.id, connectedUsers);
+
+    } catch (error) {
+      
+      console.log('err while remove user socket: '+error);
+    }
+  })
 });
 
 module.exports = {
@@ -178,5 +207,44 @@ module.exports = {
 
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
     userSocket.emit('send-found-ad', { projectId ,adURL});
+  },
+
+  sendStopSuggest:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-suggest', { projectId });
+  },
+
+  sendStopAD:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-ad', { projectId });
+  },
+
+  sendStopBacklink:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-stop-backlink', { projectId });
+  },
+  
+  sendInvalidUrlBacklink:async(userid,projectId)=>{
+
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-invalid-backlink', { projectId });
+  },
+
+  //domain containt ad url  invalid
+  sendInvalidDomainAD:async(userid,projectId)=>{
+    console.log("TCL: projectId", projectId)
+    console.log("TCL: userid", userid)
+    console.log('invalid domain ad')
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-invalid-domain-ad', { projectId });
+  },
+
+  test:async(userid,projectId)=>{
+console.log('line 217')
+    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    userSocket.emit('send-test', projectId );
   }
 } 
