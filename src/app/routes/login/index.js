@@ -1,6 +1,7 @@
 var router = require('express').Router();
 var passport = require("passport");
-
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs")
 
 //dang nhap
 router.get('/', async (req, res, next) => {
@@ -14,19 +15,18 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.post("/", passport.authenticate("local", {
-    failureRedirect: "/login",
-    failureFlash: false
-}), (req, res) => {
+router.post("/", async (req, res, next) => {
     try {
-        if (req.body.remember) {
-            req.session.cookie.maxAge = new Date(
-                Date.now() + 30 * 24 * 60 * 60 * 1000
-            ); // Cookie expires after 30 days
-        } else {
-            req.session.cookie.expires = false; // Cookie expires at end of session
+        let user = await mongoose.model("users").findOne({ username: req.body.username });
+        if (!user) {
+            return res.redirect('/login');
         }
-        res.json(req.session.passport.user)
+        //check password
+        if (!bcrypt.compareSync(req.body.password, user.password)) {
+            return res.redirect('login');
+        }
+        res.cookie('user', user._id, { signed: true });
+        return res.redirect('/');
     } catch (error) {
         next(error)
     }
