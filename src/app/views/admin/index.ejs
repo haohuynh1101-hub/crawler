@@ -227,10 +227,11 @@
             $('#form-update-user').attr('action',`users/${id}`);
             $.get(`/users/${id}`, function (data, status) {
                 
+                console.log("TCL: loadUserData -> data", data)
                 $('#view-username').val(data.username);
                 $('#view-fullname').val(data.fullname);
                 $('#view-traffic').val(data.traffic);
-                $('#view-group option').val(data.role.name);
+                $('#view-group').text(data.role.name);
                 console.log(data)
             });
         }
