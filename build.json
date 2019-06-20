@@ -10,7 +10,8 @@
       "env_production": {
         "NODE_ENV": "development"
       },  
-      "exec_mode": "fork", 
+      "instances" : "max",
+      "exec_mode" : "cluster", 
       "name": "marketing",
       "script": "./bin/www",
       "watch": false 
