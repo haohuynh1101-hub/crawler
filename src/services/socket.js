@@ -44,16 +44,16 @@ const getCurrentSocketID = async (userid) => {
   return user.currentSocketID;
 }
 
-io.on('connection', function (socket) {
+io.on('connection', async function (socket) {
   let users = {
     id: socket.id,
     socket: socket
   }
 
   console.log('A user connected: ' + socket.id);
-  socket.emit('send-id', socket.id);
-  connectedUsers.push(users);
-
+  
+  await connectedUsers.push(users);
+  await socket.emit('send-id', socket.id);
   // //user disconnect
   // socket.on('disconnect', async () => {
   //   try {
