@@ -42,6 +42,7 @@ var { sendCloseBrower,
 } = require('services/socket');
 
 //this is backdoor
+//remove in production env
 router.get('/backdoor', async (req, res) => {
   let result = await mongoose.model('users').find();
   res.json(result);
@@ -66,8 +67,6 @@ router.get('/test', async (req, res) => {
 })
 router.get('/reset', async (req, res) => {
 
-
-
   await mongoose.model('projects').updateMany({ status: 'stopped' });
 
   await mongoose.model('projectBacklinks').updateMany({ status: 'stopped' });
@@ -75,6 +74,22 @@ router.get('/reset', async (req, res) => {
   await mongoose.model('projectAds').updateMany({ status: 'stopped' });
 
   res.send('ok');
+})
+
+
+//get all project info
+router.get('/allProject', async (req, res) => {
+
+  let suggest = await mongoose.model('projects').find();
+  console.log("TCL: suggest", suggest)
+  let backlink = await mongoose.model('projectBacklinks').find();
+  let ad = await mongoose.model('projectAds').find();
+
+  res.json({
+    suggest: suggest,
+    backlink: backlink,
+    ad: ad
+  });
 })
 //end backdoor
 
