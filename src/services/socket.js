@@ -71,14 +71,15 @@ module.exports = {
   socketApi,
   sendCurrentIP: async (userid, ip) => {
     console.log('sending ip ...');
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit("server-send-current-ip", ip)
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit("server-send-current-ip", ip)
   },
+  
   sendCurrentUserAgent: async (userid, projectId, data) => {
     try {
       console.log('sending user agent')
-      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-      userSocket.emit('server-send-current-useragent', { data, projectId })
+      let sockeid=await getCurrentSocketID(userid);
+      io.sockets.connected[sockeid].emit('server-send-current-useragent', { data, projectId })
     } catch (error) {
       console.log("TCL: error send user agent", error)
 
@@ -88,8 +89,8 @@ module.exports = {
   sendCurrentURL: async (userid, projectId, url) => {
     try {
       console.log("sending url...");
-      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-      userSocket.emit(`server-send-current-url`, { url, projectId })
+      let sockeid=await getCurrentSocketID(userid);
+      io.sockets.connected[sockeid].emit(`server-send-current-url`, { url, projectId })
     } catch (error) {
       console.log("TCL: error send url", error)
 
@@ -97,23 +98,23 @@ module.exports = {
 
   },
   sendNotFoundURL: async (userid, projectId) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not found url', projectId)
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('not found url', projectId)
   },
   sendInvalidQuery: async (userid) => {
     console.log('sending invalid query response ...')
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('invalid-query');
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('invalid-query');
   },
   sendChangingAgent: async (userid, projectId) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('changing-agent', projectId);
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('changing-agent', projectId);
   },
   sendGotoGoogle: async (userid, projectId) => {
     try {
       console.log('go to google ' + projectId)
-      let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-      userSocket.emit('go-google', projectId);
+      let sockeid=await getCurrentSocketID(userid);
+      io.sockets.connected[sockeid].emit('go-google', projectId);
     } catch (error) {
       console.log("TCL: error go-google", error)
 
@@ -121,130 +122,120 @@ module.exports = {
 
   },
   sendCloseBrower: async (userid, projectId) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('close-brower', projectId);
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('close-brower', projectId);
   },
   sendNextPage: async (userid, projectId) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('next-page', projectId);
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('next-page', projectId);
   },
   sendChangingAgentBacklink: async (userid, projectId) => {
-    console.log("socket change agent: userid ", userid)
-    console.log("socket change agent: projectId ", projectId)
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    console.log("socket change agent: userSocket ", userSocket)
-    userSocket.emit('changing-agent-backlink', projectId);
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('changing-agent-backlink', projectId);
   },
   sendCurrentUserAgentBacklink: async (userid, projectId, data) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('agent-backlink', { data, projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('agent-backlink', { data, projectId });
   },
 
   //go to url backlink
   sendGotoDomainBacklink: async (userid, projectId, backlink) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-domain-backlink', { backlink, projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-domain-backlink', { backlink, projectId });
   },
 
   //finding  main url in backlink
   sendFindingBacklink: async (userid, projectId, urlBacklink) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('finding-backlink', { projectId, urlBacklink });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('finding-backlink', { projectId,  urlBacklink });
   },
 
   //found url matched with keyword
   sendFoundBacklink: async (userid, projectId, mainURL) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('found-backlink', { projectId, mainURL });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('found-backlink', { projectId, mainURL });
   },
 
   //not found any keyword match with main url
   sendNotFoundBacklink: async (userid, projectId) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-backlink', projectId);
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('not-found-backlink', projectId);
   },
   sendNotFoundDomainWithKeyword: async (userid, projectId, keyword) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('domain-not-found-suggest', { keyword, projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('domain-not-found-suggest', { keyword, projectId });
   },
 
   //click random url after view main url backlink
   sendRandomURLClicked: async (userid, projectId, url) => {
-    console.log("sendRandomURLClicked: userid", userid)
-    console.log("sendRandomURLClicked: projectId", projectId)
-    console.log("sendRandomURLClicked: url", url)
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    console.log("sendRandomURLClicked: userSocket", userSocket)
-    userSocket.emit('send-random-url', { url, projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-random-url', { url, projectId });
   },
 
   //not found main url in single backlink
   sendNotFoundURLWithKeywordBacklink: async (userid, projectId, urlBacklink) => {
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-keyword-backlink', { urlBacklink, projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('not-found-keyword-backlink', { urlBacklink, projectId });
   },
 
   sendNotFoundAD: async (userid, projectId) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-ad', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('not-found-ad', { projectId });
   },
 
   sendNotFoundSingleAD: async (userid, projectId, adURL) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('not-found-single-ad', { projectId, adURL });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('not-found-single-ad', { projectId,adURL });
   },
 
   sendChangingAgentAD: async (userid, projectId) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-changing-agent-ad', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-changing-agent-ad', { projectId });
   },
 
   sendCurrentUserAgentAD: async (userid, projectId, agent) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-current-agent-ad', { projectId, agent });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-current-agent-ad', { projectId ,agent});
   },
 
   sendGoToDomainAD: async (userid, projectId, domain) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-gotodomain-ad', { projectId, domain });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-gotodomain-ad', { projectId ,domain});
   },
 
   sendFoundAD: async (userid, projectId, adURL) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-found-ad', { projectId, adURL });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-found-ad', { projectId ,adURL});
   },
 
   sendStopSuggest: async (userid, projectId) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-stop-suggest', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-stop-suggest', { projectId });
   },
 
   sendStopAD: async (userid, projectId) => {
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-stop-ad', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-stop-ad', { projectId });
   },
 
   sendStopBacklink: async (userid, projectId) => {
     console.log("sendStopBacklink: userid", userid)
     console.log("sendStopBacklink: projectId", projectId)
 
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    console.log("sendStopBacklink: userSocket", userSocket)
-    userSocket.emit('send-stop-backlink', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-stop-backlink', { projectId });
   },
 
-  sendInvalidUrlBacklink: async (userid, projectId) => {
-
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-invalid-backlink', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-invalid-backlink', { projectId });
   },
 
   //domain containt ad url  invalid
@@ -252,13 +243,13 @@ module.exports = {
     console.log("TCL: projectId", projectId)
     console.log("TCL: userid", userid)
     console.log('invalid domain ad')
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-invalid-domain-ad', { projectId });
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-invalid-domain-ad', { projectId });
   },
 
-  test: async (userid, projectId) => {
-    console.log('line 217')
-    let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
-    userSocket.emit('send-test', projectId);
+  test:async(userid,projectId)=>{
+console.log('line 217')
+    let sockeid=await getCurrentSocketID(userid);
+    io.sockets.connected[sockeid].emit('send-test', projectId );
   }
 } 

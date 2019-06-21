@@ -92,9 +92,7 @@
         var selectedId = '';
       </script>
       <script>
-        // var socket = io.connect('https://seo.seotuts.vn/', {
-        //   transports: [ 'websocket', 'polling' ]
-        // });
+        
         var socket = io( 'https://seo.seotuts.vn/', {'transports': ['websocket', 'polling']});
 
         socket.on('server-send-current-useragent', (data) => {
