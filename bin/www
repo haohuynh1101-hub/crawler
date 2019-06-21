@@ -37,18 +37,6 @@ io.attach(server, { 'transports': ['websocket', 'polling'] });
  * Listen on provided port, on all network interfaces.
  */
 
-if (!sticky.listen(server, port)) {
-  server.once('listening', function () {
-    console.log('Server started on port ' + port);
-  });
-
-  if (cluster.isMaster) {
-    console.log('Master server started on port ' + port);
-  }
-}
-else {
-  console.log('- Child server started on port ' + port + ' case worker id=' + cluster.worker.id);
-}
 
 //server.listen(port);
 server.on('error', onError);
