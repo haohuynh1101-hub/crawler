@@ -5,9 +5,10 @@ var mongoose = require('mongoose');
 var socketApi = { io };
 var connectedUsers = [];
 
-const getSocket = (userID, array) => {
+
+const getSocket = (socketID, array) => {
   console.log("TCL: getSocket -> array", array)
-  console.log("TCL: getSocket -> userID", userID)
+  console.log("TCL: getSocket -> socketID", socketID)
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === userID) {
       return array[i].socket;
