@@ -1243,7 +1243,8 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
   } catch (error) {
 
-    console.log('error in catch block of click single backlink ' + error);
+    console.log(`error in catch block of click single backlink` + error);
+    console.log(error.stack);
     await brower.close();
   }
 
