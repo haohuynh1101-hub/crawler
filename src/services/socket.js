@@ -6,6 +6,8 @@ var socketApi = { io };
 var connectedUsers = [];
 
 const getSocket = (userID, array) => {
+  console.log("TCL: getSocket -> array", array)
+  console.log("TCL: getSocket -> userID", userID)
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === userID) {
       return array[i].socket;
