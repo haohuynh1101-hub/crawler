@@ -164,7 +164,11 @@ module.exports = {
 
   //click random url after view main url backlink
   sendRandomURLClicked: async (userid, projectId, url) => {
+    console.log("sendRandomURLClicked: userid", userid)
+    console.log("sendRandomURLClicked: projectId", projectId)
+    console.log("sendRandomURLClicked: url", url)
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    console.log("sendRandomURLClicked: userSocket", userSocket)
     userSocket.emit('send-random-url', { url, projectId });
   },
 
