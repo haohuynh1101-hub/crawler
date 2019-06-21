@@ -6,7 +6,7 @@
 var sticky = require('sticky-session');
 var app = require('../app');
 var { DEBUG, PORT } = require('../src/config');
-
+var cluster = require('cluster');
 var debug = require('debug')(`${DEBUG.server}:server`);
 var http = require('http');
 //var redis = require('socket.io-redis')
@@ -30,7 +30,7 @@ var server = http.createServer(app);
  */
 var { socketApi } = require('../src/services/socket');
 var io = socketApi.io;
-//io.attach(server, { 'transports': ['websocket', 'polling'] });
+io.attach(server, { 'transports': ['websocket', 'polling'] });
 //io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 /**
@@ -107,9 +107,9 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  // var addr = server.address();
+  // var bind = typeof addr === 'string'
+  //   ? 'pipe ' + addr
+  //   : 'port ' + addr.port;
+  debug('Listening on ' + port);
 }
