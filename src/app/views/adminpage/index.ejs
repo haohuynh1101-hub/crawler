@@ -92,7 +92,9 @@
         var selectedId = '';
       </script>
       <script>
-        var socket = io('');
+        
+        var socket = io( 'https://seo.seotuts.vn/', {'transports': ['websocket', 'polling']});
+
         socket.on('server-send-current-useragent', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
