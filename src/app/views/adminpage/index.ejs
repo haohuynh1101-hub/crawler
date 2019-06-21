@@ -91,9 +91,9 @@
       <script>
         var selectedId = '';
       </script>
+
       <script async>
-        
-        var socket = io( 'https://seo.seotuts.vn/', {'transports': ['websocket', 'polling']});
+        var socket = io('https://seo.seotuts.vn/', { 'transports': ['websocket', 'polling'] });
 
         socket.on('server-send-current-useragent', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
@@ -124,7 +124,9 @@
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
+      </script>
 
+      <script async>
         socket.on('next-page', (projectId) => {
           appendLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
         })
@@ -169,7 +171,9 @@
         socket.on('not-found-keyword-backlink', data => {
           appendLog(data.projectId, 'Không tìm thấy url cần view trên trang' + data.urlBacklink);
         })
+      </script>
 
+      <script async>
         socket.on('not-found-ad', data => {
           appendLog(data.projectId, 'url backlink không hợp lệ hoặc không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
         })
@@ -244,13 +248,14 @@
           alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
           runAdLinkTool(selectedId, false);
         }
+      </script>
 
-
+      <script async>
         /**
-         * run suggest tool
-         * id: projectid
-         * isRunNow {boolean} run now or run later (base on schedule)
-        */
+          * run suggest tool
+          * id: projectid
+          * isRunNow {boolean} run now or run later (base on schedule)
+         */
         const runSuggestTool = (id, isRunNow) => {
 
           $('#listLogSuggest').empty();
@@ -273,9 +278,9 @@
         }
 
         /**
-         * run backlink project
-         * id: projectid
-         * isRunNow {boolean} run now or run later (base on schedule)
+        * run backlink project
+        * id: projectid
+        * isRunNow {boolean} run now or run later (base on schedule)
         */
         const runBackLinkTool = (id, isRunNow) => {
 
@@ -310,8 +315,8 @@
         }
 
         /*
-         * save susggest project
-         */
+        * save susggest project
+        */
         function saveProject() {
           let validate = CheckValideSuggest();
           if (validate.err) {
@@ -366,6 +371,9 @@
 
           })
         }
+      </script>
+      <script async>
+
         //view backlink project
         function viewBackProject(id) {
 
