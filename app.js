@@ -6,27 +6,50 @@ var logger = require('morgan');
 var passport = require("passport");
 var session = require('express-session');
 var cluster = require('cluster');
-var numCPUs = require('os').cpus().length;
+var os = require('os');
+var { PORT } = require('./src/config');
 
 var config = require("config");
+
 require('dotenv').config();
 require('model/connect');
 require('model/schema');
-var app = express();
+
 
 if (cluster.isMaster) {
-	var worker, i;
-	// Fork workers.
-	for (i = 0; i < numCPUs; i++) {
-		worker = cluster.fork();
-		console.info('Workerer #' + worker.id, 'with pid', worker.process.pid, 'is on');
-	}
+  // we create a HTTP server, but we do not use listen
+  // that way, we have a socket.io server that doesn't accept connections
+  var server = require('http').createServer();
+  var io = require('socket.io').listen(server);
+  var redis = require('socket.io-redis');
 
-	cluster.on('exit', function(worker, code, signal) {
-		console.info('Workerer #' + worker.id, 'with pid', worker.process.pid, 'died');
-	});
+  io.adapter(redis({ host: 'localhost', port: PORT }));
 
-} else {
+  setInterval(function() {
+    // all workers will receive this in Redis, and emit
+    io.emit('data', 'payload');
+  }, 1000);
+
+  for (var i = 0; i < os.cpus().length; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', function(worker, code, signal) {
+    console.log('worker ' + worker.process.pid + ' died');
+  });
+}
+
+if (cluster.isWorker) {
+  var http = require('http');
+  var app = express();
+  var server = http.createServer(app);
+  var io = require('socket.io').listen(server);
+  var redis = require('socket.io-redis');
+
+  io.adapter(redis({ host: 'localhost', port: PORT }));
+  io.on('connection', function(socket) {
+    socket.emit('data', 'connected to worker: ' + cluster.worker.id);
+  });
   
   app.set("topSecretKey", config.SECRET);
   // view engine setup
@@ -80,6 +103,4 @@ if (cluster.isMaster) {
     
     res.render('error');
   });
-  
 }
-module.exports = app;
