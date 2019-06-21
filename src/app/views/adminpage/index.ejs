@@ -128,7 +128,7 @@
         })
 
         socket.on('send-id', async (id) => {
-          console.log('server-send-id: '+id);
+          console.log('server-send-id: ' + id);
           await localStorage.setItem('id', id);
           await sendNewSocketAndUserID();
         })
@@ -173,7 +173,6 @@
         })
 
         socket.on('not-found-single-ad', data => {
-          appendLog(data.projectId,'dm may')
           appendLog(data.projectId, `Không tìm thấy url quảng cáo "${data.adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
         })
 
@@ -212,17 +211,17 @@
           location.reload();
         })
 
-        socket.on('send-invalid-backlink',data=>{
-         location.reload();
+        socket.on('send-invalid-backlink', data => {
+          location.reload();
         })
 
-        socket.on('send-invalid-domain-ad',data=>{
+        socket.on('send-invalid-domain-ad', data => {
           alert('asdfasdf')
           console.log('dmddmmdsmmm')
-         //location.reload();
+          //location.reload();
         })
 
-        socket.on('send-test',projectId=>{
+        socket.on('send-test', projectId => {
           console.log('dm')
         })
         //save selected project id in javascript tag to use later
@@ -300,8 +299,17 @@
             });
         }
 
+        const isOverMaxKeyword = (max) => {
 
-        //save config
+          let numberOfKeyword = $('#suggestKeyword').val().split('\n').length;
+          if (numberOfKeyword > max) return true;
+
+          return false;
+        }
+
+        /*
+         * save susggest project
+         */
         function saveProject() {
           let validate = CheckValideSuggest();
           if (validate.err) {
@@ -309,21 +317,29 @@
             return false;
           }
 
+          if (isOverMaxKeyword(15) == false) {
 
-          $.post("/addproject",
-            {
-              keyword: JSON.stringify($('#suggestKeyword').val().split('\n')),
-              domain: $('#domain').val(),
-              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-              delay: $('#delay-suggest').val(),
-              amount: $('#suggestTime').val(),
-              socketID: localStorage.getItem('id'),
-              name: $('#projectName').val(),
-              searchTool: $('#searchingTools').val()
-            },
-            function (data, status) {
-              window.location.href = '/';
-            });
+            $.post("/addproject",
+              {
+                keyword: JSON.stringify($('#suggestKeyword').val().split('\n')),
+                domain: $('#domain').val(),
+                isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+                delay: $('#delay-suggest').val(),
+                amount: $('#suggestTime').val(),
+                socketID: localStorage.getItem('id'),
+                name: $('#projectName').val(),
+                searchTool: $('#searchingTools').val()
+              },
+              function (data, status) {
+                window.location.href = '/';
+              });
+          }
+          else {
+
+            alert('Số lượng keyword không được vượt quá 15');
+          }
+
+
         }
         //view suggest project
         function viewProject(id) {
@@ -437,6 +453,15 @@
             });
         }
 
+        const isOverMaxBacklink = (max) => {
+
+          let num = $('#url_backlink').val().split('\n').length;
+
+          if (num > max) return true;
+
+          return false;
+        }
+
         const saveBackLinkProject = () => {
 
           let validate = CheckValideBackLink();
@@ -445,17 +470,24 @@
             return false;
           }
 
-          $.post("/saveProjectBacklink",
-            {
-              urlBacklink: JSON.stringify($('#url_backlink').val().split('\n')),
-              mainURL: $('#main_url').val(),
-              delay: $('#delay_backink').val(),
-              amount: $('#amount_backlink').val(),
-              name: $('#projectName_backlink').val()
-            },
-            function (data, status) {
-              window.location.href = '/';
-            });
+          if (isOverMaxBacklink(30) == false) {
+
+            $.post("/saveProjectBacklink",
+              {
+                urlBacklink: JSON.stringify($('#url_backlink').val().split('\n')),
+                mainURL: $('#main_url').val(),
+                delay: $('#delay_backink').val(),
+                amount: $('#amount_backlink').val(),
+                name: $('#projectName_backlink').val()
+              },
+              function (data, status) {
+                window.location.href = '/';
+              });
+          }
+          else {
+            alert('Số backlink không được vượt quá 30')
+          }
+
         }
 
         //save new ad project
@@ -558,7 +590,7 @@
           })
         }
 
-        const stopSuggest=(id)=>{
+        const stopSuggest = (id) => {
           console.log('stop functin')
           $.get(`/stopSuggest/${id}`).done(function (data) {
 
@@ -566,7 +598,7 @@
           })
         }
 
-        const stopAD=(id)=>{
+        const stopAD = (id) => {
           console.log('stop functin')
           $.get(`/stopAD/${id}`).done(function (data) {
 
@@ -574,7 +606,7 @@
           })
         }
 
-        const stopBacklink=(id)=>{
+        const stopBacklink = (id) => {
           console.log('stop functin')
           $.get(`/stopBacklink/${id}`).done(function (data) {
 
