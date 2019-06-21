@@ -3,40 +3,6 @@ var io = socketIo();
 var mongoose = require('mongoose');
 
 var socketApi = { io };
-var connectedUsers = [];
-
-
-const getSocket = (socketID, array) => {
-  console.log("TCL: getSocket -> array lenght " + array.length);
-  array.map(item => {
-    console.log('array socketid: ' + item.id);
-  })
-  console.log("TCL: getSocket -> socketID", socketID)
-  for (var i = 0; i < array.length; i++) {
-    if (array[i].id === socketID) {
-      return array[i].socket;
-
-    }
-  }
-}
-
-/**
- * remove user from array if user disconnect
- * @param {*} key key of element to remove(let null if no need)
- * @param {*} value value of element to remove
- * @param {*} array array containt value
- */
-const removeElement = (key, value, array) => {
-  for (i = 0; i < array.length; i++) {
-    if (array[i] === value) {
-      array.splice(array[i], 1);
-    }
-    else if (eval(`array[${i}].${key}`) === value) {
-      array.splice(array[i], 1);
-    }
-  }
-  return array;
-}
 
 const getCurrentSocketID = async (userid) => {
 
@@ -44,27 +10,10 @@ const getCurrentSocketID = async (userid) => {
   return user.currentSocketID;
 }
 
-io.on('connection', async function (socket) {
-  let users = {
-    id: socket.id,
-    socket: socket
-  }
+io.on('connection', function (socket) {
 
   console.log('A user connected: ' + socket.id);
   socket.emit('send-id', socket.id);
-  connectedUsers.push(users);
-
-  // //user disconnect
-  // socket.on('disconnect', async () => {
-  //   try {
-
-  //     await removeElement('id', socket.id, connectedUsers);
-
-  //   } catch (error) {
-
-  //     console.log('err while remove user socket: '+error);
-  //   }
-  // })
 });
 
 module.exports = {
@@ -131,8 +80,6 @@ module.exports = {
   },
   sendChangingAgentBacklink: async (userid, projectId) => {
     let sockeid = await getCurrentSocketID(userid);
-    console.log("TCL: sockeid", sockeid)
-    console.log('array of connected socket: '+io.sockets.connected);
     io.sockets.connected[sockeid].emit('changing-agent-backlink', projectId);
   },
   sendCurrentUserAgentBacklink: async (userid, projectId, data) => {
@@ -229,14 +176,13 @@ module.exports = {
   },
 
   sendStopBacklink: async (userid, projectId) => {
-    console.log("sendStopBacklink: userid", userid)
-    console.log("sendStopBacklink: projectId", projectId)
 
     let sockeid = await getCurrentSocketID(userid);
     io.sockets.connected[sockeid].emit('send-stop-backlink', { projectId });
   },
 
   sendInvalidUrlBacklink: async (userid, projectId) => {
+
     let sockeid = await getCurrentSocketID(userid);
     io.sockets.connected[sockeid].emit('send-invalid-backlink', { projectId });
   },
@@ -248,11 +194,5 @@ module.exports = {
     console.log('invalid domain ad')
     let sockeid = await getCurrentSocketID(userid);
     io.sockets.connected[sockeid].emit('send-invalid-domain-ad', { projectId });
-  },
-
-  test: async (userid, projectId) => {
-    console.log('line 217')
-    let sockeid = await getCurrentSocketID(userid);
-    io.sockets.connected[sockeid].emit('send-test', projectId);
   }
 } 
