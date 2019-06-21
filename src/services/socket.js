@@ -7,7 +7,10 @@ var connectedUsers = [];
 
 
 const getSocket = (socketID, array) => {
-  console.log("TCL: getSocket -> array", array)
+  console.log("TCL: getSocket -> array lenght "+array.length);
+  array.map(item=>{
+    console.log('array socketid: '+item.id);
+  })
   console.log("TCL: getSocket -> socketID", socketID)
   for (var i = 0; i < array.length; i++) {
     if (array[i].id === socketID) {
