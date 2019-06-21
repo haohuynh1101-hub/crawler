@@ -10,7 +10,7 @@ const getSocket = (socketID, array) => {
   console.log("TCL: getSocket -> array", array)
   console.log("TCL: getSocket -> socketID", socketID)
   for (var i = 0; i < array.length; i++) {
-    if (array[i].id === userID) {
+    if (array[i].id === socketID) {
       return array[i].socket;
 
     }
