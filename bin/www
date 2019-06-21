@@ -30,8 +30,8 @@ var server = http.createServer(app);
  */
 var { socketApi } = require('../src/services/socket');
 var io = socketApi.io;
-io.attach(server,{'transports': ['websocket', 'polling']});
-// io.adapter(redis({ host: 'localhost', port: PORT }))
+io.attach(server, { 'transports': ['websocket', 'polling'] });
+io.adapter(redis({ host: 'localhost', port: PORT }));
 
 /**
  * Listen on provided port, on all network interfaces.
