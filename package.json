@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env NODE_PATH=./src nodemon app.js ",
+    "start": "cross-env NODE_PATH=./src nodemon ./bin/www ",
     "dev": "set IS_DEV=DEV && cross-env NODE_PATH=./src nodemon ./bin/www "
   },
   "dependencies": {
