@@ -234,7 +234,8 @@ router.post('/groupUsers', async function (req, res, next) {
 router.post('/saveAdProject', async (req, res) => {
 
   try {
-    let numberOfProject = await mongoose.model('projectAds').findById(req.signedCookies.user).count();
+    
+    let numberOfProject = await mongoose.model('projectAds').find({belongTo: req.signedCookies.user}).count();
 
     if (numberOfProject == 0) {
 
@@ -420,7 +421,7 @@ router.get('/ad/:id', async (req, res) => {
 router.post('/addproject', async (req, res) => {
   try {
 
-    let numberOfProject = await mongoose.model('projects').findById(req.signedCookies.user).count();
+    let numberOfProject = await mongoose.model('projects').find({belongTo: req.signedCookies.user}).count();
 
     if (numberOfProject == 0) {
 
@@ -521,7 +522,7 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let numberOfProject = await mongoose.model('projectBacklinks').findById(req.signedCookies.user).count();
+    let numberOfProject = await mongoose.model('projectBacklinks').find({belongTo: req.signedCookies.user}).count();
 
     if (numberOfProject == 0) {
 
