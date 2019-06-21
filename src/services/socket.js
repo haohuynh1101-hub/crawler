@@ -54,17 +54,17 @@ io.on('connection', async function (socket) {
   
   await connectedUsers.push(users);
   await socket.emit('send-id', socket.id);
-  //user disconnect
-  socket.on('disconnect', async () => {
-    try {
+  // //user disconnect
+  // socket.on('disconnect', async () => {
+  //   try {
 
-      await removeElement('id', socket.id, connectedUsers);
+  //     await removeElement('id', socket.id, connectedUsers);
 
-    } catch (error) {
+  //   } catch (error) {
 
-      console.log('err while remove user socket: ' + error);
-    }
-  })
+  //     console.log('err while remove user socket: ' + error);
+  //   }
+  // })
 });
 
 module.exports = {
