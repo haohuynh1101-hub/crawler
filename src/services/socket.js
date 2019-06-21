@@ -1,11 +1,6 @@
 var socketIo = require("socket.io");
 var io = socketIo();
 var mongoose = require('mongoose');
-var redis = require('socket.io-redis')
-var { PORT } = require('../config');
-
-io.adapter(redis({ host: 'localhost', port: PORT }))
-
 
 var socketApi = { io };
 var connectedUsers = [];
