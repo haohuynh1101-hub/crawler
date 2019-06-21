@@ -33,7 +33,7 @@ var io = socketApi.io;
 io.attach(server, {
   transports: [ 'websocket', 'polling' ]
 });
-io.adapter(redis({ host: 'seo.seotuts.vn', port: 3000 }))   
+io.adapter(redis({ host: 'seo.seotuts.vn', port: process.env.PORT || PORT }))   
 
 
 /**
