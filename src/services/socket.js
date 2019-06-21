@@ -132,7 +132,7 @@ module.exports = {
   sendChangingAgentBacklink: async (userid, projectId) => {
     let sockeid = await getCurrentSocketID(userid);
     console.log("TCL: sockeid", sockeid)
-    
+    console.log('array of connected socket: '+io.sockets.connected);
     io.sockets.connected[sockeid].emit('changing-agent-backlink', projectId);
   },
   sendCurrentUserAgentBacklink: async (userid, projectId, data) => {
