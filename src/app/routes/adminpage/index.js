@@ -1243,13 +1243,26 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
   } catch (error) {
 
-    console.log(`error in catch block of click single backlink` + error);
-    console.log(error.stack);
+    console.log(`error in catch block of click single backlink2` + error);
+    dumpError(error);
     await brower.close();
   }
 
 }
-
+function dumpError(err) {
+  if (typeof err === 'object') {
+      if (err.message) {
+          console.log('\nMessage: ' + err.message)
+      }
+      if (err.stack) {
+          console.log('\nStacktrace:')
+          console.log('====================')
+          console.log(err.stack);
+      }
+  } else {
+      console.log('dumpError :: argument is not an object');
+  }
+}
 
 /**
  * go to each urlBacklink , find and click mainURL
