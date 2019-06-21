@@ -51,20 +51,20 @@ io.on('connection', async function (socket) {
   }
 
   console.log('A user connected: ' + socket.id);
-  
-  await connectedUsers.push(users);
-  await socket.emit('send-id', socket.id);
-  //user disconnect
-  socket.on('disconnect', async () => {
-    try {
+  socket.emit('send-id', socket.id);
+  connectedUsers.push(users);
 
-      await removeElement('id', socket.id, connectedUsers);
+  // //user disconnect
+  // socket.on('disconnect', async () => {
+  //   try {
+      
+  //     await removeElement('id', socket.id, connectedUsers);
 
-    } catch (error) {
-
-      console.log('err while remove user socket: ' + error);
-    }
-  })
+  //   } catch (error) {
+      
+  //     console.log('err while remove user socket: '+error);
+  //   }
+  // })
 });
 
 module.exports = {
