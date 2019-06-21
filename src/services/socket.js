@@ -123,7 +123,10 @@ module.exports = {
     userSocket.emit('next-page', projectId);
   },
   sendChangingAgentBacklink: async (userid, projectId) => {
+    console.log("socket change agent: userid ", userid)
+    console.log("socket change agent: projectId ", projectId)
     let userSocket = getSocket(await getCurrentSocketID(userid), connectedUsers);
+    console.log("socket change agent: userSocket ", userSocket)
     userSocket.emit('changing-agent-backlink', projectId);
   },
   sendCurrentUserAgentBacklink: async (userid, projectId, data) => {
