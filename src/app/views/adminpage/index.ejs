@@ -92,9 +92,11 @@
         var selectedId = '';
       </script>
       <script>
-        var socket = io.connect('https://seo.seotuts.vn/', {
-          transports: [ 'websocket', 'polling' ]
-        });
+        // var socket = io.connect('https://seo.seotuts.vn/', {
+        //   transports: [ 'websocket', 'polling' ]
+        // });
+        var socket = io.connect();
+
         socket.on('server-send-current-useragent', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
