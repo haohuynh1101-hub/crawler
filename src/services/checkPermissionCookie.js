@@ -3,6 +3,15 @@ const mongoose = require("mongoose");
 
 var { redirectLogin } = require('./returnToUser');
 
+const isExistUser = async (userid) => {
+
+  let count = await mongoose.model('users').findById(userid).count();
+
+  if (count == 0) return false;
+
+  return true;
+}
+
 module.exports = {
   checkPermission: (...allowed) => {
     const isAllowed = (usersRole = []) => {
@@ -21,15 +30,23 @@ module.exports = {
 
     // return a middleware
     return async (req, res, next) => {
-      if (req.signedCookies.user) {
+
+      if (req.signedCookies.user && await isExistUser(req.signedCookies.user)) {
+
         let user = await mongoose.model('users').findById(req.signedCookies.user);
+
         if (isAllowed(user.role)) {
+
           next();
         } else {
+          
           // role is allowed, so continue on the next middleware
           return res.status(403).json({ message: "Forbidden" }); // user is forbidden
         }
+
       } else {
+
+        await res.clearCookie("user", { path: "/" });
         return redirectLogin(res);
       }
     };
