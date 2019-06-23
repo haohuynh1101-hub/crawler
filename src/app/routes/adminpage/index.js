@@ -926,6 +926,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendChangingAgentAD(userid, projectId);
     await saveLogAD(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
+    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
     await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
     await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
@@ -1067,6 +1068,7 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
     await sendChangingAgent(userid, projectId);
     let currentUserAgent = await changeUserAgent(page);
+    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
     await sendCurrentUserAgent(userid, projectId, currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
 
@@ -1157,6 +1159,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendChangingAgentBacklink(userid, projectId);
     await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
+    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
     await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
     await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
