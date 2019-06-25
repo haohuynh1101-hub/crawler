@@ -121,6 +121,10 @@
           appendLog(projectId, "https://www.google.com/");
         })
 
+        socket.on('send-goto-googlevn', (projectId) => {
+          appendLog(projectId, "https://www.google.com.vn/");
+        })
+
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
