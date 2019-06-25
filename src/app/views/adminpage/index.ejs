@@ -14,6 +14,7 @@
   <!-- Begin page -->
   <div id="wrapper">
 
+    <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
     <!-- Top Bar End -->
@@ -93,6 +94,49 @@
       </script>
 
       <script async>
+
+        const validateChangePassword = () => {
+
+          let oldPassword = $("#oldPassword");
+          let newPassword = $('#newPassword');
+          return (CheckValide([oldPassword, newPassword]));
+        }
+
+        const changePassword = () => {
+
+          console.log('change func')
+          let validate = validateChangePassword();
+
+          if (validate.err) {
+
+            alert(`Vui lòng nhập ${validate.message} `);
+          }
+          else {
+
+            let oldPassword = $("#oldPassword").val();
+            console.log("TCL: changePassword -> oldPassword", oldPassword)
+            let newPassword = $('#newPassword').val();
+
+            $.post("/changePassword",
+              {
+                oldPassword:oldPassword,
+                newPassword:newPassword
+              },
+              function (data, status) {
+
+                if(data=='wrong password'){
+                  alert('Mật khẩu cũ không chính xác !!!');
+                }
+                else{
+
+                  alert('Đổi mật khẩu thành công');
+                  location.reload();
+                }
+              });
+          }
+
+        }
+
         // var socket = io('localhost:3000', { 'transports': ['websocket', 'polling'] });
         var socket = io();
         socket.on('server-send-current-useragent', (data) => {
@@ -252,6 +296,8 @@
           alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
           runAdLinkTool(selectedId, false);
         }
+
+
       </script>
 
       <script async>

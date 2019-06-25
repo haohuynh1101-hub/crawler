@@ -38,7 +38,7 @@ var { sendCloseBrower,
   sendStopAD,
   sendStopBacklink,
   sendInvalidUrlBacklink,
-  sendInvalidDomainAD, 
+  sendInvalidDomainAD,
   sendGotoGoogleVN
 } = require('services/socket');
 
@@ -141,6 +141,35 @@ router.post('/logout', async (req, res) => {
     await res.clearCookie("user", { path: "/" });
   }
   return res.redirect('/login');
+})
+
+/**
+ * change password
+ */
+router.post('/changePassword', async (req, res) => {
+
+  let { oldPassword, newPassword } = req.body;
+
+  //check wrong password
+  let userid = req.signedCookies.user;
+  let user = await mongoose.model("users").findById(userid);
+
+  if (!bcrypt.compareSync(oldPassword, user.password)) {
+    res.send('wrong password');
+  }
+  else {
+
+    //change password
+    const saltRounds = 10;
+    bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
+      user.password = hash;
+      await user.save();
+      res.send('ok');
+    });
+  }
+
+
+
 })
 
 //user management page
@@ -1082,7 +1111,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
         await saveLog(projectId, 'https://www.google.com/');
         await sendGotoGoogle(userid, projectId);
       }
-      else{
+      else {
 
         await page.goto('https://www.google.com.vn/');
         await saveLog(projectId, 'https://www.google.com.vn/');
