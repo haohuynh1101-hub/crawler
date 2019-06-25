@@ -14,6 +14,7 @@
   <!-- Begin page -->
   <div id="wrapper">
 
+    <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
     <!-- Top Bar End -->
@@ -94,7 +95,49 @@
 
       <script async>
         var socket = io('https://seo.seotuts.vn/', { 'transports': ['websocket', 'polling'] });
-        // var socket = io();
+
+        const validateChangePassword = () => {
+
+          let oldPassword = $("#oldPassword");
+          let newPassword = $('#newPassword');
+          return (CheckValide([oldPassword, newPassword]));
+        }
+
+        const changePassword = () => {
+
+          console.log('change func')
+          let validate = validateChangePassword();
+
+          if (validate.err) {
+
+            alert(`Vui lòng nhập ${validate.message} `);
+          }
+          else {
+
+            let oldPassword = $("#oldPassword").val();
+            console.log("TCL: changePassword -> oldPassword", oldPassword)
+            let newPassword = $('#newPassword').val();
+
+            $.post("/changePassword",
+              {
+                oldPassword:oldPassword,
+                newPassword:newPassword
+              },
+              function (data, status) {
+
+                if(data=='wrong password'){
+                  alert('Mật khẩu cũ không chính xác !!!');
+                }
+                else{
+
+                  alert('Đổi mật khẩu thành công');
+                  location.reload();
+                }
+              });
+          }
+
+        }
+
         socket.on('server-send-current-useragent', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
@@ -119,6 +162,10 @@
         socket.on('go-google', (projectId) => {
           console.log('dang den google')
           appendLog(projectId, "https://www.google.com/");
+        })
+
+        socket.on('send-goto-googlevn', (projectId) => {
+          appendLog(projectId, "https://www.google.com.vn/");
         })
 
         socket.on('close-brower', (projectId) => {
@@ -248,6 +295,8 @@
           alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
           runAdLinkTool(selectedId, false);
         }
+
+
       </script>
 
       <script async>

@@ -38,7 +38,8 @@ var { sendCloseBrower,
   sendStopAD,
   sendStopBacklink,
   sendInvalidUrlBacklink,
-  sendInvalidDomainAD, test
+  sendInvalidDomainAD,
+  sendGotoGoogleVN
 } = require('services/socket');
 
 //this is backdoor
@@ -142,6 +143,35 @@ router.post('/logout', async (req, res) => {
   return res.redirect('/login');
 })
 
+/**
+ * change password
+ */
+router.post('/changePassword', async (req, res) => {
+
+  let { oldPassword, newPassword } = req.body;
+
+  //check wrong password
+  let userid = req.signedCookies.user;
+  let user = await mongoose.model("users").findById(userid);
+
+  if (!bcrypt.compareSync(oldPassword, user.password)) {
+    res.send('wrong password');
+  }
+  else {
+
+    //change password
+    const saltRounds = 10;
+    bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
+      user.password = hash;
+      await user.save();
+      res.send('ok');
+    });
+  }
+
+
+
+})
+
 //user management page
 router.get('/users', async (req, res) => {
   let users = await mongoose.model('users').find().populate('role');
@@ -234,8 +264,8 @@ router.post('/groupUsers', async function (req, res, next) {
 router.post('/saveAdProject', async (req, res) => {
 
   try {
-    
-    let numberOfProject = await mongoose.model('projectAds').find({belongTo: req.signedCookies.user}).count();
+
+    let numberOfProject = await mongoose.model('projectAds').find({ belongTo: req.signedCookies.user }).count();
 
     if (numberOfProject == 0) {
 
@@ -421,7 +451,7 @@ router.get('/ad/:id', async (req, res) => {
 router.post('/addproject', async (req, res) => {
   try {
 
-    let numberOfProject = await mongoose.model('projects').find({belongTo: req.signedCookies.user}).count();
+    let numberOfProject = await mongoose.model('projects').find({ belongTo: req.signedCookies.user }).count();
 
     if (numberOfProject == 0) {
 
@@ -522,7 +552,7 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let numberOfProject = await mongoose.model('projectBacklinks').find({belongTo: req.signedCookies.user}).count();
+    let numberOfProject = await mongoose.model('projectBacklinks').find({ belongTo: req.signedCookies.user }).count();
 
     if (numberOfProject == 0) {
 
@@ -739,11 +769,11 @@ const suggestTask = async (req, res) => {
       //main process 
       for (let i = 0; i < amount; i++) {
 
-        let { keyword, domain, delay, isForceStop } = await getProject(projectId);
+        let { keyword, domain, delay, isForceStop, searchTool } = await getProject(projectId);
 
         if (isForceStop) throw new Error('Your suggest task is forced to stopped by user !!!');
 
-        let isCrashed = await searchAndSuggestMultipleKeyword(keyword, domain, delay, projectId, userid);
+        let isCrashed = await searchAndSuggestMultipleKeyword(searchTool, keyword, domain, delay, projectId, userid);
 
         if (isCrashed) {
 
@@ -926,7 +956,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendChangingAgentAD(userid, projectId);
     await saveLogAD(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
+    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
     await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
@@ -1043,7 +1073,7 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
  * @param {*} userid 
  * @return {boolean}  true (operation crashed) || false(operation success) 
  */
-const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
+const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayTime, projectId, userid) => {
 
   let wasClicked = false;
   let runTime = 0;
@@ -1068,15 +1098,26 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
     await sendChangingAgent(userid, projectId);
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
+    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgent(userid, projectId, currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
 
     try {
 
-      await page.goto('https://www.google.com/');
-      await saveLog(projectId, 'https://www.google.com/');
-      await sendGotoGoogle(userid, projectId);
+      //go to google
+      if (searchTool == 'google.com') {
+
+        await page.goto('https://www.google.com/');
+        await saveLog(projectId, 'https://www.google.com/');
+        await sendGotoGoogle(userid, projectId);
+      }
+      else {
+
+        await page.goto('https://www.google.com.vn/');
+        await saveLog(projectId, 'https://www.google.com.vn/');
+        await sendGotoGoogleVN(userid, projectId);
+      }
+
 
       await searchByKeyWord(page, keyword);
       wasClicked = await suggestDomain(userid, projectId, page, domain);
@@ -1110,13 +1151,13 @@ const searchAndSuggestSingleKeyword = async (keyword, domain, delayTime, project
  * @param {*} userid 
  * @return {boolean} true (not found any domain with keywords provided)  false(operation success) 
  */
-const searchAndSuggestMultipleKeyword = async (keyword, domain, delayTime, projectId, userid) => {
+const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, delayTime, projectId, userid) => {
 
   let isNotFoundDomain;
 
   for (let i = 0; i < keyword.length; i++) {
 
-    isNotFoundDomain = await searchAndSuggestSingleKeyword(keyword[i], domain, delayTime, projectId, userid);
+    isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
 
     if (isNotFoundDomain) {
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
@@ -1159,7 +1200,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendChangingAgentBacklink(userid, projectId);
     await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf'});
+    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
     await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
