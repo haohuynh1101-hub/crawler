@@ -157,14 +157,18 @@ router.post('/changePassword', async (req, res) => {
   if (!bcrypt.compareSync(oldPassword, user.password)) {
     res.send('wrong password');
   }
+  else {
 
-  //change password
-  const saltRounds = 10;
-  bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
-    user.password = hash;
-    await user.save();
-    res.send('ok');
-  });
+    //change password
+    const saltRounds = 10;
+    bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
+      user.password = hash;
+      await user.save();
+      res.send('ok');
+    });
+  }
+
+
 
 })
 

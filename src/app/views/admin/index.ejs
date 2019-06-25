@@ -87,10 +87,11 @@
                                                     class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
                                                     data-toggle="modal" data-target="#delete-modal"
                                                     onclick="getID('<%- user._id %>')">Xóa</button>
-                                                
 
-                                                <button class='btn btn-warning  btn-bordred waves-effect waves-light m-b-5' data-toggle="modal"
-                                                    data-target="#view-users-modal"
+
+                                                <button
+                                                    class='btn btn-warning  btn-bordred waves-effect waves-light m-b-5'
+                                                    data-toggle="modal" data-target="#view-users-modal"
                                                     onclick="loadUserData('<%- user._id %>')">
                                                     Sửa
                                                 </button>
@@ -126,6 +127,7 @@
     <% include ./viewUserModal%>
     <% include ./modal-delete %>
     <% include ../partials/scripts %>
+    <%include ./changePassword-modal %>
     <script>
         var selectedId = '';
     </script>
@@ -224,9 +226,9 @@
 
         //load user data to view modal
         const loadUserData = (id) => {
-            $('#form-update-user').attr('action',`users/${id}`);
+            $('#form-update-user').attr('action', `users/${id}`);
             $.get(`/users/${id}`, function (data, status) {
-                
+
                 console.log("TCL: loadUserData -> data", data)
                 $('#view-username').val(data.username);
                 $('#view-fullname').val(data.fullname);
@@ -234,6 +236,48 @@
                 $('#view-group').text(data.role.name);
                 console.log(data)
             });
+        }
+
+        const validateChangePassword = () => {
+
+            let oldPassword = $("#oldPassword");
+            let newPassword = $('#newPassword');
+            return (CheckValide([oldPassword, newPassword]));
+        }
+
+        const changePassword = () => {
+
+            console.log('change func')
+            let validate = validateChangePassword();
+
+            if (validate.err) {
+
+                alert(`Vui lòng nhập ${validate.message} `);
+            }
+            else {
+
+                let oldPassword = $("#oldPassword").val();
+                console.log("TCL: changePassword -> oldPassword", oldPassword)
+                let newPassword = $('#newPassword').val();
+
+                $.post("/changePassword",
+                    {
+                        oldPassword: oldPassword,
+                        newPassword: newPassword
+                    },
+                    function (data, status) {
+
+                        if (data == 'wrong password') {
+                            alert('Mật khẩu cũ không chính xác !!!');
+                        }
+                        else {
+
+                            alert('Đổi mật khẩu thành công');
+                            location.reload();
+                        }
+                    });
+            }
+
         }
 
         $(document).ready(function () {
