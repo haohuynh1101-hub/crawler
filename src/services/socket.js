@@ -195,10 +195,14 @@ module.exports = {
 
   //domain containt ad url  invalid
   sendInvalidDomainAD: async (userid, projectId) => {
-    console.log("TCL: projectId", projectId)
-    console.log("TCL: userid", userid)
-    console.log('invalid domain ad')
+    
     let sockeid = await getCurrentSocketID(userid);
     io.to(`${sockeid}`).emit('send-invalid-domain-ad', { projectId });
+  },
+
+  sendGotoGoogleVN:async(userid,projectId)=>{
+
+    let sockeid = await getCurrentSocketID(userid);
+    io.to(`${sockeid}`).emit('send-goto-googlevn',  projectId );
   }
 } 
