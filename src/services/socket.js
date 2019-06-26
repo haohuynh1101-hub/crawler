@@ -37,12 +37,14 @@ module.exports = {
   },
   sendCurrentURL: async (userid, projectId, url) => {
     try {
-      console.log("sending url...");
+      
+      console.log("sendCurrentURL");
       let sockeid = await getCurrentSocketID(userid);
-      io.to(`${sockeid}`).emit(`server-send-current-url`, { url, projectId })
-    } catch (error) {
-      console.log("TCL: error send url", error)
+      io.to(`${sockeid}`).emit(`server-send-current-url`, { url, projectId });
 
+    } catch (error) {
+
+      console.log("TCL: error send url", error)
     }
 
   },
@@ -59,14 +61,16 @@ module.exports = {
     let sockeid = await getCurrentSocketID(userid);
     io.to(`${sockeid}`).emit('changing-agent', projectId);
   },
+
   sendGotoGoogle: async (userid, projectId) => {
     try {
-      console.log('go to google ' + projectId)
+      console.log('send go to google');
       let sockeid = await getCurrentSocketID(userid);
       io.to(`${sockeid}`).emit('go-google', projectId);
-    } catch (error) {
-      console.log("TCL: error go-google", error)
 
+    } catch (error) {
+
+      console.log("TCL: error go-google", error)
     }
 
   },

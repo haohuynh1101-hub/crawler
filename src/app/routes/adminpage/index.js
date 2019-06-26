@@ -418,6 +418,38 @@ router.post('/clickAd', async (req, res, next) => {
   }
 })
 
+/**
+ * update ad project
+ * params: id
+ * body: 
+ * adURL
+ * domain
+ * delay
+ * amount
+ * name
+ */
+router.post('/editAD/:id', async (req, res) => {
+
+  try {
+
+    let { adURL,domain,delay,amount,name } = req.body;
+
+    let project = await mongoose.model('projectAds').findById(req.params.id);
+    project.name = name;
+    project.adURL = JSON.parse(adURL);
+    project.domain = domain;
+    project.delay = delay;
+    project.amount = amount;
+
+    await project.save();
+    res.redirect('/');
+
+  } catch (error) {
+
+    console.log('err when update ad project ' + error);
+    res.redirect('/');
+  }
+})
 
 /**
  * get ad project by id
@@ -473,6 +505,41 @@ router.post('/addproject', async (req, res) => {
   }
 
 });
+
+/**
+ * update suggest project by id
+ * req.param : id
+ * req.body:
+ * name
+ * keyword
+ * domain
+ * searchTool
+ * amount
+ */
+router.post('/editSuggest/:id', async (req, res) => {
+
+  try {
+
+    let { name, keyword, domain, delay, searchTool, amount } = req.body;
+
+    let project = await mongoose.model('projects').findById(req.params.id);
+    project.name = name;
+    project.keyword = keyword;
+    project.domain = domain;
+    project.delay = delay;
+    project.searchTool = searchTool;
+    project.amount = amount;
+    project.keyword = JSON.parse(req.body.keyword);
+
+    await project.save();
+    res.redirect('/');
+
+  } catch (error) {
+
+    console.log('err when update sugest project ' + error);
+    res.redirect('/');
+  }
+})
 
 //get project suggest by id
 //call when client click view detail button
@@ -571,6 +638,40 @@ router.post('/saveProjectBacklink', async (req, res) => {
       message: error
     })
   }
+})
+
+/**
+ * update backlink project
+ * params: id
+ * body:
+ * urlBacklink
+ * mainURL
+ * delay
+ * amount
+ * name
+ */
+router.post('/editBacklink/:id', async (req, res) => {
+
+  try {
+
+    let {urlBacklink,mainURL,delay,amount,name } = req.body;
+
+    let project = await mongoose.model('projectBacklinks').findById(req.params.id);
+    project.name = name;
+    project.urlBacklink = JSON.parse(urlBacklink);
+    project.mainURL = mainURL;
+    project.delay = delay;
+    project.amount = amount;
+
+    await project.save();
+    res.redirect('/');
+
+  } catch (error) {
+
+    console.log('err when update backlink project ' + error);
+    res.redirect('/');
+  }
+  
 })
 
 //get backlink project info by id
@@ -1131,7 +1232,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
     } catch (error) {
 
-      console.log("TCL: searchAndSuggest -> error", error)
+      console.log("TCL: searchAndSuggest -> error", error);
       brower.close();
     }
   }
