@@ -1131,7 +1131,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
     } catch (error) {
 
-      console.log("TCL: searchAndSuggest -> error", error)
+      console.log("TCL: searchAndSuggest -> error", error);
       brower.close();
     }
   }
