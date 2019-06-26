@@ -91,13 +91,46 @@
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
       <script>
         var selectedId = '';
+        //save selected project id in javascript tag to use later
+        const saveID = (id) => {
+          selectedId = id;
+        }
       </script>
 
+      <script>
+        //these functions is just a supporters to pass project id to main functions berfore run
+        const scheduleSupportRunSuggest = () => {
+          let validate = validateTimeSuggest();
+          if (validate.err) {
+            alert("Vui lòng nhập " + validate.message);
+            return false;
+          }
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_suggest').val()} ${$('#date_suggest').val()}`);
+          runSuggestTool(selectedId, false);
+        }
+        const scheduleSupportRunBacklink = () => {
+          let validate = validateTimeRunBacklink();
+          if (validate.err) {
+            alert("Vui lòng nhập " + validate.message);
+            return false;
+          }
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_backlink').val()} ${$('#date_backlink').val()}`);
+          runBackLinkTool(selectedId, false);
+        }
+        const scheduleSupportRunAD = () => {
+          let validate = validateTimeRunAD();
+          if (validate.err) {
+            alert("Vui lòng nhập " + validate.message);
+            return false;
+          }
+          alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
+          runAdLinkTool(selectedId, false);
+        }
+      </script>
       <script async>
         var socket = io('https://seo.seotuts.vn/', { 'transports': ['websocket', 'polling'] });
 
         const validateChangePassword = () => {
-
           let oldPassword = $("#oldPassword");
           let newPassword = $('#newPassword');
           return (CheckValide([oldPassword, newPassword]));
@@ -120,15 +153,15 @@
 
             $.post("/changePassword",
               {
-                oldPassword:oldPassword,
-                newPassword:newPassword
+                oldPassword: oldPassword,
+                newPassword: newPassword
               },
               function (data, status) {
 
-                if(data=='wrong password'){
+                if (data == 'wrong password') {
                   alert('Mật khẩu cũ không chính xác !!!');
                 }
-                else{
+                else {
 
                   alert('Đổi mật khẩu thành công');
                   location.reload();
@@ -277,24 +310,9 @@
         socket.on('send-test', projectId => {
           console.log('dm')
         })
-        //save selected project id in javascript tag to use later
-        const saveID = (id) => {
-          selectedId = id;
-        }
 
-        //these functions is just a supporters to pass project id to main functions berfore run
-        const scheduleSupportRunSuggest = () => {
-          alert(`Đã lên lịch chạy lúc : ${$('#clock_suggest').val()} ${$('#date_suggest').val()}`);
-          runSuggestTool(selectedId, false);
-        }
-        const scheduleSupportRunBacklink = () => {
-          alert(`Đã lên lịch chạy lúc : ${$('#clock_backlink').val()} ${$('#date_backlink').val()}`);
-          runBackLinkTool(selectedId, false);
-        }
-        const scheduleSupportRunAD = () => {
-          alert(`Đã lên lịch chạy lúc : ${$('#clock_ad').val()} ${$('#date_ad').val()}`);
-          runAdLinkTool(selectedId, false);
-        }
+
+
 
 
       </script>
@@ -369,7 +387,7 @@
         function saveProject() {
           let validate = CheckValideSuggest();
           if (validate.err) {
-            alert("Please insert" + validate.message);
+            alert("Vui lòng nhập " + validate.message);
             return false;
           }
 
@@ -525,7 +543,7 @@
 
           let validate = CheckValideBackLink();
           if (validate.err) {
-            alert("Please insert" + validate.message);
+            alert("Vui lòng nhập " + validate.message);
             return false;
           }
 
@@ -554,7 +572,7 @@
 
           let validate = CheckValideAD();
           if (validate.err) {
-            alert("Please insert " + validate.message);
+            alert("Vui lòng nhập  " + validate.message);
             return false;
           }
 
@@ -672,6 +690,25 @@
             location.reload();
           })
         }
+      </script>
+      <script async>
+        const validateTimeSuggest = () => {
+          let clock_suggest = $("#clock_suggest");
+          let date_suggest = $('#date_suggest');
+          return (CheckValide([clock_suggest, date_suggest]));
+        }
+
+        const validateTimeRunBacklink = () => {
+          let clock_backlink = $("#clock_backlink");
+          let date_backlink = $('#date_backlink');
+          return (CheckValide([clock_backlink, date_backlink]));
+        }
+        const validateTimeRunAD = () => {
+          let clock_ad = $("#clock_ad");
+          let date_ad = $('#date_ad');
+          return (CheckValide([clock_ad, date_ad]));
+        }
+
       </script>
 </body>
 

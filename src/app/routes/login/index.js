@@ -23,12 +23,13 @@ router.post("/", async (req, res, next) => {
 
         //check wrong username
         if (!user) {
-            return res.redirect('/login');
+            
+            return res.json({error: "Sai tài khoản"});
         }
 
         //check wrong password
         if (!bcrypt.compareSync(req.body.password, user.password)) {
-            return res.redirect('login');
+            return res.json({error: "Sai mật khẩu"});
         }
 
         res.cookie('user', user._id, { signed: true });
