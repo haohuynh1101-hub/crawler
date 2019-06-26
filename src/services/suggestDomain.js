@@ -37,7 +37,6 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
   try {
 
-    // await page.on('console', consoleObj => console.log(consoleObj.text()));
     let wasClicked;
 
     for (let currentPageIndex = 0; currentPageIndex < 9; currentPageIndex++) {
@@ -60,9 +59,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
             wasClicked = true;
             await element.querySelectorAll('a')[0].click();
-
           }
-
         });
 
         return wasClicked;
@@ -97,7 +94,9 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
       //click random url in page
       let randomURL = await clickRandomURL(page);
-      sendRandomURLClicked(userid, projectId, randomURL);
+      await saveLog(projectId,'Đang click url ngẫu nhiên trên trang ...');
+      await saveLog(projectId,'URL hiện tại: ' + randomURL);
+      await sendRandomURLClicked(userid, projectId, randomURL);
 
       return true;
 
@@ -113,7 +112,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
   } catch (error) {
 
     console.log("TCL: suggestDomain -> error", error)
-    throw error;
+    return false;
 
   }
 
