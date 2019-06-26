@@ -9,6 +9,7 @@ var { DEBUG, PORT } = require('../src/config');
 
 var debug = require('debug')(`${DEBUG.server}:server`);
 var http = require('http');
+//var redis = require('socket.io-redis')
 
 /**
  * Get port from environment and store in Express.
@@ -29,7 +30,8 @@ var server = http.createServer(app);
  */
 var { socketApi } = require('../src/services/socket');
 var io = socketApi.io;
-io.attach(server);
+//io.attach(server, { 'transports': ['websocket', 'polling'] });
+//io.adapter(redis({ host: 'localhost', port: 6379 }));
 
 /**
  * Listen on provided port, on all network interfaces.

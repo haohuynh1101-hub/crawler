@@ -14,6 +14,7 @@
   <!-- Begin page -->
   <div id="wrapper">
 
+    <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
     <!-- Top Bar End -->
@@ -91,8 +92,53 @@
       <script>
         var selectedId = '';
       </script>
-      <script>
-        var socket = io('https://seo.seotuts.vn/');
+
+      <script async>
+
+        const validateChangePassword = () => {
+
+          let oldPassword = $("#oldPassword");
+          let newPassword = $('#newPassword');
+          return (CheckValide([oldPassword, newPassword]));
+        }
+
+        const changePassword = () => {
+
+          console.log('change func')
+          let validate = validateChangePassword();
+
+          if (validate.err) {
+
+            alert(`Vui lòng nhập ${validate.message} `);
+          }
+          else {
+
+            let oldPassword = $("#oldPassword").val();
+            console.log("TCL: changePassword -> oldPassword", oldPassword)
+            let newPassword = $('#newPassword').val();
+
+            $.post("/changePassword",
+              {
+                oldPassword:oldPassword,
+                newPassword:newPassword
+              },
+              function (data, status) {
+
+                if(data=='wrong password'){
+                  alert('Mật khẩu cũ không chính xác !!!');
+                }
+                else{
+
+                  alert('Đổi mật khẩu thành công');
+                  location.reload();
+                }
+              });
+          }
+
+        }
+
+        // var socket = io('localhost:3000', { 'transports': ['websocket', 'polling'] });
+        var socket = io();
         socket.on('server-send-current-useragent', (data) => {
           $(`span[agent="${data.projectId}"]`).text(data.data);
           appendLog(data.projectId, 'Thay đổi User Agent thành công');
@@ -119,16 +165,22 @@
           appendLog(projectId, "https://www.google.com/");
         })
 
+        socket.on('send-goto-googlevn', (projectId) => {
+          appendLog(projectId, "https://www.google.com.vn/");
+        })
+
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
+      </script>
 
+      <script async>
         socket.on('next-page', (projectId) => {
           appendLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...')
         })
 
         socket.on('send-id', async (id) => {
-          console.log('server-send-id: '+id);
+          console.log('server-send-id: ' + id);
           await localStorage.setItem('id', id);
           await sendNewSocketAndUserID();
         })
@@ -167,13 +219,14 @@
         socket.on('not-found-keyword-backlink', data => {
           appendLog(data.projectId, 'Không tìm thấy url cần view trên trang' + data.urlBacklink);
         })
+      </script>
 
+      <script async>
         socket.on('not-found-ad', data => {
           appendLog(data.projectId, 'url backlink không hợp lệ hoặc không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
         })
 
         socket.on('not-found-single-ad', data => {
-          appendLog(data.projectId,'dm may')
           appendLog(data.projectId, `Không tìm thấy url quảng cáo "${data.adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
         })
 
@@ -212,17 +265,17 @@
           location.reload();
         })
 
-        socket.on('send-invalid-backlink',data=>{
-         location.reload();
+        socket.on('send-invalid-backlink', data => {
+          location.reload();
         })
 
-        socket.on('send-invalid-domain-ad',data=>{
+        socket.on('send-invalid-domain-ad', data => {
           alert('asdfasdf')
           console.log('dmddmmdsmmm')
-         //location.reload();
+          //location.reload();
         })
 
-        socket.on('send-test',projectId=>{
+        socket.on('send-test', projectId => {
           console.log('dm')
         })
         //save selected project id in javascript tag to use later
@@ -245,11 +298,14 @@
         }
 
 
+      </script>
+
+      <script async>
         /**
-         * run suggest tool
-         * id: projectid
-         * isRunNow {boolean} run now or run later (base on schedule)
-        */
+          * run suggest tool
+          * id: projectid
+          * isRunNow {boolean} run now or run later (base on schedule)
+         */
         const runSuggestTool = (id, isRunNow) => {
 
           $('#listLogSuggest').empty();
@@ -272,9 +328,9 @@
         }
 
         /**
-         * run backlink project
-         * id: projectid
-         * isRunNow {boolean} run now or run later (base on schedule)
+        * run backlink project
+        * id: projectid
+        * isRunNow {boolean} run now or run later (base on schedule)
         */
         const runBackLinkTool = (id, isRunNow) => {
 
@@ -300,8 +356,17 @@
             });
         }
 
+        const isOverMaxKeyword = (max) => {
 
-        //save config
+          let numberOfKeyword = $('#suggestKeyword').val().split('\n').length;
+          if (numberOfKeyword > max) return true;
+
+          return false;
+        }
+
+        /*
+        * save susggest project
+        */
         function saveProject() {
           let validate = CheckValideSuggest();
           if (validate.err) {
@@ -309,21 +374,29 @@
             return false;
           }
 
+          if (isOverMaxKeyword(15) == false) {
 
-          $.post("/addproject",
-            {
-              keyword: JSON.stringify($('#suggestKeyword').val().split('\n')),
-              domain: $('#domain').val(),
-              isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
-              delay: $('#delay-suggest').val(),
-              amount: $('#suggestTime').val(),
-              socketID: localStorage.getItem('id'),
-              name: $('#projectName').val(),
-              searchTool: $('#searchingTools').val()
-            },
-            function (data, status) {
-              window.location.href = '/';
-            });
+            $.post("/addproject",
+              {
+                keyword: JSON.stringify($('#suggestKeyword').val().split('\n')),
+                domain: $('#domain').val(),
+                isAutochangeUserAgent: JSON.parse($('#useragent').is(":checked")),
+                delay: $('#delay-suggest').val(),
+                amount: $('#suggestTime').val(),
+                socketID: localStorage.getItem('id'),
+                name: $('#projectName').val(),
+                searchTool: $('#searchingTools').val()
+              },
+              function (data, status) {
+                window.location.href = '/';
+              });
+          }
+          else {
+
+            alert('Số lượng keyword không được vượt quá 15');
+          }
+
+
         }
         //view suggest project
         function viewProject(id) {
@@ -348,6 +421,9 @@
 
           })
         }
+      </script>
+      <script async>
+
         //view backlink project
         function viewBackProject(id) {
 
@@ -437,6 +513,15 @@
             });
         }
 
+        const isOverMaxBacklink = (max) => {
+
+          let num = $('#url_backlink').val().split('\n').length;
+
+          if (num > max) return true;
+
+          return false;
+        }
+
         const saveBackLinkProject = () => {
 
           let validate = CheckValideBackLink();
@@ -445,17 +530,24 @@
             return false;
           }
 
-          $.post("/saveProjectBacklink",
-            {
-              urlBacklink: JSON.stringify($('#url_backlink').val().split('\n')),
-              mainURL: $('#main_url').val(),
-              delay: $('#delay_backink').val(),
-              amount: $('#amount_backlink').val(),
-              name: $('#projectName_backlink').val()
-            },
-            function (data, status) {
-              window.location.href = '/';
-            });
+          if (isOverMaxBacklink(30) == false) {
+
+            $.post("/saveProjectBacklink",
+              {
+                urlBacklink: JSON.stringify($('#url_backlink').val().split('\n')),
+                mainURL: $('#main_url').val(),
+                delay: $('#delay_backink').val(),
+                amount: $('#amount_backlink').val(),
+                name: $('#projectName_backlink').val()
+              },
+              function (data, status) {
+                window.location.href = '/';
+              });
+          }
+          else {
+            alert('Số backlink không được vượt quá 30')
+          }
+
         }
 
         //save new ad project
@@ -558,7 +650,7 @@
           })
         }
 
-        const stopSuggest=(id)=>{
+        const stopSuggest = (id) => {
           console.log('stop functin')
           $.get(`/stopSuggest/${id}`).done(function (data) {
 
@@ -566,7 +658,7 @@
           })
         }
 
-        const stopAD=(id)=>{
+        const stopAD = (id) => {
           console.log('stop functin')
           $.get(`/stopAD/${id}`).done(function (data) {
 
@@ -574,7 +666,7 @@
           })
         }
 
-        const stopBacklink=(id)=>{
+        const stopBacklink = (id) => {
           console.log('stop functin')
           $.get(`/stopBacklink/${id}`).done(function (data) {
 
