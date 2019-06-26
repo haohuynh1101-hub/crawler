@@ -98,6 +98,130 @@
       </script>
 
       <script>
+
+        /*
+        * stringify keyword before submit
+        */
+        $('#edit-suggest-form').submit(() => {
+          let keyword = $('#suggestKeyword-edit').val().split('\n');
+          keyword.splice(0, 1);
+          keyword = JSON.stringify(keyword);
+          $('#suggestKeyword-edit').val(keyword);
+        })
+
+        const loadSuggestProjectToModal = (id) => {
+
+          $('#edit-suggest-form').attr('action', `/editSuggest/${id}`);
+
+          $.get(`/project/${id}`).done(function (data) {
+
+            console.log("TCL: loadSuggestProjectToModal -> data", data)
+            $('#projectName-suggest-edit').val(data.name);
+
+            $('#domain-suggest-edit').val(data.domain);
+            $('#suggestTime-edit').val(data.amount);
+            $('#searchingTools-edit').val(data.searchTool);
+            $('#delay-suggest-edit').val(data.delay);
+
+            data.keyword.map(item => {
+
+              $('#suggestKeyword-edit').val($('#suggestKeyword-edit').val() + `\n${item}`);
+            })
+          })
+        }
+
+
+      </script>
+
+      <script>
+
+        /*
+        * stringify data url backlink before submit
+        */
+        $('#edit-backlink-modal').submit(() => {
+
+          let urlBacklink = $('#edit-url_backlink').val().split('\n');
+          urlBacklink.splice(0, 1);
+          urlBacklink = JSON.stringify(urlBacklink);
+          $('#edit-url_backlink').val(urlBacklink);
+        })
+
+        const loadBacklinkDataToModalEdit = (id) => {
+
+          $('#edit-backlink-form').attr('action', `/editBacklink/${id}`);
+
+          $.get(`/backlinkproject/${id}`).done(function (data) {
+
+            $('#edit-main_url').val(data.mainURL);
+            $('#edit-projectName_backlink').val(data.name);
+            $('#edit-delay_backink').val(data.delay);
+            $('#edit-amount_backlink').val(data.amount);
+
+            data.urlBacklink.map(item => {
+              $('#edit-url_backlink').val($('#edit-url_backlink').val() + `\n${item}`);
+            })
+
+          })
+        }
+      </script>
+
+      <script>
+
+        /*
+        * stringify ad url before submit
+        */
+        $('#edit-ad-form').submit(() => {
+
+          let adURL = $('#edit-ad_url').val().split('\n');
+          adURL.splice(0, 1);
+          adURL = JSON.stringify(adURL);
+          $('#edit-ad_url').val(adURL);
+        })
+
+        const loadADToModalEdit = (id) => {
+
+          $('#edit-ad-form').attr('action', `/editAD/${id}`);
+
+          $.get(`/ad/${id}`).done(function (data) {
+            $('#edit-projectName_ad').val(data.name);
+            $('#edit-main_url_ad').val(data.domain);
+            $('#edit-delay_ad').val(data.delay);
+            $('#edit-amount_ad').val(data.amount);
+
+            data.adURL.map(item => {
+
+              $('#edit-ad_url').val($('#edit-ad_url').val() + `\n${item}`);
+            })
+
+          })
+        }
+      </script>
+
+      <script>
+
+
+        $(document).on('click', '#btn-confirm-edit-suggest', function () { alert("hello"); });
+        const updateProjectSuggest = (id) => {
+
+          let name = $('#projectName-suggest-edit').val();
+          let domain = $('#domain-suggest-edit').val();
+          let delay = $('#delay-suggest-edit').val();
+          let amount = $('#suggestTime-edit').val();
+          let searchingTool = $('#searchingTools-edit').val();
+
+          let keyword = $('#suggestKeyword-edit').val().split('\n');
+          keyword.splice(0, 1);
+          let keyword = JSON.stringify(keyword);
+
+          console.log(name)
+          console.log(domain)
+          console.log(delay)
+          console.log(amount)
+          console.log(searchingTool)
+          console.log(keyword)
+        }
+      </script>
+      <script>
         //these functions is just a supporters to pass project id to main functions berfore run
         const scheduleSupportRunSuggest = () => {
           let validate = validateTimeSuggest();
