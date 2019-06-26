@@ -22,7 +22,7 @@ const clickRandomURL = async (page) => {
     } catch (error) {
 
         console.log('err in clickRandomURL '+error);
-        return '#';
+        return page.url();
     }
 
 }

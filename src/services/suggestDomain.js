@@ -95,7 +95,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //click random url in page
       let randomURL = await clickRandomURL(page);
       await saveLog(projectId,'Đang click url ngẫu nhiên trên trang ...');
-      await saveLog(projectId,'URL hiện tại: ' + url);
+      await saveLog(projectId,'URL hiện tại: ' + randomURL);
       await sendRandomURLClicked(userid, projectId, randomURL);
 
       return true;
