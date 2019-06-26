@@ -38,6 +38,14 @@
                                                     disabled
                                                     <% } %>
                                                     data-target="#setTimer-ad-modal">Hẹn giờ chạy</button>
+
+                                                    <button 
+                                                    data-toggle="modal"
+                                                    data-target="#edit-ad-modal"
+                                                    onclick="loadADToModalEdit('<%- item._id%>')"
+                                                    class='btn btn-warning'
+                                                    >Sửa</button>
+
                                                 <button type="button"
                                                     class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
                                                     id="btnADRun-<%- item._id %>"
@@ -83,5 +91,6 @@
     </div><!-- end col -->
 </div>
 
+<% include ./modal-edit-ad.ejs %>
 <% include ./modal-setTimer-ad.ejs %>
 <% include ./modal-view-ad %>

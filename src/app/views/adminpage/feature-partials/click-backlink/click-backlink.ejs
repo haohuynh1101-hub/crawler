@@ -38,6 +38,13 @@
                                                     disabled
                                                     <% } %>
                                                     data-target="#setTimer-backlink-modal">Hẹn giờ chạy</button>
+
+                                                    <button
+                                                    class='btn btn-warning'
+                                                    data-toggle="modal"
+                                                    data-target="#edit-backlink-modal"
+                                                    onclick="loadBacklinkDataToModalEdit('<%- item._id%>')"
+                                                    >Sửa</button>
                                                 
                                                 <button type="button"
                                                     class="btn btn-success btn-bordred waves-effect waves-light m-b-5"
@@ -85,5 +92,6 @@
     </div><!-- end col -->
 </div>
 
+<% include ./modal-edit-backlink.ejs %>
 <% include ./modal-setTimer-backlink.ejs%>
 <% include ./modal-view-backlink %>
