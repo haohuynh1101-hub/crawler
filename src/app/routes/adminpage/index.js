@@ -2,6 +2,7 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 var puppeteer = require('puppeteer');
+const { success, successWithNoData } = require("services/returnToUser");
 var Const = require("Const");
 var searchByKeyWord = require('./../../../services/searchByKeyWord');
 var changeUserAgent = require('./../../../services/changeUserAgent');
@@ -228,7 +229,17 @@ router.delete('/users/:id', async (req, res, next) => {
   }
 })
 
-//create group router
+/**
+ * create new group 
+ * body:
+ * name
+ * canSuggest
+ * canBacklink
+ * canClickAD
+ * canManageUser
+ * maxDate
+ * maxProject
+ */
 router.post('/groupUsers', async function (req, res, next) {
 
   try {
@@ -239,17 +250,16 @@ router.post('/groupUsers', async function (req, res, next) {
       canBacklink: (req.body.canBacklink == 'true') ? true : false,
       canClickAD: (req.body.canClickAD == 'true') ? true : false,
       canManageUser: (req.body.canManageUser == 'true') ? true : false,
-      maxUsingDate: req.body.maxDate
+      maxUsingDate: req.body.maxDate,
+      maxProject: req.body.maxProject
     }
     await mongoose.model('role').create(insert);
     return res.redirect('/users');
   } catch (error) {
 
-    console.log("render admin page error: ", error)
-    next(error);
+    console.log("err in create new group router ", error)
+    res.redirect('/');
   }
-
-
 });
 
 /**
@@ -265,24 +275,24 @@ router.post('/saveAdProject', async (req, res) => {
 
   try {
 
-    let numberOfProject = await mongoose.model('projectAds').find({ belongTo: req.signedCookies.user }).count();
+    let numberOfProject = await mongoose.model('projectAds').find({ belongTo: req.signedCookies.user }).countDocuments();
+    let maxProject = await mongoose.model('users').findById(req.signedCookies.user).populate('role');
+    maxProject = maxProject.role.maxProject;
 
-    if (numberOfProject == 0) {
+    if (numberOfProject < maxProject) {
 
       let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.signedCookies.user, status: 'not started' });
 
-      res.json(projects);
+      return success(res,"Success!!",projects);
     }
 
-    res.redirect('/');
+    return successWithNoData(res,"reached max project");
+
   } catch (error) {
 
     console.log("save new ad project err ", error)
 
-    res.json({
-      status: 'error',
-      message: error
-    })
+    return successWithNoData(res,"err when save new ad project ");
   }
 })
 
@@ -432,7 +442,7 @@ router.post('/editAD/:id', async (req, res) => {
 
   try {
 
-    let { adURL,domain,delay,amount,name } = req.body;
+    let { adURL, domain, delay, amount, name } = req.body;
 
     let project = await mongoose.model('projectAds').findById(req.params.id);
     project.name = name;
@@ -478,30 +488,29 @@ router.get('/ad/:id', async (req, res) => {
 })
 
 
-//add project suggest
-//call when client click save new project button
+/**
+ * save new suggest project
+ */
 router.post('/addproject', async (req, res) => {
   try {
 
-    let numberOfProject = await mongoose.model('projects').find({ belongTo: req.signedCookies.user }).count();
+    let numberOfProject = await mongoose.model('projects').find({ belongTo: req.signedCookies.user }).countDocuments();
+    let maxProject = await mongoose.model('users').findById(req.signedCookies.user).populate('role');
+    maxProject = maxProject.role.maxProject;
 
-    if (numberOfProject == 0) {
+    if (numberOfProject < maxProject) {
 
       let projects = await mongoose.model('projects').create({ ...req.body, keyword: JSON.parse(req.body.keyword), belongTo: req.signedCookies.user, status: 'not started' });
 
-      res.json(projects);
+      return success(res, "Success!!", projects);
     }
 
-    res.redirect('/');
+    return successWithNoData(res, "reached max project!!");
 
   } catch (error) {
 
-    console.log("TCL: error", error)
-
-    res.json({
-      status: 'error',
-      message: error
-    })
+    console.log("TCL: error when save new suggest project ", error)
+    return successWithNoData(res, "err when save new suggest project");
   }
 
 });
@@ -608,7 +617,7 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
 
 //
 /**
- * save new project backlink
+ * save new backlink project
  * req.body:
  * urlBacklink: Array
  * mainURL
@@ -619,24 +628,24 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
   try {
 
-    let numberOfProject = await mongoose.model('projectBacklinks').find({ belongTo: req.signedCookies.user }).count();
+    let numberOfProject = await mongoose.model('projectBacklinks').find({ belongTo: req.signedCookies.user }).countDocuments();
+    let maxProject = await mongoose.model('users').findById(req.signedCookies.user).populate('role');
+    maxProject = maxProject.role.maxProject;
 
-    if (numberOfProject == 0) {
+    if (numberOfProject < maxProject) {
 
       let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.signedCookies.user, status: 'not started' });
 
-      res.json(projects);
+     return success(res,"Success!!",projects);
     }
 
-    res.redirect('/');
+    return successWithNoData(res,"reached max project");
+
   } catch (error) {
 
     console.log("save new project backlink err ", error)
 
-    res.json({
-      status: 'error',
-      message: error
-    })
+    return successWithNoData(res,'err when save new backlin project');
   }
 })
 
@@ -654,7 +663,7 @@ router.post('/editBacklink/:id', async (req, res) => {
 
   try {
 
-    let {urlBacklink,mainURL,delay,amount,name } = req.body;
+    let { urlBacklink, mainURL, delay, amount, name } = req.body;
 
     let project = await mongoose.model('projectBacklinks').findById(req.params.id);
     project.name = name;
@@ -671,7 +680,7 @@ router.post('/editBacklink/:id', async (req, res) => {
     console.log('err when update backlink project ' + error);
     res.redirect('/');
   }
-  
+
 })
 
 //get backlink project info by id
