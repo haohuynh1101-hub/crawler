@@ -173,16 +173,27 @@ router.post('/changePassword', async (req, res) => {
 
 })
 
-//user management page
+/**
+ * admin page
+ */
 router.get('/users', async (req, res) => {
+
   let users = await mongoose.model('users').find().populate('role');
 
   let roles = await mongoose.model('role').find();
-  res.render('admin', { users, roles, currentUser: req.signedCookies.user });
+
+  res.render('admin', {
+    users,
+    roles,
+    currentUser: req.signedCookies.user,
+    moment: moment
+  });
 })
 
 
-//users create router
+/**
+ * create user
+ */
 router.post('/users', async function (req, res, next) {
 
   try {
@@ -218,7 +229,40 @@ router.post('/users', async function (req, res, next) {
 
 });
 
+/**
+ * renew user
+ */
+router.post('/users/renew/:id', async (req, res) => {
 
+  try {
+
+    //get user info from database
+    let userid = req.params.id;
+    let user = await mongoose.model('users').findById(userid);
+
+    //get user max using day of user
+    let roleid = user.role;
+    let groupMaxDate = await mongoose.model('role').findById(roleid);
+    groupMaxDate = groupMaxDate.maxUsingDate;
+
+    //renew
+    user.expiredDate = moment(new Date()).add(groupMaxDate, 'day');
+
+    await user.save();
+
+    return success(res,"Success!!",user);
+
+  } catch (error) {
+
+    console.log('err when renew user: '+error);
+    return successWithNoData(res,'err when renew user ');
+  }
+
+})
+
+/**
+ * delete user
+ */
 router.delete('/users/:id', async (req, res, next) => {
   try {
     await mongoose.model('users').findOneAndDelete({ _id: req.params.id });
@@ -283,16 +327,16 @@ router.post('/saveAdProject', async (req, res) => {
 
       let projects = await mongoose.model('projectAds').create({ ...req.body, adURL: JSON.parse(req.body.adURL), belongTo: req.signedCookies.user, status: 'not started' });
 
-      return success(res,"Success!!",projects);
+      return success(res, "Success!!", projects);
     }
 
-    return successWithNoData(res,"reached max project");
+    return successWithNoData(res, "reached max project");
 
   } catch (error) {
 
     console.log("save new ad project err ", error)
 
-    return successWithNoData(res,"err when save new ad project ");
+    return successWithNoData(res, "err when save new ad project ");
   }
 })
 
@@ -589,7 +633,9 @@ const isExpiredUser = (userObject) => {
 }
 
 
-//homepage router
+/**
+ * homepage
+ */
 router.get('/', returnAdminpage(), async function (req, res, next) {
   try {
     let user = await mongoose.model('users').findById(req.signedCookies.user)
@@ -600,7 +646,15 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     let traffic = user.traffic;
 
     if (isExpiredUser(user) == false)
-      res.render('adminpage', { allProject, allBackLinkProject, allAdProject, role, traffic });
+
+      res.render('adminpage', {
+        allProject,
+        allBackLinkProject,
+        allAdProject,
+        role,
+        traffic
+      });
+
     else
       res.render('login', { isExpired: true });
 
@@ -636,16 +690,16 @@ router.post('/saveProjectBacklink', async (req, res) => {
 
       let projects = await mongoose.model('projectBacklinks').create({ ...req.body, urlBacklink: JSON.parse(req.body.urlBacklink), belongTo: req.signedCookies.user, status: 'not started' });
 
-     return success(res,"Success!!",projects);
+      return success(res, "Success!!", projects);
     }
 
-    return successWithNoData(res,"reached max project");
+    return successWithNoData(res, "reached max project");
 
   } catch (error) {
 
     console.log("save new project backlink err ", error)
 
-    return successWithNoData(res,'err when save new backlin project');
+    return successWithNoData(res, 'err when save new backlin project');
   }
 })
 

@@ -95,7 +95,14 @@
                                                     onclick="loadUserData('<%- user._id %>')">
                                                     Sửa
                                                 </button>
+
+                                                <% if((moment(user.expiredDate)-moment(new Date())).valueOf() < 0) { %>
+                                                <button class='btn btn-success m-b-5'
+                                                    onclick="renew('<%- user._id%>')">Gia hạn</button>
                                                 <% } %>
+
+                                                <% } %>
+
                                             </td>
 
                                         </tr>
@@ -131,6 +138,21 @@
     <script>
         var selectedId = '';
     </script>
+
+    <script>
+
+        const renew = (id) => {
+
+            $.post(`/users/renew/${id}`,
+                {
+
+                },
+                function (data, status) {
+                    if (data) location.reload();
+                });
+        }
+    </script>
+
     <script type="text/javascript">
         function getID(id) {
             selectedId = id;
