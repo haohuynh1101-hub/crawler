@@ -95,6 +95,21 @@ router.get('/allProject', async (req, res) => {
 })
 //end backdoor
 
+/**
+ * get all role
+ */
+router.get('/roles', async (req, res) => {
+  try {
+
+    let role = await mongoose.model('role').find();
+    return success(res, "success", role);
+  } catch (error) {
+
+    console.log('err when get all role ' + error);
+    return successWithNoData(res, 'err when get all role ');
+  }
+});
+
 //get user info by id
 router.get('/users/:id', async (req, res) => {
 
@@ -116,20 +131,21 @@ router.post('/users/:id', async (req, res) => {
 
   try {
 
-    let { traffic } = req.body;
+    let { traffic, role } = req.body;
 
     let user = await mongoose.model('users').findById(req.params.id);
 
     user.traffic = traffic;
+    user.role = role;
 
     await user.save();
 
-    res.redirect('/users')
+    res.redirect('/')
 
   } catch (error) {
 
     console.log('err in update user info: ' + error);
-    res.send('can not update user: ' + error);
+    return successWithNoData(res, 'err when update user');
   }
 
 })
@@ -250,12 +266,12 @@ router.post('/users/renew/:id', async (req, res) => {
 
     await user.save();
 
-    return success(res,"Success!!",user);
+    return success(res, "Success!!", user);
 
   } catch (error) {
 
-    console.log('err when renew user: '+error);
-    return successWithNoData(res,'err when renew user ');
+    console.log('err when renew user: ' + error);
+    return successWithNoData(res, 'err when renew user ');
   }
 
 })
