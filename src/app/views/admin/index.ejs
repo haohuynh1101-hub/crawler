@@ -95,7 +95,14 @@
                                                     onclick="loadUserData('<%- user._id %>')">
                                                     Sửa
                                                 </button>
+
+                                                <% if((moment(user.expiredDate)-moment(new Date())).valueOf() < 0) { %>
+                                                <button class='btn btn-success m-b-5'
+                                                    onclick="renew('<%- user._id%>')">Gia hạn</button>
                                                 <% } %>
+
+                                                <% } %>
+
                                             </td>
 
                                         </tr>
@@ -131,6 +138,21 @@
     <script>
         var selectedId = '';
     </script>
+
+    <script>
+
+        const renew = (id) => {
+
+            $.post(`/users/renew/${id}`,
+                {
+
+                },
+                function (data, status) {
+                    if (data) location.reload();
+                });
+        }
+    </script>
+
     <script type="text/javascript">
         function getID(id) {
             selectedId = id;
@@ -224,17 +246,30 @@
             }
         }
 
-        //load user data to view modal
+       
+         /*
+         load data to view modal
+         */
         const loadUserData = (id) => {
+
+            //set req router
             $('#form-update-user').attr('action', `users/${id}`);
+
+            //extract all role to drop list
+            $.get(`/roles`, function (data, status) {
+                $('#view-group').find('option').remove();
+                data.data.map(item => {
+                    $('#view-group').append(new Option(item.name, item._id));
+                })
+            });
+
+            //load data to view
             $.get(`/users/${id}`, function (data, status) {
 
-                console.log("TCL: loadUserData -> data", data)
                 $('#view-username').val(data.username);
                 $('#view-fullname').val(data.fullname);
                 $('#view-traffic').val(data.traffic);
-                $('#view-group').text(data.role.name);
-                console.log(data)
+                $('#view-group').val(data.role._id)
             });
         }
 

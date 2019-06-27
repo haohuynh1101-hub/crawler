@@ -88,7 +88,21 @@
 
       <% include ../partials/scripts %>
       <script src="/socket.io/socket.io.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+      <script src="/assets/js/jquery.blockUI.js"></script>
+
+      <script>
+        //set up stay current tab when reload
+        $(document).ready(function () {
+          $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+            localStorage.setItem('activeTab', $(e.target).attr('href'));
+          });
+          var activeTab = localStorage.getItem('activeTab');
+          if (activeTab) {
+            $('#nav-tab a[href="' + activeTab + '"]').tab('show');
+          }
+        });
+      </script>
       <script>
         var selectedId = '';
         //save selected project id in javascript tag to use later

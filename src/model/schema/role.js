@@ -6,7 +6,8 @@ var role = new mongoose.Schema({
     canBacklink: { type: Boolean, default: false },
     canClickAD: { type: Boolean, default: false },
     canManageUser: { type: Boolean, default: false },
-    maxUsingDate: Number
+    maxUsingDate: Number,
+    maxProject:Number
 })
 
 module.exports = role;
