@@ -783,6 +783,7 @@ const backlinkTaskContainer = async (req, res) => {
     await backlinkTask(req, res);
   } catch (error) {
 
+    //user stop
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -828,6 +829,7 @@ const backlinkTask = async (req, res) => {
         }
       }
 
+      //done task
       //set status of project to "stopped"
       //reset is force stop to fasle
       updateProject.status = 'stopped';
@@ -1398,18 +1400,10 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
       await page.goto(backlink, { 'waitUntil': 'networkidle0' });
       await page.waitFor(5000);// in case DOM content not loaded yet
+
     } catch (error) {
 
       console.log('invalid url backlink');
-
-      //change project status to stopped 
-      //reset isForceStopped to false
-      let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
-      updateProject.status = 'stopped';
-      updateProject.isForceStop = false;
-      await updateProject.save();
-      sendInvalidUrlBacklink(userid, projectId);
-
       await brower.close();
       return false;
     }
@@ -1493,7 +1487,7 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
 
     if (isFoundDomain == false) {
 
-      saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink);
+      saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }
