@@ -91,8 +91,8 @@
 
       <script src="/assets/js/jquery.blockUI.js"></script>
 
+      <!-- set up stay current tab when reload -->
       <script>
-        //set up stay current tab when reload
         $(document).ready(function () {
           $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
             localStorage.setItem('activeTab', $(e.target).attr('href'));
@@ -103,6 +103,24 @@
           }
         });
       </script>
+
+      <!-- block youtube function-->
+      <script>
+        /*
+        * arr: array of link
+        * return : true(ok) || false (one of links is youtube)
+        */
+        const filterYoutube = (arr) => {
+
+          for (let i = 0; i < arr.length; i++) {
+
+            if (arr[i].includes('youtube.com'))
+              return false;
+          }
+          return true;
+        }
+      </script>
+
       <script>
         var selectedId = '';
         //save selected project id in javascript tag to use later
@@ -686,7 +704,7 @@
             return false;
           }
 
-          if (isOverMaxBacklink(30) == false) {
+          if (isOverMaxBacklink(30) == false && filterYoutube($('#url_backlink').val().split('\n'))) {
 
             $.post("/saveProjectBacklink",
               {
@@ -701,7 +719,7 @@
               });
           }
           else {
-            alert('Số backlink không được vượt quá 30')
+            alert('Số backlink không được vượt quá 30, các backlink không được chứa link youtube')
           }
 
         }
