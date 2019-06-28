@@ -5,7 +5,7 @@ var { sendCurrentURL,
 } = require('services/socket');
 
 var clickRandomURL = require('./../services/clickRandomURL');
-var {saveLog}=require('./saveLog');
+var { saveLog } = require('./saveLog');
 
 async function autoScroll(page) {
   await page.evaluate(async () => {
@@ -53,14 +53,17 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
         //search all dom tree to find domain
         let extractedDOM = await document.querySelectorAll('div');
-        extractedDOM.forEach(async element => {
+        for (let i = 0; i < extractedDOM.length; i++) {
 
-          if (element.innerText.toString().includes(domain)) {
+          if (extractedDOM[i].innerText.toString().includes(domain)) {
 
             wasClicked = true;
-            await element.querySelectorAll('a')[0].click();
+            let realURL = await extractedDOM[i].querySelectorAll(`a[href*="${domain}"]`);
+
+            await realURL[0].click();
+            break;
           }
-        });
+        }
 
         return wasClicked;
 
@@ -71,7 +74,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       if (!wasClicked) {
 
         await sendNextPage(userid, projectId);
-        await saveLog(projectId,'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
+        await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
         await page.evaluate(async (currentPageIndex) => {
           let nextPageElement = await document.querySelectorAll(`a[href*="start=${currentPageIndex + 1}0"]`)[0];
           await nextPageElement.click();
@@ -87,15 +90,15 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
 
       sendCurrentURL(userid, projectId, page.url());
-      await saveLog(projectId,page.url());
+      await saveLog(projectId, page.url());
 
-      await saveLog(projectId,'Đang lả lướt trên trang ...');
+      await saveLog(projectId, 'Đang lả lướt trên trang ...');
       await autoScroll(page);
 
       //click random url in page
       let randomURL = await clickRandomURL(page);
-      await saveLog(projectId,'Đang click url ngẫu nhiên trên trang ...');
-      await saveLog(projectId,'URL hiện tại: ' + randomURL);
+      await saveLog(projectId, 'Đang click url ngẫu nhiên trên trang ...');
+      await saveLog(projectId, 'URL hiện tại: ' + randomURL);
       await sendRandomURLClicked(userid, projectId, randomURL);
 
       return true;
@@ -105,7 +108,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
       sendNotFoundURL(userid, projectId);
       await saveLog(projectId, "Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
-      
+
       return false;
 
     }
