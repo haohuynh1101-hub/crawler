@@ -126,7 +126,9 @@ router.get('/users/:id', async (req, res) => {
 
 })
 
-//update user by id
+/**
+ * update user
+ */
 router.post('/users/:id', async (req, res) => {
 
   try {
@@ -135,19 +137,24 @@ router.post('/users/:id', async (req, res) => {
 
     let user = await mongoose.model('users').findById(req.params.id);
 
+    //update expired date
+    let groupMaxDate = await mongoose.model('role').findById(role);
+    groupMaxDate = groupMaxDate.maxUsingDate;
+    user.expiredDate = moment(new Date()).add(groupMaxDate, 'day');
+
+    //update traffic, group
     user.traffic = traffic;
     user.role = role;
 
     await user.save();
 
-    res.redirect('/')
+    return res.redirect('/')
 
   } catch (error) {
 
     console.log('err in update user info: ' + error);
     return successWithNoData(res, 'err when update user');
   }
-
 })
 
 //logout router
