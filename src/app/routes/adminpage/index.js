@@ -1380,6 +1380,14 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
+  //block images, css
+  await page.setRequestInterception(true);
+  await page.on('request', request => {
+    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' |request.resourceType() === 'image')
+      request.abort();
+    else
+      request.continue();
+  });
 
   //start job
   try {
