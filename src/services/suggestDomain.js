@@ -46,9 +46,10 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //false: domain not found
       wasClicked = await page.evaluate(async (domain) => {
 
-        domain = domain.replace('https://', '');
-        domain = domain.replace('http://', '');
-        domain = domain.split('/')[0];
+        //domain = domain.replace('https://', '');
+        //domain = domain.replace('http://', '');
+        domain = domain.split('/');
+        domain=domain[0]+"//"+domain[2];
         let wasClicked = false;
 
         //search all dom tree to find domain
