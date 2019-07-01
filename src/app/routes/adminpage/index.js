@@ -1160,8 +1160,8 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
     try {
-
-      await page.goto(domain, { 'waitUntil': 'networkidle0' });
+      
+      await page.goto(domain, { timeout:300000, waitUntil: 'domcontentloaded' });
     } catch (error) {
 
       console.log('invalid domain click ad feature');
@@ -1179,7 +1179,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     }
 
 
-
+    await page.waitForSelector(`a[href*="${adURL}"]`);
     let wasClicked = await page.evaluate(async (adURL) => {
 
       //search all dom tree to find ad url
@@ -1381,7 +1381,6 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
-
   //start job
   try {
 
@@ -1404,13 +1403,15 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
     try {
+      
+      await page.goto(backlink, {timeout:300000, waitUntil: 'domcontentloaded' });
 
-      await page.goto(backlink, { 'waitUntil': 'networkidle0' });
       await page.waitFor(5000);// in case DOM content not loaded yet
-
+      
     } catch (error) {
 
-      console.log('invalid url backlink');
+      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1415');
+      console.log(error)
       await brower.close();
       return false;
     }
@@ -1419,11 +1420,13 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
     await sendFindingBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
+
+    await page.waitForSelector(`a[href*="${mainURL}"]`);
     let wasClicked = await page.evaluate(async (mainURL) => {
 
       //search all dom tree to find ad url
       let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
-
+     
       if (extractedDOM.length == 0) return false;
 
       try {
