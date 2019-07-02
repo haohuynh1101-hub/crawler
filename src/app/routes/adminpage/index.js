@@ -1135,6 +1135,14 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     width: 1366,
     height: 768,
   });
+  //block images, css
+  await page.setRequestInterception(true);
+  await page.on('request', request => {
+    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+      request.abort();
+    else
+      request.continue();
+  });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
 
@@ -1160,11 +1168,11 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
     try {
-      
-      await page.goto(domain, { timeout:300000, waitUntil: 'domcontentloaded' });
+
+      await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
     } catch (error) {
 
-      console.log('invalid domain click ad feature');
+      console.log('err in catch block click singlead line 1175 '+error);
 
       //change project status to stopped 
       //reset isForceStopped to false
@@ -1189,6 +1197,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       try {
 
+        await extractedDOM[0].setAttribute('target','');
         await extractedDOM[0].click();
         return true;
 
@@ -1222,7 +1231,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
   } catch (error) {
 
-    console.log('error in catch block of clickSingleAD ' + error);
+    console.log('error in catch block of clickSingleAD line 1234 ' + error);
     await brower.close();
   }
 
@@ -1282,6 +1291,14 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       height: 768,
     });
     await page.on('console', consoleObj => console.log(consoleObj.text()));
+    //block images, css
+    await page.setRequestInterception(true);
+    await page.on('request', request => {
+      if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+        request.abort();
+      else
+        request.continue();
+    });
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
@@ -1380,6 +1397,14 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
+  //block images, css
+  await page.setRequestInterception(true);
+  await page.on('request', request => {
+    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+      request.abort();
+    else
+      request.continue();
+  });
 
   //start job
   try {
@@ -1398,16 +1423,15 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     mainURL = mainURL.split('/')[0];
 
     //go to urlBacklink
-    //find and click mainURL
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
     try {
-      
-      await page.goto(backlink, {timeout:300000, waitUntil: 'domcontentloaded' });
+
+      await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
-      
+
     } catch (error) {
 
       console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1415');
@@ -1421,16 +1445,20 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendFindingBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
 
+
+    //search for main url
     await page.waitForSelector(`a[href*="${mainURL}"]`);
     let wasClicked = await page.evaluate(async (mainURL) => {
 
-      //search all dom tree to find ad url
+      //search all dom tree to find main url
       let extractedDOM = await document.querySelectorAll(`a[href*="${mainURL}"]`);
-     
+
+      //not found main url--> exit 
       if (extractedDOM.length == 0) return false;
 
+      //found main url, try to click
       try {
-
+        await extractedDOM[0].setAttribute('target', '');
         await extractedDOM[0].click();
         return true;
 
@@ -1454,15 +1482,9 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     sendFoundBacklink(userid, projectId, mainURL);
     saveLogBacklink(projectId, `Đã tìm thấy url site chính, đang truy cập ${mainURL}`);
 
-    //click random url in this page
-    await page.waitForNavigation({ waitUntil: 'networkidle0' });
-    let randomURL = await clickRandomURL(page);
-    sendRandomURLClicked(userid, projectId, randomURL);
-    await saveLogBacklink(projectId, 'Đang click url ngẫu nhiên trên trang ...');
-    await saveLogBacklink(projectId, 'URL hiện tại: ' + randomURL);
-
-    //stay at 2nd page after random click
-    await page.waitFor(3000);
+    //delay in main page
+    await setTimeDelay(delay);
+    await page.waitFor(Const.timeDelay);
 
     await brower.close();
     await sendCloseBrower(userid, projectId);
