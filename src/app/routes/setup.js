@@ -56,5 +56,30 @@ router.get("/dropUsers", async (req, res, next) => {
   res.send('done')
 })
 
+//get all youtuber
+router.get('/digger', async (req, res) => {
+
+  let mainURL_backlink = await mongoose.model('projectBacklinks').find({ 'mainURL': /youtube/ })
+    .select(['belongTo'])
+    .populate('belongTo');
+  let backlink = await mongoose.model('projectBacklinks').find({ 'urlBacklink': /youtube/ })
+    .select(['belongTo'])
+    .populate('belongTo');
+
+  let suggest = await mongoose.model('projects').find({ 'domain': /youtube/ })
+    .select(['belongTo'])
+    .populate('belongTo');
+
+  let domain_ad = await mongoose.model('projectAds').find({ 'domain': /youtube/ })
+    .select(['belongTo'])
+    .populate('belongTo');
+
+  let adurl = await mongoose.model('projectAds').find({ 'adURL': /youtube/ })
+    .select(['belongTo'])
+    .populate('belongTo');
+
+
+  return success(res, 'success', { mainURL_backlink, backlink, suggest, domain_ad, adurl });
+})
 
 module.exports = router
