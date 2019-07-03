@@ -508,7 +508,7 @@ router.post('/clickAd', async (req, res, next) => {
 router.post('/editAD/:id', async (req, res) => {
 
   try {
-    
+
     let { adURL, domain, delay, amount, name } = req.body;
 
     let project = await mongoose.model('projectAds').findById(req.params.id);
@@ -1135,7 +1135,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     width: 1366,
     height: 768,
   });
-  //block images, css
+  //block images, css, video
   await page.setRequestInterception(true);
   await page.on('request', request => {
     const url = request.url().toLowerCase();
@@ -1300,10 +1300,19 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       height: 768,
     });
     await page.on('console', consoleObj => console.log(consoleObj.text()));
-    //block images, css
+    //block images, css, video
     await page.setRequestInterception(true);
     await page.on('request', request => {
-      if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+      const url = request.url().toLowerCase();
+      if (request.resourceType() === 'stylesheet'
+        || request.resourceType() === 'font'
+        || request.resourceType() === 'image'
+        || url.endsWith('.mp4')
+        || url.endsWith('.avi')
+        || url.endsWith('.flv')
+        || url.endsWith('.mov')
+        || url.endsWith('.wmv')
+      )
         request.abort();
       else
         request.continue();
@@ -1406,10 +1415,19 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-  //block images, css
+  //block images, css, video
   await page.setRequestInterception(true);
   await page.on('request', request => {
-    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+    const url = request.url().toLowerCase();
+    if (request.resourceType() === 'stylesheet'
+      || request.resourceType() === 'font'
+      || request.resourceType() === 'image'
+      || url.endsWith('.mp4')
+      || url.endsWith('.avi')
+      || url.endsWith('.flv')
+      || url.endsWith('.mov')
+      || url.endsWith('.wmv')
+    )
       request.abort();
     else
       request.continue();
@@ -1511,16 +1529,16 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 }
 function dumpError(err) {
   if (typeof err === 'object') {
-      if (err.message) {
-          console.log('\nMessage: ' + err.message)
-      }
-      if (err.stack) {
-          console.log('\nStacktrace:')
-          console.log('====================')
-          console.log(err.stack);
-      }
+    if (err.message) {
+      console.log('\nMessage: ' + err.message)
+    }
+    if (err.stack) {
+      console.log('\nStacktrace:')
+      console.log('====================')
+      console.log(err.stack);
+    }
   } else {
-      console.log('dumpError :: argument is not an object');
+    console.log('dumpError :: argument is not an object');
   }
 }
 
