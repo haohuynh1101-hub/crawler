@@ -1139,9 +1139,8 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   await page.setRequestInterception(true);
   await page.on('request', request => {
     const url = request.url().toLowerCase();
-    if (request.resourceType() === 'stylesheet'
-      || request.resourceType() === 'font'
-      || request.resourceType() === 'image'
+    if (
+      request.resourceType() === 'image'
       || url.endsWith('.mp4')
       || url.endsWith('.avi')
       || url.endsWith('.flv')
@@ -1304,9 +1303,8 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
     await page.setRequestInterception(true);
     await page.on('request', request => {
       const url = request.url().toLowerCase();
-      if (request.resourceType() === 'stylesheet'
-        || request.resourceType() === 'font'
-        || request.resourceType() === 'image'
+      if (
+        request.resourceType() === 'image'
         || url.endsWith('.mp4')
         || url.endsWith('.avi')
         || url.endsWith('.flv')
@@ -1419,9 +1417,8 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   await page.setRequestInterception(true);
   await page.on('request', request => {
     const url = request.url().toLowerCase();
-    if (request.resourceType() === 'stylesheet'
-      || request.resourceType() === 'font'
-      || request.resourceType() === 'image'
+    if (
+      request.resourceType() === 'image'
       || url.endsWith('.mp4')
       || url.endsWith('.avi')
       || url.endsWith('.flv')
