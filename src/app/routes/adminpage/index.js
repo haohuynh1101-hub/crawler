@@ -1135,22 +1135,22 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     width: 1366,
     height: 768,
   });
-  //block images, css, video
-  await page.setRequestInterception(true);
-  await page.on('request', request => {
-    const url = request.url().toLowerCase();
-    if (
-      request.resourceType() === 'image'
-      || url.endsWith('.mp4')
-      || url.endsWith('.avi')
-      || url.endsWith('.flv')
-      || url.endsWith('.mov')
-      || url.endsWith('.wmv')
-    )
-      request.abort();
-    else
-      request.continue();
-  });
+  // //block images, css, video
+  // await page.setRequestInterception(true);
+  // await page.on('request', request => {
+  //   const url = request.url().toLowerCase();
+  //   if (
+  //     request.resourceType() === 'image'
+  //     || url.endsWith('.mp4')
+  //     || url.endsWith('.avi')
+  //     || url.endsWith('.flv')
+  //     || url.endsWith('.mov')
+  //     || url.endsWith('.wmv')
+  //   )
+  //     request.abort();
+  //   else
+  //     request.continue();
+  // });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
 
@@ -1299,22 +1299,22 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       height: 768,
     });
     await page.on('console', consoleObj => console.log(consoleObj.text()));
-    //block images, css, video
-    await page.setRequestInterception(true);
-    await page.on('request', request => {
-      const url = request.url().toLowerCase();
-      if (
-        request.resourceType() === 'image'
-        || url.endsWith('.mp4')
-        || url.endsWith('.avi')
-        || url.endsWith('.flv')
-        || url.endsWith('.mov')
-        || url.endsWith('.wmv')
-      )
-        request.abort();
-      else
-        request.continue();
-    });
+    // //block images, css, video
+    // await page.setRequestInterception(true);
+    // await page.on('request', request => {
+    //   const url = request.url().toLowerCase();
+    //   if (
+    //     request.resourceType() === 'image'
+    //     || url.endsWith('.mp4')
+    //     || url.endsWith('.avi')
+    //     || url.endsWith('.flv')
+    //     || url.endsWith('.mov')
+    //     || url.endsWith('.wmv')
+    //   )
+    //     request.abort();
+    //   else
+    //     request.continue();
+    // });
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
@@ -1413,22 +1413,22 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-  //block images, css, video
-  await page.setRequestInterception(true);
-  await page.on('request', request => {
-    const url = request.url().toLowerCase();
-    if (
-      request.resourceType() === 'image'
-      || url.endsWith('.mp4')
-      || url.endsWith('.avi')
-      || url.endsWith('.flv')
-      || url.endsWith('.mov')
-      || url.endsWith('.wmv')
-    )
-      request.abort();
-    else
-      request.continue();
-  });
+  // //block images, css, video
+  // await page.setRequestInterception(true);
+  // await page.on('request', request => {
+  //   const url = request.url().toLowerCase();
+  //   if (
+  //     request.resourceType() === 'image'
+  //     || url.endsWith('.mp4')
+  //     || url.endsWith('.avi')
+  //     || url.endsWith('.flv')
+  //     || url.endsWith('.mov')
+  //     || url.endsWith('.wmv')
+  //   )
+  //     request.abort();
+  //   else
+  //     request.continue();
+  // });
 
   //start job
   try {
