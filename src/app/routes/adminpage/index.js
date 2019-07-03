@@ -508,7 +508,7 @@ router.post('/clickAd', async (req, res, next) => {
 router.post('/editAD/:id', async (req, res) => {
 
   try {
-
+    
     let { adURL, domain, delay, amount, name } = req.body;
 
     let project = await mongoose.model('projectAds').findById(req.params.id);
@@ -1138,7 +1138,16 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   //block images, css
   await page.setRequestInterception(true);
   await page.on('request', request => {
-    if (request.resourceType() === 'stylesheet' || request.resourceType() === 'font' | request.resourceType() === 'image')
+    const url = request.url().toLowerCase();
+    if (request.resourceType() === 'stylesheet'
+      || request.resourceType() === 'font'
+      || request.resourceType() === 'image'
+      || url.endsWith('.mp4')
+      || url.endsWith('.avi')
+      || url.endsWith('.flv')
+      || url.endsWith('.mov')
+      || url.endsWith('.wmv')
+    )
       request.abort();
     else
       request.continue();
@@ -1172,7 +1181,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
     } catch (error) {
 
-      console.log('err in catch block click singlead line 1175 '+error);
+      console.log('err in catch block click singlead line 1175 ' + error);
 
       //change project status to stopped 
       //reset isForceStopped to false
@@ -1197,7 +1206,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       try {
 
-        await extractedDOM[0].setAttribute('target','');
+        await extractedDOM[0].setAttribute('target', '');
         await extractedDOM[0].click();
         return true;
 
