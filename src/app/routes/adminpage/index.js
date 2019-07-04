@@ -1140,8 +1140,6 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   await page.on('request', request => {
     const url = request.url().toLowerCase();
     if (
-      request.resourceType()==='image'
-        ||
       url.endsWith('.mp4')
       || url.endsWith('.avi')
       || url.endsWith('.flv')
@@ -1305,8 +1303,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
     await page.on('request', request => {
       const url = request.url().toLowerCase();
       if (
-        request.resourceType() === 'image'
-        || url.endsWith('.mp4')
+        url.endsWith('.mp4')
         || url.endsWith('.avi')
         || url.endsWith('.flv')
         || url.endsWith('.mov')
@@ -1419,8 +1416,6 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   await page.on('request', request => {
     const url = request.url().toLowerCase();
     if (
-      request.resourceType() === 'image'
-      ||
       url.endsWith('.mp4')
       || url.endsWith('.avi')
       || url.endsWith('.flv')
