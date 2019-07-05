@@ -634,6 +634,21 @@ router.get('/project/:id', async (req, res) => {
 
 })
 
+/**
+ * middleware that check enough traffic before run tool
+ */
+const checkEnoughTraffic=()=>{
+  return async(req,res)=>{
+
+    let {monthlyTraffic} =await mongoose.model('users').findById(req.userid);
+    console.log("TCL: checkEnoughTraffic -> monthlyTraffic", monthlyTraffic)
+    if(monthlyTraffic===0){
+
+      await sendNOTEnoughTraffic(userid,projectId);
+      return res.redirect('/');
+    }
+  }
+}
 
 function returnAdminpage() {
   return async (req, res, next) => {
@@ -1062,7 +1077,7 @@ router.get('/deleteSuggest/:id', async (req, res) => {
 })
 
 //suggest domain request
-router.post('/suggest', async (req, res, next) => {
+router.post('/suggest',checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 

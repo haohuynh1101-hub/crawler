@@ -361,6 +361,11 @@
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
+
+        socket.on('not-enough-traffic',(projectId)=>{
+          appendLog(projectId,'Đã hết số traffic tối đa trong tháng !!!');
+          alert('Đã hết số traffic tối đa trong tháng !!!');
+        })
       </script>
 
       <script async>

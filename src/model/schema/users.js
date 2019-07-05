@@ -19,7 +19,8 @@ var users = new mongoose.Schema({
   },
   currentSocketID: String,
   traffic: Number,
-  expiredDate: Date
+  expiredDate: Date,
+  monthlyTraffic: Number
 })
 
 module.exports = users;
