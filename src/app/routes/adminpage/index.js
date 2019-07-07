@@ -889,6 +889,7 @@ const backlinkTask = async (req, res) => {
 
         //get project info
         let { urlBacklink, mainURL, delay, isForceStop } = await mongoose.model('projectBacklinks').findById(projectId);
+        console.log("isforstop line 892 ", isForceStop)
 
         if (isForceStop) throw new Error('Your backlink task is forced to stopped by user !!!');
 
