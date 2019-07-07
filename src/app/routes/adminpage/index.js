@@ -12,8 +12,10 @@ var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
+var getProxyFromAPI = require('./../../../services/getProxyFromAPI');
 var setSchedule = require('./../../../services/setSchedule');
 var moment = require('moment-timezone');
+var { PROXY_URL } = require('./../../../config/constants');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -1496,8 +1498,33 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
  */
 const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectId, userid) => {
 
-  //set up brower and page
-  let brower = await puppeteer.launch(Const.options);
+  /**
+   * flag check stop signal from user
+   * change project status to stopped 
+   * reset isForceStopped to false
+   */
+  let { isForceStop ,status} = await mongoose.model('projectBacklinks').findById(projectId);
+  if (isForceStop) {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+    //send reload page socket
+    await sendStopBacklink(userid, projectId);
+    return true;
+  }
+  if(status==='stopped') return true;
+
+  /**
+   * setup brower and page
+   */
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1521,14 +1548,16 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       request.continue();
   });
 
-  //start job
+
+  /**
+   * start job
+   */
   try {
 
     //change user agent
     await sendChangingAgentBacklink(userid, projectId);
     await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
     await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
@@ -1541,25 +1570,33 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
-    try {
+    for (let i = 0; i < 4; i++) {
 
-      await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
+      try {
 
-      await page.waitFor(5000);// in case DOM content not loaded yet
+        await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
-    } catch (error) {
+        await page.waitFor(5000);// in case DOM content not loaded yet
+        console.log('connect proxy success')
+        break;
 
-      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1415');
-      console.log(error)
-      await brower.close();
-      return false;
+      } catch (error) {
+
+        console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1564');
+        console.log(error)
+
+        await brower.close();
+
+        console.log('connect proxy faile, retry: ' + i)
+        await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
+
+        if (i == 3) return false;
+      }
     }
-
 
 
     await sendFindingBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
-
 
     //search for main url
     await page.waitForSelector(`a[href*="${mainURL}"]`);
