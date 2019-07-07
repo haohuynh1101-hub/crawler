@@ -1243,7 +1243,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   let proxyAddress = await getProxyFromAPI(PROXY_URL);
 
   let brower = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
   });
   const page = await brower.newPage();
@@ -1566,7 +1566,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   let proxyAddress = await getProxyFromAPI(PROXY_URL);
 
   let brower = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
   });
   const page = await brower.newPage();
