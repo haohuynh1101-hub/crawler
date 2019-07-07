@@ -858,6 +858,7 @@ const backlinkTaskContainer = async (req, res) => {
     //user stop
     //change project status to stopped 
     //reset isForceStopped to false
+    console.log('user stop line 816');
     let { projectId, userid } = req.body;
     let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
     updateProject.status = 'stopped';
@@ -913,6 +914,7 @@ const backlinkTask = async (req, res) => {
       //done task
       //set status of project to "stopped"
       //reset is force stop to fasle
+      console.log('stop line 917');
       updateProject.status = 'stopped';
       updateProject.isForceStop = false;
       updateProject.save();
