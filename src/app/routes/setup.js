@@ -82,4 +82,10 @@ router.get('/digger', async (req, res) => {
   return success(res, 'success', { mainURL_backlink, backlink, suggest, domain_ad, adurl });
 })
 
+router.get('/monthlyTraffic',async(req,res)=>{
+
+  await mongoose.model('users').updateMany({ monthlyTraffic: 20000 });
+  res.send('ok')
+})
+
 module.exports = router
