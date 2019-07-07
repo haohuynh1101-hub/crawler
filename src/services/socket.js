@@ -208,5 +208,11 @@ module.exports = {
 
     let sockeid = await getCurrentSocketID(userid);
     io.to(`${sockeid}`).emit('send-goto-googlevn',  projectId );
+  },
+
+  sendNOTEnoughTraffic:async(userid,projectId)=>{
+
+    let sockeid = await getCurrentSocketID(userid);
+    io.to(`${sockeid}`).emit('not-enough-traffic',  projectId );
   }
 } 

@@ -12,8 +12,10 @@ var suggestDomain = require('./../../../services/suggestDomain');
 var getProject = require('./../../../services/getProject');
 var { saveLog, saveLogBacklink, saveLogAD } = require('./../../../services/saveLog');
 var clickRandomURL = require('./../../../services/clickRandomURL');
+var getProxyFromAPI = require('./../../../services/getProxyFromAPI');
 var setSchedule = require('./../../../services/setSchedule');
 var moment = require('moment-timezone');
+var { PROXY_URL } = require('./../../../config/constants');
 var { sendCloseBrower,
   sendGotoGoogle,
   sendChangingAgent,
@@ -40,8 +42,61 @@ var { sendCloseBrower,
   sendStopBacklink,
   sendInvalidUrlBacklink,
   sendInvalidDomainAD,
-  sendGotoGoogleVN
+  sendGotoGoogleVN,
+  sendNOTEnoughTraffic
 } = require('services/socket');
+
+/**
+ * middleware that check enough traffic before run tool
+ */
+const checkEnoughTraffic = () => {
+  return async (req, res, next) => {
+
+    let user = await mongoose.model('users').findById(req.body.userid);
+    console.log("TCL: checkEnoughTraffic -> user", user)
+    let monthlyTraffic = user.monthlyTraffic;
+    console.log("TCL: checkEnoughTraffic -> monthlyTraffic", monthlyTraffic)
+    if (monthlyTraffic === 0) {
+
+      await sendNOTEnoughTraffic(req.body.userid, req.body.projectId);
+      return res.redirect('/');
+    }
+    next();
+  }
+}
+
+const getMonthlyTraffic = async (userid) => {
+
+  try {
+
+    let user = await mongoose.model('users').findById(userid);
+    return user.monthlyTraffic;
+
+  } catch (error) {
+
+    console.log('err in catch block get monthly traffic line 970 ' + error);
+    return 0;
+  }
+
+}
+
+/**
+ * decrease monthly traffic of user by 1
+ * @param {*} userid 
+ */
+const decreaseMonthlyTraffic = async (userid) => {
+
+  try {
+
+    let user = await mongoose.model('users').findById(userid);
+    user.monthlyTraffic -= 1;
+    await user.save();
+
+  } catch (error) {
+
+    console.log('err then decrease monthly traffic ' + error);
+  }
+}
 
 //this is backdoor
 //remove in production env
@@ -133,7 +188,7 @@ router.post('/users/:id', async (req, res) => {
 
   try {
 
-    let { traffic, role } = req.body;
+    let { traffic, role, monthlyTraffic } = req.body;
 
     let user = await mongoose.model('users').findById(req.params.id);
 
@@ -145,6 +200,7 @@ router.post('/users/:id', async (req, res) => {
     //update traffic, group
     user.traffic = traffic;
     user.role = role;
+    user.monthlyTraffic = monthlyTraffic;
 
     await user.save();
 
@@ -412,10 +468,19 @@ const clickADTask = async (req, res) => {
 
         let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
 
+        //invalid ad url/domain --> exit
         if (isSuccessed == false) {
 
           saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
           sendNotFoundAD(userid, projectId);
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
       }
@@ -462,7 +527,7 @@ router.get('/deleteAD/:id', async (req, res) => {
  * projectId
  * userid
  */
-router.post('/clickAd', async (req, res, next) => {
+router.post('/clickAd', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -635,6 +700,7 @@ router.get('/project/:id', async (req, res) => {
 })
 
 
+
 function returnAdminpage() {
   return async (req, res, next) => {
     let user = await mongoose.model('users').findById(req.signedCookies.user);
@@ -675,7 +741,8 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
         allBackLinkProject,
         allAdProject,
         role,
-        traffic
+        traffic,
+        monthlyTraffic: user.monthlyTraffic
       });
 
     else
@@ -828,10 +895,19 @@ const backlinkTask = async (req, res) => {
 
         let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
+        //invalid backlink/domain --> exit
         if (isSuccessed == false) {
 
           sendNotFoundBacklink(userid, projectId);
           saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
       }
@@ -880,7 +956,7 @@ router.get('/deleteBacklink/:id', async (req, res) => {
  * userid
  * projectId
  */
-router.post('/backlink', async (req, res, next) => {
+router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -941,6 +1017,7 @@ const suggestTaskContainer = async (req, res) => {
 }
 
 
+
 const suggestTask = async (req, res) => {
 
   return new Promise(async (resolve, reject) => {
@@ -964,9 +1041,18 @@ const suggestTask = async (req, res) => {
 
         let isCrashed = await searchAndSuggestMultipleKeyword(searchTool, keyword, domain, delay, projectId, userid);
 
+        //all keyword invalid --> exit
         if (isCrashed) {
 
           sendInvalidQuery(userid);
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
 
@@ -1062,7 +1148,7 @@ router.get('/deleteSuggest/:id', async (req, res) => {
 })
 
 //suggest domain request
-router.post('/suggest', async (req, res, next) => {
+router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -1116,6 +1202,8 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+
+let numberOfInvalidAD = 0;
 /**
  * go to domain, find and click adURL
  * @param {*} domain 
@@ -1127,8 +1215,34 @@ router.post('/sendSocket', async (req, res) => {
  */
 const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
-  //set up brower and page
-  let brower = await puppeteer.launch(Const.options);
+  /**
+   * flag check stop signal from user
+   * change project status to stopped 
+   * reset isForceStopped to false
+   */
+  let { isForceStop, status } = await mongoose.model('projectAds').findById(projectId);
+  if (isForceStop) {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+    //send reload page socket
+    await sendStopAD(userid, projectId);
+    return true;
+  }
+  if (status === 'stopped') return true;
+
+
+  /**
+  * setup brower and page
+  */
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1160,7 +1274,6 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendChangingAgentAD(userid, projectId);
     await saveLogAD(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
     await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
@@ -1174,23 +1287,36 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendGoToDomainAD(userid, projectId, domain);
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
+
     try {
 
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
+      await page.waitFor(5000);// in case DOM content not loaded yet
+      console.log('connect proxy success')
+
     } catch (error) {
 
-      console.log('err in catch block click singlead line 1175 ' + error);
+      console.log('err in catch block click singlead line 1299 ' + error);
 
-      //change project status to stopped 
-      //reset isForceStopped to false
-      let updateProject = await mongoose.model('projectAds').findById(projectId);
-      updateProject.status = 'stopped';
-      updateProject.isForceStop = false;
-      await updateProject.save();
-      await sendStopAD(userid, projectId);
+      // //change project status to stopped 
+      // //reset isForceStopped to false
+      // let updateProject = await mongoose.model('projectAds').findById(projectId);
+      // updateProject.status = 'stopped';
+      // updateProject.isForceStop = false;
+      // await updateProject.save();
+      // await sendStopAD(userid, projectId);
 
       await brower.close();
-      return false;
+
+      console.log('connect proxy faile, retry: ' + numberOfInvalidAD)
+
+      numberOfInvalidAD++;
+      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
+
+      if (numberOfInvalidAD >= 4) return false;
+
+      await clickSingleAD(domain, adURL, delay, projectId, userid);
+
     }
 
 
@@ -1253,6 +1379,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
   let isFoundAD;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < adURL.length; i++) {
 
@@ -1260,13 +1387,18 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
     if (isFoundAD == false) {
 
+      numberOfInvalidDomain++;
       saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
       sendNotFoundSingleAD(userid, projectId, adURL);
 
     }
   }
 
-  return isFoundAD;
+  if (numberOfInvalidDomain >= adURL.length) return false;
+
+  await decreaseMonthlyTraffic(userid);
+
+  return true;
 }
 
 /**
@@ -1374,23 +1506,27 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, delayTime, projectId, userid) => {
 
   let isNotFoundDomain;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < keyword.length; i++) {
 
     isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
 
     if (isNotFoundDomain) {
+      numberOfInvalidDomain++;
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
     }
   }
 
-  return isNotFoundDomain;
+  if (numberOfInvalidDomain >= keyword.length) return true;
 
+  await decreaseMonthlyTraffic(userid);
+  return false;
 }
 
 
-
+let numberInvalidBacklink = 0;
 /**
  * go to backlink, find and click main url
  * @param {*} backlink 
@@ -1402,8 +1538,33 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
  */
 const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectId, userid) => {
 
-  //set up brower and page
-  let brower = await puppeteer.launch(Const.options);
+  /**
+   * flag check stop signal from user
+   * change project status to stopped 
+   * reset isForceStopped to false
+   */
+  let { isForceStop, status } = await mongoose.model('projectBacklinks').findById(projectId);
+  if (isForceStop) {
+
+    let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+    //send reload page socket
+    await sendStopBacklink(userid, projectId);
+    return true;
+  }
+  if (status === 'stopped') return true;
+
+  /**
+   * setup brower and page
+   */
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1427,14 +1588,16 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       request.continue();
   });
 
-  //start job
+
+  /**
+   * start job
+   */
   try {
 
     //change user agent
     await sendChangingAgentBacklink(userid, projectId);
     await saveLogBacklink(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentBacklink(userid, projectId, currentUserAgent);
     await saveLogBacklink(projectId, 'User agent hiện tại: ' + currentUserAgent);
 
@@ -1447,25 +1610,37 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
+
+
     try {
 
       await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
+      console.log('connect proxy success')
+
 
     } catch (error) {
 
-      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1415');
+      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1564');
       console.log(error)
+
       await brower.close();
-      return false;
+
+      console.log('connect proxy faile, retry: ' + numberInvalidBacklink)
+
+      numberInvalidBacklink++;
+      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
+      if (numberInvalidBacklink >= 4) return false;
+
+      await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
+
     }
 
 
 
     await sendFindingBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
-
 
     //search for main url
     await page.waitForSelector(`a[href*="${mainURL}"]`);
@@ -1533,19 +1708,24 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
   let isFoundDomain;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < urlBacklink.length; i++) {
 
     isFoundDomain = await clickMainURLWithSingleBacklink(urlBacklink[i], mainURL, delay, projectId, userid);
 
     if (isFoundDomain == false) {
-
+      numberOfInvalidDomain++;
       saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }
 
-  return isFoundDomain;
+  if (numberOfInvalidDomain >= urlBacklink.length) return false;
+
+  await decreaseMonthlyTraffic(userid);
+
+  return true;
 }
 
 
