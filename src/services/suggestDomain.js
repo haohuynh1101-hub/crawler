@@ -44,26 +44,20 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //wasClicked
       //true: domain found and clicked
       //false: domain not found
+      await page.waitForSelector(`a[href*="${domain}"]`);
       wasClicked = await page.evaluate(async (domain) => {
 
-        //domain = domain.replace('https://', '');
-        //domain = domain.replace('http://', '');
         domain = domain.split('/');
-        domain=domain[0]+"//"+domain[2];
+        domain = domain[0] + "//" + domain[2];
+        
         let wasClicked = false;
 
-        //search all dom tree to find domain
-        let extractedDOM = await document.querySelectorAll('div');
-        for (let i = 0; i < extractedDOM.length; i++) {
+        let myDOM = await document.querySelectorAll(`a[href*="${domain}"]`);
 
-          if (extractedDOM[i].innerText.toString().includes(domain)) {
+        if (myDOM.length > 0) {
 
-            wasClicked = true;
-            let realURL = await extractedDOM[i].querySelectorAll(`a[href*="${domain}"]`);
-
-            await realURL[0].click();
-            break;
-          }
+          wasClicked = true;
+          await myDOM[0].click();
         }
 
         return wasClicked;
@@ -73,7 +67,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //if there was not any matched domain in previous page
       //search in next page  
       if (!wasClicked) {
-
+        console.log('next page')
         await sendNextPage(userid, projectId);
         await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
         await page.evaluate(async (currentPageIndex) => {
