@@ -1202,6 +1202,8 @@ router.post('/sendSocket', async (req, res) => {
 
 })
 
+
+let numberOfInvalidAD = 0;
 /**
  * go to domain, find and click adURL
  * @param {*} domain 
@@ -1213,8 +1215,34 @@ router.post('/sendSocket', async (req, res) => {
  */
 const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
-  //set up brower and page
-  let brower = await puppeteer.launch(Const.options);
+  /**
+   * flag check stop signal from user
+   * change project status to stopped 
+   * reset isForceStopped to false
+   */
+  let { isForceStop, status } = await mongoose.model('projectAds').findById(projectId);
+  if (isForceStop) {
+
+    let updateProject = await mongoose.model('projectAds').findById(projectId);
+    updateProject.status = 'stopped';
+    updateProject.isForceStop = false;
+    await updateProject.save();
+    //send reload page socket
+    await sendStopAD(userid, projectId);
+    return true;
+  }
+  if (status === 'stopped') return true;
+
+
+  /**
+  * setup brower and page
+  */
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1246,7 +1274,6 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendChangingAgentAD(userid, projectId);
     await saveLogAD(projectId, 'Đang thay đổi user agent ...');
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
     await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
@@ -1260,23 +1287,36 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendGoToDomainAD(userid, projectId, domain);
     await saveLogAD(projectId, `Đang truy cập "${domain}"`);
 
+
     try {
 
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
+      await page.waitFor(5000);// in case DOM content not loaded yet
+      console.log('connect proxy success')
+
     } catch (error) {
 
-      console.log('err in catch block click singlead line 1175 ' + error);
+      console.log('err in catch block click singlead line 1299 ' + error);
 
-      //change project status to stopped 
-      //reset isForceStopped to false
-      let updateProject = await mongoose.model('projectAds').findById(projectId);
-      updateProject.status = 'stopped';
-      updateProject.isForceStop = false;
-      await updateProject.save();
-      await sendStopAD(userid, projectId);
+      // //change project status to stopped 
+      // //reset isForceStopped to false
+      // let updateProject = await mongoose.model('projectAds').findById(projectId);
+      // updateProject.status = 'stopped';
+      // updateProject.isForceStop = false;
+      // await updateProject.save();
+      // await sendStopAD(userid, projectId);
 
       await brower.close();
-      return false;
+
+      console.log('connect proxy faile, retry: ' + numberOfInvalidAD)
+
+      numberOfInvalidAD++;
+      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
+
+      if (numberOfInvalidAD >= 4) return false;
+
+      await clickSingleAD(domain, adURL, delay, projectId, userid);
+
     }
 
 
@@ -1486,7 +1526,7 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
 }
 
 
-
+let numberInvalidBacklink = 0;
 /**
  * go to backlink, find and click main url
  * @param {*} backlink 
@@ -1503,7 +1543,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
    * change project status to stopped 
    * reset isForceStopped to false
    */
-  let { isForceStop ,status} = await mongoose.model('projectBacklinks').findById(projectId);
+  let { isForceStop, status } = await mongoose.model('projectBacklinks').findById(projectId);
   if (isForceStop) {
 
     let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
@@ -1514,7 +1554,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendStopBacklink(userid, projectId);
     return true;
   }
-  if(status==='stopped') return true;
+  if (status === 'stopped') return true;
 
   /**
    * setup brower and page
@@ -1570,29 +1610,33 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await sendGotoDomainBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
-    for (let i = 0; i < 4; i++) {
 
-      try {
 
-        await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
+    try {
 
-        await page.waitFor(5000);// in case DOM content not loaded yet
-        console.log('connect proxy success')
-        break;
+      await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
-      } catch (error) {
+      await page.waitFor(5000);// in case DOM content not loaded yet
+      console.log('connect proxy success')
 
-        console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1564');
-        console.log(error)
 
-        await brower.close();
+    } catch (error) {
 
-        console.log('connect proxy faile, retry: ' + i)
-        await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
+      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1564');
+      console.log(error)
 
-        if (i == 3) return false;
-      }
+      await brower.close();
+
+      console.log('connect proxy faile, retry: ' + numberInvalidBacklink)
+
+      numberInvalidBacklink++;
+      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
+      if (numberInvalidBacklink >= 4) return false;
+
+      await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
+
     }
+
 
 
     await sendFindingBacklink(userid, projectId, backlink);
