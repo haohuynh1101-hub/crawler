@@ -53,9 +53,7 @@ const checkEnoughTraffic = () => {
   return async (req, res, next) => {
 
     let user = await mongoose.model('users').findById(req.body.userid);
-    console.log("TCL: checkEnoughTraffic -> user", user)
     let monthlyTraffic = user.monthlyTraffic;
-    console.log("TCL: checkEnoughTraffic -> monthlyTraffic", monthlyTraffic)
     if (monthlyTraffic === 0) {
 
       await sendNOTEnoughTraffic(req.body.userid, req.body.projectId);
