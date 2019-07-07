@@ -40,8 +40,61 @@ var { sendCloseBrower,
   sendStopBacklink,
   sendInvalidUrlBacklink,
   sendInvalidDomainAD,
-  sendGotoGoogleVN
+  sendGotoGoogleVN,
+  sendNOTEnoughTraffic
 } = require('services/socket');
+
+/**
+ * middleware that check enough traffic before run tool
+ */
+const checkEnoughTraffic = () => {
+  return async (req, res, next) => {
+
+    let user = await mongoose.model('users').findById(req.body.userid);
+    console.log("TCL: checkEnoughTraffic -> user", user)
+    let monthlyTraffic = user.monthlyTraffic;
+    console.log("TCL: checkEnoughTraffic -> monthlyTraffic", monthlyTraffic)
+    if (monthlyTraffic === 0) {
+
+      await sendNOTEnoughTraffic(req.body.userid, req.body.projectId);
+      return res.redirect('/');
+    }
+    next();
+  }
+}
+
+const getMonthlyTraffic = async (userid) => {
+
+  try {
+
+    let user = await mongoose.model('users').findById(userid);
+    return user.monthlyTraffic;
+
+  } catch (error) {
+
+    console.log('err in catch block get monthly traffic line 970 ' + error);
+    return 0;
+  }
+
+}
+
+/**
+ * decrease monthly traffic of user by 1
+ * @param {*} userid 
+ */
+const decreaseMonthlyTraffic = async (userid) => {
+
+  try {
+
+    let user = await mongoose.model('users').findById(userid);
+    user.monthlyTraffic -= 1;
+    await user.save();
+
+  } catch (error) {
+
+    console.log('err then decrease monthly traffic ' + error);
+  }
+}
 
 //this is backdoor
 //remove in production env
@@ -133,7 +186,7 @@ router.post('/users/:id', async (req, res) => {
 
   try {
 
-    let { traffic, role } = req.body;
+    let { traffic, role, monthlyTraffic } = req.body;
 
     let user = await mongoose.model('users').findById(req.params.id);
 
@@ -145,6 +198,7 @@ router.post('/users/:id', async (req, res) => {
     //update traffic, group
     user.traffic = traffic;
     user.role = role;
+    user.monthlyTraffic = monthlyTraffic;
 
     await user.save();
 
@@ -412,10 +466,19 @@ const clickADTask = async (req, res) => {
 
         let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
 
+        //invalid ad url/domain --> exit
         if (isSuccessed == false) {
 
           saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
           sendNotFoundAD(userid, projectId);
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
       }
@@ -462,7 +525,7 @@ router.get('/deleteAD/:id', async (req, res) => {
  * projectId
  * userid
  */
-router.post('/clickAd', async (req, res, next) => {
+router.post('/clickAd', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -634,21 +697,7 @@ router.get('/project/:id', async (req, res) => {
 
 })
 
-/**
- * middleware that check enough traffic before run tool
- */
-const checkEnoughTraffic=()=>{
-  return async(req,res)=>{
 
-    let {monthlyTraffic} =await mongoose.model('users').findById(req.userid);
-    console.log("TCL: checkEnoughTraffic -> monthlyTraffic", monthlyTraffic)
-    if(monthlyTraffic===0){
-
-      await sendNOTEnoughTraffic(userid,projectId);
-      return res.redirect('/');
-    }
-  }
-}
 
 function returnAdminpage() {
   return async (req, res, next) => {
@@ -690,7 +739,8 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
         allBackLinkProject,
         allAdProject,
         role,
-        traffic
+        traffic,
+        monthlyTraffic: user.monthlyTraffic
       });
 
     else
@@ -843,10 +893,19 @@ const backlinkTask = async (req, res) => {
 
         let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
 
+        //invalid backlink/domain --> exit
         if (isSuccessed == false) {
 
           sendNotFoundBacklink(userid, projectId);
           saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
       }
@@ -895,7 +954,7 @@ router.get('/deleteBacklink/:id', async (req, res) => {
  * userid
  * projectId
  */
-router.post('/backlink', async (req, res, next) => {
+router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -956,6 +1015,7 @@ const suggestTaskContainer = async (req, res) => {
 }
 
 
+
 const suggestTask = async (req, res) => {
 
   return new Promise(async (resolve, reject) => {
@@ -979,9 +1039,18 @@ const suggestTask = async (req, res) => {
 
         let isCrashed = await searchAndSuggestMultipleKeyword(searchTool, keyword, domain, delay, projectId, userid);
 
+        //all keyword invalid --> exit
         if (isCrashed) {
 
           sendInvalidQuery(userid);
+          break;
+        }
+
+        //out of traffic --> exit
+        let monthlyTraffic = await getMonthlyTraffic(userid);
+        if (monthlyTraffic <= 0) {
+
+          await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
 
@@ -1077,7 +1146,7 @@ router.get('/deleteSuggest/:id', async (req, res) => {
 })
 
 //suggest domain request
-router.post('/suggest',checkEnoughTraffic(), async (req, res, next) => {
+router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
 
@@ -1268,6 +1337,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
   let isFoundAD;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < adURL.length; i++) {
 
@@ -1275,13 +1345,18 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
     if (isFoundAD == false) {
 
+      numberOfInvalidDomain++;
       saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
       sendNotFoundSingleAD(userid, projectId, adURL);
 
     }
   }
 
-  return isFoundAD;
+  if (numberOfInvalidDomain >= adURL.length) return false;
+
+  await decreaseMonthlyTraffic(userid);
+
+  return true;
 }
 
 /**
@@ -1389,19 +1464,23 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, delayTime, projectId, userid) => {
 
   let isNotFoundDomain;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < keyword.length; i++) {
 
     isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
 
     if (isNotFoundDomain) {
+      numberOfInvalidDomain++;
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
     }
   }
 
-  return isNotFoundDomain;
+  if (numberOfInvalidDomain >= keyword.length) return true;
 
+  await decreaseMonthlyTraffic(userid);
+  return false;
 }
 
 
@@ -1548,19 +1627,24 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, userid) => {
 
   let isFoundDomain;
+  let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < urlBacklink.length; i++) {
 
     isFoundDomain = await clickMainURLWithSingleBacklink(urlBacklink[i], mainURL, delay, projectId, userid);
 
     if (isFoundDomain == false) {
-
+      numberOfInvalidDomain++;
       saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
     }
   }
 
-  return isFoundDomain;
+  if (numberOfInvalidDomain >= urlBacklink.length) return false;
+
+  await decreaseMonthlyTraffic(userid);
+
+  return true;
 }
 
 

@@ -17,6 +17,7 @@
     <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
+    
     <!-- Top Bar End -->
 
 
@@ -29,9 +30,13 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="content-page ml-0">
+      
       <!-- Start content -->
       <div class="content">
         <div class="container">
+          <div class=card>
+            <div class='card-body'>Số traffic còn lại : <span><%- monthlyTraffic%></span></div>
+          </div>
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <% if (role.canSuggest) { %>
