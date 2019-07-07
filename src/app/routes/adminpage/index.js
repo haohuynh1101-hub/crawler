@@ -893,11 +893,12 @@ const backlinkTask = async (req, res) => {
 
         if (isForceStop) throw new Error('Your backlink task is forced to stopped by user !!!');
 
+        console.log('line 896')
         let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
-
+        console.log('line 898')
         //invalid backlink/domain --> exit
         if (isSuccessed == false) {
-
+          console.log('line 901')
           sendNotFoundBacklink(userid, projectId);
           saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
           break;
@@ -906,7 +907,7 @@ const backlinkTask = async (req, res) => {
         //out of traffic --> exit
         let monthlyTraffic = await getMonthlyTraffic(userid);
         if (monthlyTraffic <= 0) {
-
+          console.log('line 910')
           await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
@@ -925,6 +926,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
+      console.log('err line 929 '+error)
       return reject(error);
     }
   });
