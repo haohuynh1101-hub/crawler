@@ -1292,6 +1292,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
       await page.waitFor(5000);// in case DOM content not loaded yet
+      numberOfInvalidAD=0;
       console.log('connect proxy success')
 
     } catch (error) {
@@ -1313,7 +1314,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
       numberOfInvalidAD++;
       console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
 
-      if (numberOfInvalidAD >= 4) return false;
+      if (numberOfInvalidAD >= 10) return false;
 
       await clickSingleAD(domain, adURL, delay, projectId, userid);
 
@@ -1617,12 +1618,13 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
+      numberInvalidBacklink=0;
       console.log('connect proxy success')
 
 
     } catch (error) {
 
-      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1564');
+      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1625');
       console.log(error)
 
       await brower.close();
@@ -1631,7 +1633,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
       numberInvalidBacklink++;
       console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
-      if (numberInvalidBacklink >= 4) return false;
+      if (numberInvalidBacklink >= 10) return false;
 
       await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
 
