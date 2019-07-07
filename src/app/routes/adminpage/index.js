@@ -871,9 +871,9 @@ const backlinkTaskContainer = async (req, res) => {
 }
 
 const backlinkTask = async (req, res) => {
-
+  console.log('line 874')
   return new Promise(async (resolve, reject) => {
-
+    console.log('line 876')
     try {
 
       let { projectId, userid } = req.body;
@@ -886,7 +886,7 @@ const backlinkTask = async (req, res) => {
 
       //main process
       for (let i = 0; i < amount; i++) {
-
+        console.log('line 889')
         //get project info
         let { urlBacklink, mainURL, delay, isForceStop } = await mongoose.model('projectBacklinks').findById(projectId);
         console.log("isforstop line 892 ", isForceStop)
