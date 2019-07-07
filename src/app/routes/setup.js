@@ -82,4 +82,16 @@ router.get('/digger', async (req, res) => {
   return success(res, 'success', { mainURL_backlink, backlink, suggest, domain_ad, adurl });
 })
 
+//reset traffic
+router.get('/monthlyTraffic',async(req,res)=>{
+
+  await mongoose.model('users').updateMany({ monthlyTraffic: 20000 });
+  res.send('ok')
+})
+
+//drop table users
+router.get("/dropAgent", async (req, res, next) => {
+  await mongoose.model('userAgents').deleteMany({});
+  res.send('done');
+})
 module.exports = router

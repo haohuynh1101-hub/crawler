@@ -17,6 +17,7 @@
     <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
+    
     <!-- Top Bar End -->
 
 
@@ -29,9 +30,13 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="content-page ml-0">
+      
       <!-- Start content -->
       <div class="content">
         <div class="container">
+          <div class=card>
+            <div class='card-body'>Số traffic còn lại : <span><%- monthlyTraffic%></span></div>
+          </div>
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
               <% if (role.canSuggest) { %>
@@ -359,6 +364,11 @@
 
         socket.on('close-brower', (projectId) => {
           appendLog(projectId, 'Đang đóng trình duyệt ...')
+        })
+
+        socket.on('not-enough-traffic',(projectId)=>{
+          appendLog(projectId,'Đã hết số traffic tối đa trong tháng !!!');
+          alert('Đã hết số traffic tối đa trong tháng !!!');
         })
       </script>
 
