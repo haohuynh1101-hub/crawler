@@ -186,7 +186,7 @@ router.post('/users/:id', async (req, res) => {
 
   try {
 
-    let { traffic, role, monthlyTraffic } = req.body;
+    let { traffic, role, monthlyTraffic, indexAmount } = req.body;
 
     let user = await mongoose.model('users').findById(req.params.id);
 
@@ -195,10 +195,11 @@ router.post('/users/:id', async (req, res) => {
     groupMaxDate = groupMaxDate.maxUsingDate;
     user.expiredDate = moment(new Date()).add(groupMaxDate, 'day');
 
-    //update traffic, group
+    //update traffic, group, index
     user.traffic = traffic;
     user.role = role;
     user.monthlyTraffic = monthlyTraffic;
+    user.indexAmount = indexAmount;
 
     await user.save();
 
@@ -371,6 +372,7 @@ router.post('/groupUsers', async function (req, res, next) {
       canBacklink: (req.body.canBacklink == 'true') ? true : false,
       canClickAD: (req.body.canClickAD == 'true') ? true : false,
       canManageUser: (req.body.canManageUser == 'true') ? true : false,
+      canIndex: (req.body.canIndex == 'true') ? true : false,
       maxUsingDate: req.body.maxDate,
       maxProject: req.body.maxProject
     }
@@ -740,7 +742,8 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
         allAdProject,
         role,
         traffic,
-        monthlyTraffic: user.monthlyTraffic
+        monthlyTraffic: user.monthlyTraffic,
+        indexAmount:user.indexAmount
       });
 
     else
@@ -926,7 +929,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
-      console.log('err line 929 '+error)
+      console.log('err line 929 ' + error)
       return reject(error);
     }
   });
@@ -1295,7 +1298,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
       await page.waitFor(5000);// in case DOM content not loaded yet
-      numberOfInvalidAD=0;
+      numberOfInvalidAD = 0;
       console.log('connect proxy success')
 
     } catch (error) {
@@ -1621,7 +1624,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
-      numberInvalidBacklink=0;
+      numberInvalidBacklink = 0;
       console.log('connect proxy success')
 
 

@@ -17,7 +17,7 @@
     <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
-    
+
     <!-- Top Bar End -->
 
 
@@ -30,12 +30,12 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="content-page ml-0">
-      
+
       <!-- Start content -->
       <div class="content">
         <div class="container">
           <div class=card>
-            <div class='card-body'>Số traffic còn lại : <span><%- monthlyTraffic%></span></div>
+            <div class='card-body' style="color:red"><b>Số traffic còn lại : <span><%- monthlyTraffic%></b></span></div>
           </div>
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -51,6 +51,10 @@
               <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad" role="tab"
                 aria-controls="click-ad" aria-selected="false">Click Ad</a>
               <% } %>
+              <% if (role.canIndex) { %>
+              <a class="nav-item nav-link " id="nav-index-tab" data-toggle="tab" href="#index" role="tab"
+                aria-controls="index" aria-selected="false">Index link</a>
+              <% } %>
 
             </div>
           </nav>
@@ -59,12 +63,18 @@
             <% if (role.canSuggest) { %>
             <% include ./feature-partials/suggest/suggest %>
             <% } %>
+
             <% if (role.canBacklink) { %>
             <% include ./feature-partials/click-backlink/click-backlink %>
             <% } %>
+
             <% if (role.canClickAD) { %>
             <% include ./feature-partials/click-ad/click-ad %>
             <% } %>
+
+            <% if (role.canIndex) { %>
+              <% include ./feature-partials/indexlink/index %>
+              <% } %>
 
 
           </div>
@@ -367,8 +377,8 @@
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
 
-        socket.on('not-enough-traffic',(projectId)=>{
-          appendLog(projectId,'Đã hết số traffic tối đa trong tháng !!!');
+        socket.on('not-enough-traffic', (projectId) => {
+          appendLog(projectId, 'Đã hết số traffic tối đa trong tháng !!!');
           alert('Đã hết số traffic tối đa trong tháng !!!');
         })
       </script>
