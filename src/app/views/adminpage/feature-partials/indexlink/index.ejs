@@ -1,0 +1,63 @@
+<div class="tab-pane fade" id="indexlink" role="tabpanel">
+    <div class="col-xl-12 col-md-12 pl-0">
+
+        <div class="card-box">
+
+            <!-- số link còn lại -->
+            <div class="card">
+                <div class="card-header" style="color: red">
+                    Số link còn lại: <span><%- indexAmount%></span>
+                </div>
+            </div>
+            <!-- số link còn lại -->
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card-box table-responsive">
+                        <button class="btn btn-primary waves-effect waves-light mb-1" data-toggle="modal"
+                            data-target="#modal-create-index">Thêm dự án</button>
+
+                        <table id="datatable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">STT</th>
+                                    <th style="width: 30%">Tên dự án</th>
+
+                                    <th style="width: 25%">Hành động</th>
+                                </tr>
+                            </thead>
+
+                            <% (typeof allIndexProject == 'undefined') ? 'nothing' : allIndexProject.map((item, index) => { %>
+                            <tr>
+                                <td><%- index+1%></td>
+
+                                <td><%- item.name%></td>
+                                <td>
+                                    <button type="button"
+                                        class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
+                                        data-toggle="modal" data-target="#view-modal-indexlink"
+                                        onclick="loadDataIndexlink('<%- item._id%>')"
+                                        >View log</button>
+
+                                    <button type="button"
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                        onclick="deleteIndexlink('<%- item._id%>')"
+                                        >Xóa</button>
+                                </td>
+                            </tr>
+
+                            <% }) %>
+
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> <!-- end row -->
+        </div>
+    </div><!-- end col -->
+</div>
+
+<% include ./modal-create-index.ejs%>
+<% include ./modal-view-index.ejs%>

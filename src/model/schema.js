@@ -8,7 +8,8 @@ module.exports = {
   logs: mongoose.model('logs', schema.logs),
   projectBacklinks: mongoose.model('projectBacklinks', schema.projectBacklinks),
   logBacklinks: mongoose.model('logBacklinks', schema.logBacklinks),
-  projectAds:mongoose.model('projectAds',schema.projectAds),
-  logAds:mongoose.model('logAds',schema.logAds),
-  role:mongoose.model('role',schema.role)
+  projectAds: mongoose.model('projectAds', schema.projectAds),
+  logAds: mongoose.model('logAds', schema.logAds),
+  role: mongoose.model('role', schema.role),
+  projectIndex: mongoose.model('projectIndex', schema.projectIndex)
 }

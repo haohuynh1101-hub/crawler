@@ -18,9 +18,17 @@ var users = new mongoose.Schema({
     type: String
   },
   currentSocketID: String,
+
   traffic: Number,
+
   expiredDate: Date,
-  monthlyTraffic: Number
+  
+  monthlyTraffic: Number,
+
+  indexAmount: {
+    type: Number,
+    default: 0
+  }
 })
 
 module.exports = users;

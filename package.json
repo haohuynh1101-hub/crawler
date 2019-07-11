@@ -7,6 +7,7 @@
     "dev": "set IS_DEV=DEV && cross-env NODE_PATH=./src nodemon ./bin/www "
   },
   "dependencies": {
+    "axios": "^0.19.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.3",
     "cross-env": "^5.2.0",
@@ -16,6 +17,7 @@
     "expect-puppeteer": "^4.1.1",
     "express": "~4.16.0",
     "express-session": "^1.15.6",
+    "form-urlencoded": "^3.0.1",
     "http-errors": "~1.6.2",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.25",
@@ -32,5 +34,6 @@
     "socket.io": "^2.2.0",
     "socket.io-redis": "^5.2.0",
     "sticky-session": "^1.1.2"
+    "urlencode": "^1.1.0"
   }
 }

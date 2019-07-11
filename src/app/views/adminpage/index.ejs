@@ -17,7 +17,7 @@
     <% include ./changePassword-modal %>
     <!-- Top Bar Start -->
     <% include ../partials/topbar %>
-    
+
     <!-- Top Bar End -->
 
 
@@ -30,12 +30,12 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="content-page ml-0">
-      
+
       <!-- Start content -->
       <div class="content">
         <div class="container">
           <div class=card>
-            <div class='card-body'>Số traffic còn lại : <span><%- monthlyTraffic%></span></div>
+            <div class='card-body' style="color:red"><b>Số traffic còn lại : <span><%- monthlyTraffic%></b></span></div>
           </div>
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -51,6 +51,10 @@
               <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad" role="tab"
                 aria-controls="click-ad" aria-selected="false">Click Ad</a>
               <% } %>
+              <% if (role.canIndex) { %>
+              <a class="nav-item nav-link " id="nav-index-tab" data-toggle="tab" href="#indexlink" role="tab"
+                aria-controls="index" aria-selected="false">Index link</a>
+              <% } %>
 
             </div>
           </nav>
@@ -59,11 +63,17 @@
             <% if (role.canSuggest) { %>
             <% include ./feature-partials/suggest/suggest %>
             <% } %>
+
             <% if (role.canBacklink) { %>
             <% include ./feature-partials/click-backlink/click-backlink %>
             <% } %>
+
             <% if (role.canClickAD) { %>
             <% include ./feature-partials/click-ad/click-ad %>
+            <% } %>
+
+            <% if (role.canIndex) { %>
+            <% include ./feature-partials/indexlink/index %>
             <% } %>
 
 
@@ -234,8 +244,37 @@
         }
       </script>
 
+      <!-- load data to index link project when view detail -->
       <script>
+        const loadDataIndexlink = (id) => {
 
+          $.get(`/indexlink/${id}`, function (res, status) {
+
+            $('#view-name-indexlink').val(res.data.name);
+
+            res.data.links.map(link => {
+              $('#view-links-indexlink').val($('#view-links-indexlink').val() + `\n${link}`);
+            })
+          });
+        }
+      </script>
+
+      <script>
+        const deleteIndexlink = (id) => {
+
+          $.post(`/deleteIndexlink/${id}`,
+            {
+              
+            },
+            function (data, status) {
+              window.location.reload();
+            });
+        }
+      </script>
+
+
+
+      <script>
 
         $(document).on('click', '#btn-confirm-edit-suggest', function () { alert("hello"); });
         const updateProjectSuggest = (id) => {
@@ -366,8 +405,8 @@
           appendLog(projectId, 'Đang đóng trình duyệt ...')
         })
 
-        socket.on('not-enough-traffic',(projectId)=>{
-          appendLog(projectId,'Đã hết số traffic tối đa trong tháng !!!');
+        socket.on('not-enough-traffic', (projectId) => {
+          appendLog(projectId, 'Đã hết số traffic tối đa trong tháng !!!');
           alert('Đã hết số traffic tối đa trong tháng !!!');
         })
       </script>
