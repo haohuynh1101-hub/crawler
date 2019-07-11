@@ -1,25 +1,64 @@
-<div class="tab-pane fade show active" id="index" role="tabpanel" aria-labelledby="nav-profile-tab">
+<div class="tab-pane fade" id="click-ad" role="tabpanel" aria-labelledby="nav-ad-tab">
     <div class="col-xl-12 col-md-12 pl-0">
 
-        <div class="container">
+        <div class="card-box">
 
-            <div class="card">
-                
-                <div class="card-header">
-                    Số link còn lại: <span ><%- indexAmount%></span>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-3">
-                            lable
-                        </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card-box table-responsive">
+                        <button class="btn btn-primary waves-effect waves-light mb-1" data-toggle="modal"
+                            data-target="#ad-modal">Thêm dự án</button>
+
+                        <table id="datatable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%">STT</th>
+                                    <th style="width: 30%">Tên dự án</th>
+                                    <th style="width: 25%">Trạng thái</th>
+                                    <th style="width: 25%">Hành động</th>
+                                </tr>
+                            </thead>
+
+
+                            <tr>
+                                <td>sdfd</td>
+                                <td>sdf</td>
+                                <td>sdf</td>
+                                <td>
+                                    <button type="button"
+                                        class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
+                                        data-toggle="modal" data-target="#view-modal-ad">View log</button>
+                                    <button type="button"
+                                        class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
+                                        data-toggle="modal" data-target="#setTimer-ad-modal">Hẹn giờ chạy</button>
+
+
+                                    <button data-toggle="modal" data-target="#edit-ad-modal"
+                                        class='btn btn-warning'>Sửa</button>
+
+
+
+                                    <button type="button"
+                                        class="btn btn-success btn-bordred waves-effect waves-light m-b-5">Chạy
+                                        ngay</button>
+
+                                    <button type="button"
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5">Dừng</button>
+
+                                    <button type="button"
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5">Xóa</button>
+                                </td>
+                            </tr>
+                           
+
+
+                            <tbody>
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-            </div>
-
+            </div> <!-- end row -->
         </div>
-
-
-    </div>
+    </div><!-- end col -->
 </div>
