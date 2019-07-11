@@ -926,7 +926,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
-      console.log('err line 929 '+error)
+      console.log('err line 929 ' + error)
       return reject(error);
     }
   });
@@ -1295,7 +1295,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
       await page.waitFor(5000);// in case DOM content not loaded yet
-      numberOfInvalidAD=0;
+      numberOfInvalidAD = 0;
       console.log('connect proxy success')
 
     } catch (error) {
@@ -1423,7 +1423,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
     runTime++;
 
-    if (runTime > 2) return true;
+    if (runTime > 10) return true;
 
     //set up brower and page
     let brower = await puppeteer.launch(Const.options);
@@ -1454,9 +1454,9 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
     await sendChangingAgent(userid, projectId);
     let currentUserAgent = await changeUserAgent(page);
-    await page.authenticate({ username: 'lum-customer-pingo-zone-static-session-rand39484', password: '27o6ps39ddbf' });
     await sendCurrentUserAgent(userid, projectId, currentUserAgent);
     await saveLog(projectId, 'Thay đổi User Agent thành công');
+
 
     try {
 
@@ -1474,8 +1474,8 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
         await sendGotoGoogleVN(userid, projectId);
       }
 
-
       await searchByKeyWord(page, keyword);
+
       wasClicked = await suggestDomain(userid, projectId, page, domain);
 
       await setTimeDelay(delayTime);
@@ -1484,6 +1484,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       await sendCloseBrower(userid, projectId);
       await saveLog(projectId, 'Đang đóng trình duyệt ...');
       brower.close();
+
 
     } catch (error) {
 
@@ -1621,7 +1622,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
-      numberInvalidBacklink=0;
+      numberInvalidBacklink = 0;
       console.log('connect proxy success')
 
 
