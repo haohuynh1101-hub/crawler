@@ -44,12 +44,13 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //wasClicked
       //true: domain found and clicked
       //false: domain not found
-      await page.waitForSelector(`a[href*="${domain}"]`);
+      //await page.waitForSelector(`a[href*="${domain}"]`);
+      await page.waitFor(7000);
       wasClicked = await page.evaluate(async (domain) => {
 
         domain = domain.split('/');
         domain = domain[0] + "//" + domain[2];
-        
+
         let wasClicked = false;
 
         let myDOM = await document.querySelectorAll(`a[href*="${domain}"]`);
@@ -82,7 +83,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
     if (wasClicked) {
 
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+      await page.waitForNavigation({ timeout: 300000,waitUntil: 'domcontentloaded' });
 
       sendCurrentURL(userid, projectId, page.url());
       await saveLog(projectId, page.url());
