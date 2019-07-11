@@ -52,7 +52,7 @@
                 aria-controls="click-ad" aria-selected="false">Click Ad</a>
               <% } %>
               <% if (role.canIndex) { %>
-              <a class="nav-item nav-link " id="nav-index-tab" data-toggle="tab" href="#index" role="tab"
+              <a class="nav-item nav-link " id="nav-index-tab" data-toggle="tab" href="#indexlink" role="tab"
                 aria-controls="index" aria-selected="false">Index link</a>
               <% } %>
 
@@ -73,8 +73,8 @@
             <% } %>
 
             <% if (role.canIndex) { %>
-              <% include ./feature-partials/indexlink/index %>
-              <% } %>
+            <% include ./feature-partials/indexlink/index %>
+            <% } %>
 
 
           </div>
@@ -244,8 +244,37 @@
         }
       </script>
 
+      <!-- load data to index link project when view detail -->
       <script>
+        const loadDataIndexlink = (id) => {
 
+          $.get(`/indexlink/${id}`, function (res, status) {
+
+            $('#view-name-indexlink').val(res.data.name);
+
+            res.data.links.map(link => {
+              $('#view-links-indexlink').val($('#view-links-indexlink').val() + `\n${link}`);
+            })
+          });
+        }
+      </script>
+
+      <script>
+        const deleteIndexlink = (id) => {
+
+          $.post(`/deleteIndexlink/${id}`,
+            {
+              
+            },
+            function (data, status) {
+              window.location.reload();
+            });
+        }
+      </script>
+
+
+
+      <script>
 
         $(document).on('click', '#btn-confirm-edit-suggest', function () { alert("hello"); });
         const updateProjectSuggest = (id) => {

@@ -1,56 +1,52 @@
-<div class="tab-pane fade" id="click-ad" role="tabpanel" aria-labelledby="nav-ad-tab">
+<div class="tab-pane fade" id="indexlink" role="tabpanel">
     <div class="col-xl-12 col-md-12 pl-0">
 
         <div class="card-box">
+
+            <!-- số link còn lại -->
+            <div class="card">
+                <div class="card-header" style="color: red">
+                    Số link còn lại: <span><%- indexAmount%></span>
+                </div>
+            </div>
+            <!-- số link còn lại -->
 
             <div class="row">
                 <div class="col-12">
                     <div class="card-box table-responsive">
                         <button class="btn btn-primary waves-effect waves-light mb-1" data-toggle="modal"
-                            data-target="#ad-modal">Thêm dự án</button>
+                            data-target="#modal-create-index">Thêm dự án</button>
 
                         <table id="datatable" class="table table-bordered">
                             <thead>
                                 <tr>
                                     <th style="width: 10%">STT</th>
                                     <th style="width: 30%">Tên dự án</th>
-                                    <th style="width: 25%">Trạng thái</th>
+
                                     <th style="width: 25%">Hành động</th>
                                 </tr>
                             </thead>
 
-
+                            <% (typeof allIndexProject == 'undefined') ? 'nothing' : allIndexProject.map((item, index) => { %>
                             <tr>
-                                <td>sdfd</td>
-                                <td>sdf</td>
-                                <td>sdf</td>
+                                <td><%- index+1%></td>
+
+                                <td><%- item.name%></td>
                                 <td>
                                     <button type="button"
                                         class="btn btn-info btn-bordred waves-effect waves-light m-b-5"
-                                        data-toggle="modal" data-target="#view-modal-ad">View log</button>
-                                    <button type="button"
-                                        class="btn btn-warning btn-bordred waves-effect waves-light m-b-5"
-                                        data-toggle="modal" data-target="#setTimer-ad-modal">Hẹn giờ chạy</button>
-
-
-                                    <button data-toggle="modal" data-target="#edit-ad-modal"
-                                        class='btn btn-warning'>Sửa</button>
-
-
+                                        data-toggle="modal" data-target="#view-modal-indexlink"
+                                        onclick="loadDataIndexlink('<%- item._id%>')"
+                                        >View log</button>
 
                                     <button type="button"
-                                        class="btn btn-success btn-bordred waves-effect waves-light m-b-5">Chạy
-                                        ngay</button>
-
-                                    <button type="button"
-                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5">Dừng</button>
-
-                                    <button type="button"
-                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5">Xóa</button>
+                                        class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
+                                        onclick="deleteIndexlink('<%- item._id%>')"
+                                        >Xóa</button>
                                 </td>
                             </tr>
-                           
 
+                            <% }) %>
 
                             <tbody>
 
@@ -62,3 +58,6 @@
         </div>
     </div><!-- end col -->
 </div>
+
+<% include ./modal-create-index.ejs%>
+<% include ./modal-view-index.ejs%>

@@ -2,7 +2,7 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var bcrypt = require('bcryptjs');
 var puppeteer = require('puppeteer');
-const { success, successWithNoData } = require("services/returnToUser");
+const { success, successWithNoData, errorWithMess } = require("services/returnToUser");
 var Const = require("Const");
 var searchByKeyWord = require('./../../../services/searchByKeyWord');
 var changeUserAgent = require('./../../../services/changeUserAgent');
@@ -15,6 +15,9 @@ var clickRandomURL = require('./../../../services/clickRandomURL');
 var getProxyFromAPI = require('./../../../services/getProxyFromAPI');
 var setSchedule = require('./../../../services/setSchedule');
 var moment = require('moment-timezone');
+var formurlencoded = require('form-urlencoded').default;
+var urlencode = require('urlencode');
+var axios = require('axios')
 var { PROXY_URL } = require('./../../../config/constants');
 var { sendCloseBrower,
   sendGotoGoogle,
@@ -147,6 +150,96 @@ router.get('/allProject', async (req, res) => {
   });
 })
 //end backdoor
+
+/**
+ * index link
+ * --> submit link
+ * --> save project
+ */
+router.post('/indexlink', async (req, res) => {
+
+  let { name, links } = req.body;
+
+  /**
+   * call api to submit link
+   */
+  links = links.replace('\r', '');
+  links = links.split("\n");
+
+  let encodedLinks = [];
+  links.forEach(link => {
+    encodedLinks.push(urlencode(link));
+  });
+
+  let requestObject = {
+    apikey: 'd209b675e00932c0c1fb660bc0b1952d',
+    cmd: 'submit',
+    campaign: name,
+    urls: encodedLinks.join('|')
+  };
+  requestObject = formurlencoded(requestObject);
+
+  let submitResult = await axios.post('http://elitelinkindexer.com/api.php', requestObject);
+
+  //decrease index amount
+  let user=await mongoose.model('users').findById(req.signedCookies.user);
+  user.indexAmount-=links.length;
+  await user.save();
+
+  /**
+   * save project to database
+   */
+  try {
+
+    let project = await mongoose.model('projectIndex').create({
+      name: name,
+      links: links,
+      belongTo: req.signedCookies.user
+    });
+
+  } catch (error) {
+    console.log('err when save index link project ' + error);
+  }
+
+  return res.redirect('/');
+});
+
+/**
+ * get index link project by id
+ */
+router.get('/indexlink/:id', async (req, res) => {
+
+  try {
+
+    let project = await mongoose.model('projectIndex').findById(req.params.id);
+    console.log("TCL: project", project)
+    return success(res, 'success', project);
+
+  } catch (error) {
+
+    console.log('err when get index link project ' + error);
+    return errorWithMess(res, error);
+  }
+
+})
+
+/**
+ * delete index link project by id
+ */
+router.post('/deleteIndexlink/:id', async (req, res) => {
+
+  try {
+
+    await mongoose.model('projectIndex').findByIdAndDelete(req.params.id);
+    return successWithNoData(res, 'delete success');
+
+  } catch (error) {
+
+    console.log('err when delete index link project ' + error);
+    return errorWithMess(res, error);
+  }
+
+})
 
 /**
  * get all role
@@ -731,6 +824,7 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
     let allProject = await mongoose.model('projects').find({ belongTo: user._id });
     let allBackLinkProject = await mongoose.model('projectBacklinks').find({ belongTo: user._id });
     let allAdProject = await mongoose.model('projectAds').find({ belongTo: user._id });
+    let allIndexProject = await mongoose.model('projectIndex').find({ belongTo: user._id });
     let role = await mongoose.model('role').findOne({ _id: user.role });
     let traffic = user.traffic;
 
@@ -740,10 +834,11 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
         allProject,
         allBackLinkProject,
         allAdProject,
+        allIndexProject,
         role,
         traffic,
         monthlyTraffic: user.monthlyTraffic,
-        indexAmount:user.indexAmount
+        indexAmount: user.indexAmount
       });
 
     else

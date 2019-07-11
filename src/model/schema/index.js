@@ -8,4 +8,5 @@ module.exports = {
   projectAds:require('./projectAds'),
   logAds:require('./logAds'),
   role:require('./role'),
+  projectIndex:require('./projectIndex')
 };
