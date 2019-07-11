@@ -172,14 +172,14 @@ router.post('/indexlink', async (req, res) => {
   });
 
   let requestObject = {
-    apikey: 'd209b675e00932c0c1fb660bc0b1952d',
+    apikey: 'c426d6e93ace1bf6a62f8676ce78686e',
     cmd: 'submit',
     campaign: name,
     urls: encodedLinks.join('|')
   };
   requestObject = formurlencoded(requestObject);
 
-  let submitResult = await axios.post('http://elitelinkindexer.com/api.php', requestObject);
+  let submitResult = await axios.post('http://speed-links.net/api.php', requestObject);
 
   //decrease index amount
   let user=await mongoose.model('users').findById(req.signedCookies.user);
