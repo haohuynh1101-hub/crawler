@@ -1238,20 +1238,17 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
 
   /**
-  * setup brower and page
-  */
-  let proxyAddress = await getProxyFromAPI(PROXY_URL);
-
-  let brower = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
-  });
+   * setup brower and page
+   */
+  let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
     width: 1366,
     height: 768,
   });
+  await page.on('console', consoleObj => console.log(consoleObj.text()));
+
   //block  video
   await page.setRequestInterception(true);
   await page.on('request', request => {
@@ -1564,12 +1561,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   /**
    * setup brower and page
    */
-  let proxyAddress = await getProxyFromAPI(PROXY_URL);
-
-  let brower = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
-  });
+  let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1577,6 +1569,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
+
   //block  video
   await page.setRequestInterception(true);
   await page.on('request', request => {
