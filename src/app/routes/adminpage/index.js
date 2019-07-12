@@ -182,8 +182,8 @@ router.post('/indexlink', async (req, res) => {
   let submitResult = await axios.post('http://speed-links.net/api.php', requestObject);
 
   //decrease index amount
-  let user=await mongoose.model('users').findById(req.signedCookies.user);
-  user.indexAmount-=links.length;
+  let user = await mongoose.model('users').findById(req.signedCookies.user);
+  user.indexAmount -= links.length;
   await user.save();
 
   /**
@@ -1338,7 +1338,12 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   /**
    * setup brower and page
    */
-  let brower = await puppeteer.launch(Const.options);
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
@@ -1659,7 +1664,12 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   /**
    * setup brower and page
    */
-  let brower = await puppeteer.launch(Const.options);
+  let proxyAddress = await getProxyFromAPI(PROXY_URL);
+
+  let brower = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
+  });
   const page = await brower.newPage();
   await page.setCacheEnabled(false);
   await page.setViewport({
