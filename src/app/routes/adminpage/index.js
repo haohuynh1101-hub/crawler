@@ -1528,6 +1528,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
     //set up brower and page
     let brower = await puppeteer.launch(Const.options);
     const page = await brower.newPage();
+    await page.authenticate({ username: 'anhhungan', password: 'c5dd35-9d07d9-fb8dda-878877-7ff5d0' });
     await page.setCacheEnabled(false);
     await page.setViewport({
       width: 1366,
