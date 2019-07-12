@@ -1338,13 +1338,9 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   /**
    * setup brower and page
    */
-  let proxyAddress = await getProxyFromAPI(PROXY_URL);
-
-  let brower = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
-  });
+  let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
+  await page.authenticate({ username: 'anhhungan', password: 'c5dd35-9d07d9-fb8dda-878877-7ff5d0' });
   await page.setCacheEnabled(false);
   await page.setViewport({
     width: 1366,
@@ -1525,7 +1521,9 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
     if (runTime > 10) return true;
 
-    //set up brower and page
+    /**
+     * set up brower and page
+     */
     let brower = await puppeteer.launch(Const.options);
     const page = await brower.newPage();
     await page.authenticate({ username: 'anhhungan', password: 'c5dd35-9d07d9-fb8dda-878877-7ff5d0' });
@@ -1665,13 +1663,10 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
   /**
    * setup brower and page
    */
-  let proxyAddress = await getProxyFromAPI(PROXY_URL);
 
-  let brower = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', `--proxy-server=${proxyAddress}`]
-  });
+  let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
+  await page.authenticate({ username: 'anhhungan', password: 'c5dd35-9d07d9-fb8dda-878877-7ff5d0' });
   await page.setCacheEnabled(false);
   await page.setViewport({
     width: 1366,
