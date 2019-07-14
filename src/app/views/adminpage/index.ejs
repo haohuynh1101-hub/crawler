@@ -244,6 +244,12 @@
         }
       </script>
 
+      <script>
+        const loaduserIDToForm = () => {
+
+          $('#userid-index').attr('value', localStorage.getItem('userid'));
+        }
+      </script>
       <!-- load data to index link project when view detail -->
       <script>
         const loadDataIndexlink = (id) => {
@@ -264,7 +270,7 @@
 
           $.post(`/deleteIndexlink/${id}`,
             {
-              
+
             },
             function (data, status) {
               window.location.reload();
@@ -406,9 +412,16 @@
         })
 
         socket.on('not-enough-traffic', (projectId) => {
-          appendLog(projectId, 'Đã hết số traffic tối đa trong tháng !!!');
-          alert('Đã hết số traffic tối đa trong tháng !!!');
+          appendLog(projectId, 'Đã hết  traffic  !!!');
+          alert('Đã hết traffic  !!!');
         })
+
+        socket.on('not-enough-link', (projectId) => {
+          appendLog(projectId, 'Không đủ links, vui lòng liên hệ admin để mở thêm !!!');
+          alert('Không đủ links, vui lòng liên hệ admin để mở thêm !!!');
+        })
+
+
       </script>
 
       <script async>
@@ -455,6 +468,10 @@
 
         socket.on('not-found-keyword-backlink', data => {
           appendLog(data.projectId, 'Không tìm thấy url cần view trên trang' + data.urlBacklink);
+        })
+
+        socket.on('dead-proxy', data => {
+          appendLog(data.projectId, 'IP die, đang đổi ip khác');
         })
       </script>
 

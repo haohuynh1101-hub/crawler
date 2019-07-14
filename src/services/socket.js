@@ -37,7 +37,7 @@ module.exports = {
   },
   sendCurrentURL: async (userid, projectId, url) => {
     try {
-      
+
       console.log("sendCurrentURL");
       let sockeid = await getCurrentSocketID(userid);
       io.to(`${sockeid}`).emit(`server-send-current-url`, { url, projectId });
@@ -199,20 +199,31 @@ module.exports = {
 
   //domain containt ad url  invalid
   sendInvalidDomainAD: async (userid, projectId) => {
-    
+
     let sockeid = await getCurrentSocketID(userid);
     io.to(`${sockeid}`).emit('send-invalid-domain-ad', { projectId });
   },
 
-  sendGotoGoogleVN:async(userid,projectId)=>{
+  sendGotoGoogleVN: async (userid, projectId) => {
 
     let sockeid = await getCurrentSocketID(userid);
-    io.to(`${sockeid}`).emit('send-goto-googlevn',  projectId );
+    io.to(`${sockeid}`).emit('send-goto-googlevn', projectId);
   },
 
-  sendNOTEnoughTraffic:async(userid,projectId)=>{
+  sendNOTEnoughTraffic: async (userid, projectId) => {
 
     let sockeid = await getCurrentSocketID(userid);
-    io.to(`${sockeid}`).emit('not-enough-traffic',  projectId );
+    io.to(`${sockeid}`).emit('not-enough-traffic', projectId);
+  },
+
+  //not enough index link
+  sendNOTEnoughLink: async (userid, projectId) => {
+    let sockeid = await getCurrentSocketID(userid);
+    io.to(`${sockeid}`).emit('not-enough-link', projectId);
+  },
+
+  sendDeadProxy: async (userid, projectId) => {
+    let sockeid = await getCurrentSocketID(userid);
+    io.to(`${sockeid}`).emit('dead-proxy', projectId);
   }
 } 
