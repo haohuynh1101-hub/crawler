@@ -46,8 +46,42 @@ var { sendCloseBrower,
   sendInvalidUrlBacklink,
   sendInvalidDomainAD,
   sendGotoGoogleVN,
-  sendNOTEnoughTraffic
+  sendNOTEnoughTraffic,
+  sendNOTEnoughLink
 } = require('services/socket');
+
+/**
+ * middleware that check enough links before submit links (function index)
+ */
+const checkEnoughLink = () => {
+  return async (req, res, next) => {
+
+    let { links, userid } = req.body;
+
+    let user = await mongoose.model('users').findById(userid);
+
+    links = links.replace('\r', '');
+    links = links.split("\n");
+    let inputedAmount = links.length;
+
+    let indexAmount = user.indexAmount;
+
+    if (indexAmount <= 0) {
+
+      user.indexAmount = 0;
+      await user.save();
+      await sendNOTEnoughLink(req.body.userid, req.body.projectId);
+      return res.redirect('/');
+    }
+
+    if (inputedAmount > indexAmount) {
+
+      await sendNOTEnoughLink(req.body.userid, req.body.projectId);
+      return res.redirect('/');
+    }
+    next();
+  }
+}
 
 /**
  * middleware that check enough traffic before run tool
@@ -57,8 +91,10 @@ const checkEnoughTraffic = () => {
 
     let user = await mongoose.model('users').findById(req.body.userid);
     let monthlyTraffic = user.monthlyTraffic;
-    if (monthlyTraffic === 0) {
+    if (monthlyTraffic <= 0) {
 
+      user.monthlyTraffic = 0;
+      await user.save();
       await sendNOTEnoughTraffic(req.body.userid, req.body.projectId);
       return res.redirect('/');
     }
@@ -156,7 +192,7 @@ router.get('/allProject', async (req, res) => {
  * --> submit link
  * --> save project
  */
-router.post('/indexlink', async (req, res) => {
+router.post('/indexlink', checkEnoughLink(), async (req, res) => {
 
   let { name, links } = req.body;
 

@@ -1,7 +1,9 @@
-var { sendCurrentURL,
+var {
+  sendCurrentURL,
   sendNotFoundURL,
   sendNextPage,
-  sendRandomURLClicked
+  sendRandomURLClicked,
+  sendDeadProxy
 } = require('services/socket');
 
 var clickRandomURL = require('./../services/clickRandomURL');
@@ -44,7 +46,6 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //wasClicked
       //true: domain found and clicked
       //false: domain not found
-      //await page.waitForSelector(`a[href*="${domain}"]`);
       await page.waitFor(7000);
       wasClicked = await page.evaluate(async (domain) => {
 
@@ -71,19 +72,24 @@ const suggestDomain = async (userid, projectId, page, domain) => {
         console.log('next page')
         await sendNextPage(userid, projectId);
         await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
-        await page.evaluate(async (currentPageIndex) => {
+        //await page.waitForSelector(`a[href*="start=${currentPageIndex + 1}0"]`);
+       let nextpageURL= await page.evaluate(async (currentPageIndex) => {
           let nextPageElement = await document.querySelectorAll(`a[href*="start=${currentPageIndex + 1}0"]`)[0];
-          await nextPageElement.click();
-        }, currentPageIndex)
-        await page.waitForNavigation({ waitUntil: 'networkidle0' });
+          return nextPageElement.getAttribute('href');
 
+        }, currentPageIndex);
+
+        await page.goto('https://www.google.com'+nextpageURL);
+        
+        await page.waitFor(5000);
+        
       }
       else break;
     }
 
     if (wasClicked) {
 
-      await page.waitForNavigation({ timeout: 300000,waitUntil: 'domcontentloaded' });
+      await page.waitForNavigation({ timeout: 300000, waitUntil: 'domcontentloaded' });
 
       sendCurrentURL(userid, projectId, page.url());
       await saveLog(projectId, page.url());
@@ -110,7 +116,10 @@ const suggestDomain = async (userid, projectId, page, domain) => {
     }
   } catch (error) {
 
-    console.log("TCL: suggestDomain -> error", error)
+    console.log("TCL: suggestDomain -> error", error);
+    await sendDeadProxy(userid, projectId);
+    await saveLog(projectId, 'IP die, đang đổi ip khác');
+
     return false;
 
   }
