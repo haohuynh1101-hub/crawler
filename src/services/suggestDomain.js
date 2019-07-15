@@ -70,19 +70,23 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //search in next page  
       if (!wasClicked) {
         console.log('next page')
-        await sendNextPage(userid, projectId);
-        await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
-        //await page.waitForSelector(`a[href*="start=${currentPageIndex + 1}0"]`);
-       let nextpageURL= await page.evaluate(async (currentPageIndex) => {
+
+        let nextpageURL = await page.evaluate(async (currentPageIndex) => {
+
           let nextPageElement = await document.querySelectorAll(`a[href*="start=${currentPageIndex + 1}0"]`)[0];
-          return nextPageElement.getAttribute('href');
+
+          let nextpageURL = nextPageElement.getAttribute('href');
+          await sendNextPage(userid, projectId);
+          await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
+
+          return nextpageURL;
 
         }, currentPageIndex);
 
-        await page.goto('https://www.google.com'+nextpageURL);
-        
+        await page.goto('https://www.google.com' + nextpageURL);
+
         await page.waitFor(5000);
-        
+
       }
       else break;
     }
