@@ -76,12 +76,13 @@ const suggestDomain = async (userid, projectId, page, domain) => {
           let nextPageElement = await document.querySelectorAll(`a[href*="start=${currentPageIndex + 1}0"]`)[0];
 
           let nextpageURL = nextPageElement.getAttribute('href');
-          await sendNextPage(userid, projectId);
-          await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
 
           return nextpageURL;
 
         }, currentPageIndex);
+        
+        await sendNextPage(userid, projectId);
+        await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
 
         await page.goto('https://www.google.com' + nextpageURL);
 
