@@ -43,6 +43,24 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
     for (let currentPageIndex = 0; currentPageIndex < 9; currentPageIndex++) {
 
+      /**
+       * flag check stop signal from user
+       * change project status to stopped 
+       * reset isForceStopped to false
+       */
+      let { isForceStop, status } = await mongoose.model('projects').findById(projectId);
+      if (isForceStop) {
+
+        let updateProject = await mongoose.model('projects').findById(projectId);
+        updateProject.status = 'stopped';
+        updateProject.isForceStop = false;
+        await updateProject.save();
+        //send reload page socket
+        await sendStopSuggest(userid, projectId);
+        return true;
+      }
+      if (status === 'stopped') return true;
+
       //wasClicked
       //true: domain found and clicked
       //false: domain not found
@@ -66,6 +84,25 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
       }, domain);
 
+      /**
+       * flag check stop signal from user
+       * change project status to stopped 
+       * reset isForceStopped to false
+       */
+      let flag = await mongoose.model('projects').findById(projectId);
+      if (flag.isForceStop) {
+
+        let updateProject = await mongoose.model('projects').findById(projectId);
+        updateProject.status = 'stopped';
+        updateProject.isForceStop = false;
+        await updateProject.save();
+        //send reload page socket
+        await sendStopSuggest(userid, projectId);
+        return true;
+      }
+      if (flag.status === 'stopped') return true;
+
+
       //if there was not any matched domain in previous page
       //search in next page  
       if (!wasClicked) {
@@ -80,7 +117,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
           return nextpageURL;
 
         }, currentPageIndex);
-        
+
         await sendNextPage(userid, projectId);
         await saveLog(projectId, 'Không tìm thấy domain ở trang hiện tại, đang chuyển sang trang kế ...');
 
@@ -91,6 +128,25 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       }
       else break;
     }
+
+    /**
+     * flag check stop signal from user
+     * change project status to stopped 
+     * reset isForceStopped to false
+     */
+    let flag2 = await mongoose.model('projects').findById(projectId);
+    if (flag2.isForceStop) {
+
+      let updateProject = await mongoose.model('projects').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+      return true;
+    }
+    if (flag2.status === 'stopped') return true;
+
 
     if (wasClicked) {
 
