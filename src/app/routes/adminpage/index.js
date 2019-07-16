@@ -1553,6 +1553,24 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
   while (wasClicked == false) {
 
+    /**
+  * flag check stop signal from user
+  * change project status to stopped 
+  * reset isForceStopped to false
+  */
+    let { isForceStop, status } = await mongoose.model('projects').findById(projectId);
+    if (isForceStop) {
+
+      let updateProject = await mongoose.model('projects').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      //send reload page socket
+      await sendStopAD(userid, projectId);
+      return false;
+    }
+    if (status === 'stopped') return false;
+
     runTime++;
 
     if (runTime > 10) return true;
@@ -1649,6 +1667,24 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
   let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < keyword.length; i++) {
+
+    /**
+  * flag check stop signal from user
+  * change project status to stopped 
+  * reset isForceStopped to false
+  */
+    let { isForceStop, status } = await mongoose.model('projects').findById(projectId);
+    if (isForceStop) {
+
+      let updateProject = await mongoose.model('projects').findById(projectId);
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+      return false;
+    }
+    if (status === 'stopped') return false;
 
     isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
 
