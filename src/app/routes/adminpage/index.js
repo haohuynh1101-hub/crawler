@@ -1566,7 +1566,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       updateProject.isForceStop = false;
       await updateProject.save();
       //send reload page socket
-      await sendStopAD(userid, projectId);
+      await sendStopSuggest(userid, projectId);
       return false;
     }
     if (status === 'stopped') return false;
