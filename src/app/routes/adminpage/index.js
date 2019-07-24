@@ -188,6 +188,54 @@ router.get('/allProject', async (req, res) => {
 //end backdoor
 
 /**
+ * clear log suggest
+ */
+router.post('/clearLogSuggest/:id', async (req, res) => {
+
+  try {
+
+    await mongoose.model('logs').deleteMany({ project: req.params.id });
+    return successWithNoData(res, 'delete success');
+
+  } catch (error) {
+    console.log('err when clear suggest log: ' + error);
+    return errorWithMess(res, error);
+  }
+})
+
+/**
+ * clear log backlink
+ */
+router.post('/clearLogBacklink/:id', async (req, res) => {
+
+  try {
+
+    await mongoose.model('logBacklinks').deleteMany({ project: req.params.id });
+    return successWithNoData(res, 'delete success');
+
+  } catch (error) {
+    console.log('err when clear backlink log: ' + error);
+    return errorWithMess(res, error);
+  }
+})
+
+/**
+ * clear log ad
+ */
+router.post('/clearLogAD/:id', async (req, res) => {
+
+  try {
+
+    await mongoose.model('logAds').deleteMany({ project: req.params.id });
+    return successWithNoData(res, 'delete success');
+
+  } catch (error) {
+    console.log('err when clear ad log: ' + error);
+    return errorWithMess(res, error);
+  }
+})
+
+/**
  * index link
  * --> submit link
  * --> save project
@@ -414,7 +462,7 @@ router.post('/users/emergencyStop/:userid', async (req, res) => {
 
   } catch (error) {
     console.log('err when emergency stop: ' + error);
-    errorWithMess(res, error);
+    return errorWithMess(res, error);
   }
 });
 
