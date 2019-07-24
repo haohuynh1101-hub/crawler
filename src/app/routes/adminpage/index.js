@@ -397,6 +397,26 @@ router.get('/users', async (req, res) => {
   });
 })
 
+/**
+ * admin page
+ * stop user project
+ */
+router.post('/users/emergencyStop/:userid', async (req, res) => {
+
+  try {
+
+    await mongoose.model('projects').updateMany({ belongTo: req.params.userid }, { status: 'stopped' });
+
+    await mongoose.model('projectBacklinks').updateMany({ belongTo: req.params.userid }, { status: 'stopped' });
+
+    await mongoose.model('projectAds').updateMany({ belongTo: req.params.userid }, { status: 'stopped' });
+    return successWithNoData(res, 'stop project success');
+
+  } catch (error) {
+    console.log('err when emergency stop: ' + error);
+    errorWithMess(res, error);
+  }
+});
 
 /**
  * create user

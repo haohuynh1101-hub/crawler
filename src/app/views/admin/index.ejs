@@ -96,6 +96,10 @@
                                                     Sửa
                                                 </button>
 
+                                                <button class="btn btn-info" onclick="stopUserProject('<%- user._id%>')">
+                                                    Stop dự án
+                                                </button>
+
                                                 <% if((moment(user.expiredDate)-moment(new Date())).valueOf() < 0) { %>
                                                 <button class='btn btn-success m-b-5'
                                                     onclick="renew('<%- user._id%>')">Gia hạn</button>
@@ -135,6 +139,22 @@
     <% include ./modal-delete %>
     <% include ../partials/scripts %>
     <%include ./changePassword-modal %>
+
+    <script>
+    const stopUserProject=(userid)=>{
+        
+        $.post(`/users/emergencyStop/${userid}`,
+                {
+                    
+                },
+                function (data, status) {
+                    if (data) {
+                        alert('Đã stop dự án')
+                    }
+                });
+    }
+    </script>
+    
     <script>
         var selectedId = '';
     </script>
@@ -246,10 +266,10 @@
             }
         }
 
-       
-         /*
-         load data to view modal
-         */
+
+        /*
+        load data to view modal
+        */
         const loadUserData = (id) => {
 
             //set req router
