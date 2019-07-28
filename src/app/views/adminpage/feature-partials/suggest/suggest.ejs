@@ -77,11 +77,9 @@
                                         <button type="button"
                                         class="btn btn-danger btn-bordred waves-effect waves-light m-b-5"
                                         id="btnDelete-<%- item._id %>" 
-                                        <% if(item.status =='running' || item.status == 'Đang dừng ...' || item.status.includes('Sẽ chạy')) { %>
-                                        disabled
-                                        <%} else { %>
+                                        
                                         onclick="deleteSuggest('<%- item._id%>')"
-                                        <% } %>
+                                        
                                         >Xóa</button>
 
                                 </td>

@@ -633,12 +633,14 @@ const ADTaskContainer = async (req, res) => {
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
     let updateProject = await mongoose.model('projectAds').findById(projectId);
-    updateProject.status = 'stopped';
-    updateProject.isForceStop = false;
-    await updateProject.save();
 
-    //send reload page socket
-    await sendStopAD(userid, projectId);
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+      //send reload page socket
+      await sendStopAD(userid, projectId);
+    }
   }
 }
 
@@ -1060,22 +1062,25 @@ const backlinkTaskContainer = async (req, res) => {
     //user stop
     //change project status to stopped 
     //reset isForceStopped to false
-    console.log('user stop line 816');
     let { projectId, userid } = req.body;
     let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
-    updateProject.status = 'stopped';
-    updateProject.isForceStop = false;
-    await updateProject.save();
 
-    //send reload page socket
-    await sendStopBacklink(userid, projectId);
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopBacklink(userid, projectId);
+    }
+
   }
 }
 
 const backlinkTask = async (req, res) => {
-  console.log('line 874')
+
   return new Promise(async (resolve, reject) => {
-    console.log('line 876')
+
     try {
 
       let { projectId, userid } = req.body;
@@ -1088,19 +1093,17 @@ const backlinkTask = async (req, res) => {
 
       //main process
       for (let i = 0; i < amount; i++) {
-        console.log('line 889')
+
         //get project info
         let { urlBacklink, mainURL, delay, isForceStop } = await mongoose.model('projectBacklinks').findById(projectId);
-        console.log("isforstop line 892 ", isForceStop)
 
         if (isForceStop) throw new Error('Your backlink task is forced to stopped by user !!!');
 
-        console.log('line 896')
         let isSuccessed = await clickBackLink(urlBacklink, mainURL, delay, amount, projectId, userid);
-        console.log('line 898')
+
         //invalid backlink/domain --> exit
         if (isSuccessed == false) {
-          console.log('line 901')
+
           sendNotFoundBacklink(userid, projectId);
           saveLogBacklink(projectId, 'Không tìm thấy site chính trong backlink , vui lòng thử lại sau !!!');
           break;
@@ -1109,7 +1112,7 @@ const backlinkTask = async (req, res) => {
         //out of traffic --> exit
         let monthlyTraffic = await getMonthlyTraffic(userid);
         if (monthlyTraffic <= 0) {
-          console.log('line 910')
+
           await sendNOTEnoughTraffic(userid, projectId);
           break;
         }
@@ -1118,7 +1121,6 @@ const backlinkTask = async (req, res) => {
       //done task
       //set status of project to "stopped"
       //reset is force stop to fasle
-      console.log('stop line 917');
       updateProject.status = 'stopped';
       updateProject.isForceStop = false;
       updateProject.save();
@@ -1128,7 +1130,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
-      console.log('err line 929 ' + error)
+      console.log('err line 1131 ' + error)
       return reject(error);
     }
   });
@@ -1212,12 +1214,16 @@ const suggestTaskContainer = async (req, res) => {
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
     let updateProject = await getProject(projectId);
-    updateProject.status = 'stopped';
-    updateProject.isForceStop = false;
-    await updateProject.save();
 
-    //send reload page socket
-    await sendStopSuggest(userid, projectId);
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+    }
+
   }
 }
 
@@ -1355,35 +1361,39 @@ router.get('/deleteSuggest/:id', async (req, res) => {
 //suggest domain request
 router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
 
-  if (JSON.parse(req.body.isRunNow) == true) {
+  try {
 
-    suggestTaskContainer(req, res);
-  }
-  else {
+    if (JSON.parse(req.body.isRunNow) == true) {
 
-    //set status of project to "waiting"
-    try {
-
-      let updateProject = await mongoose.model('projects').findById(req.body.projectId);
-
-      updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
-      updateProject.save();
-
-    } catch (error) {
-
-      console.log('error when change project status to waiting', error);
-      throw error;
+      suggestTaskContainer(req, res);
     }
+    else {
 
-    let day = parseInt(req.body.day);
-    let month = parseInt(req.body.month);
-    let hour = parseInt(req.body.hour);
-    let minute = parseInt(req.body.minute);
-    let second = parseInt(req.body.second);
+      //set status of project to "waiting"
+      try {
 
-    setSchedule(day, month, hour, minute, second, suggestTaskContainer, req, res, next);
+        let updateProject = await mongoose.model('projects').findById(req.body.projectId);
+
+        updateProject.status = `Sẽ chạy lúc ${req.body.hour}:${req.body.minute}  ${req.body.day}/${req.body.month}`;
+        updateProject.save();
+
+      } catch (error) {
+
+        console.log('error when change project status to waiting', error);
+        throw error;
+      }
+
+      let day = parseInt(req.body.day);
+      let month = parseInt(req.body.month);
+      let hour = parseInt(req.body.hour);
+      let minute = parseInt(req.body.minute);
+      let second = parseInt(req.body.second);
+
+      setSchedule(day, month, hour, minute, second, suggestTaskContainer, req, res, next);
+    }
+  } catch (error) {
+    console.log('project deleted');
   }
-
 })
 
 //update user's socket request
