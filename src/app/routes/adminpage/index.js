@@ -1239,7 +1239,9 @@ const suggestTask = async (req, res) => {
 
       //set status of project to "running"
       let updateProject = await getProject(projectId);
+
       let { amount } = updateProject;
+
       updateProject.status = 'running';
       await updateProject.save();
 
@@ -1281,6 +1283,20 @@ const suggestTask = async (req, res) => {
 
     } catch (error) {
 
+      //change project status to stopped 
+      //reset isForceStopped to false
+      let { projectId, userid } = req.body;
+      let updateProject = await getProject(projectId);
+
+      if (updateProject) {
+        updateProject.status = 'stopped';
+        updateProject.isForceStop = false;
+        await updateProject.save();
+
+        //send reload page socket
+        await sendStopSuggest(userid, projectId);
+      }
+      
       return reject(error);
     }
   });

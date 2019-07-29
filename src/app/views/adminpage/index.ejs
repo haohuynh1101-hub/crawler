@@ -151,8 +151,15 @@
         */
         $('#edit-suggest-form').submit(() => {
           let keyword = $('#suggestKeyword-edit').val().split('\n');
-          keyword.splice(0, 1);
+
+          let tempKeyword = [];
+          keyword.forEach(element => {
+            if (element !== "")
+              tempKeyword.push(element);
+          });
+          keyword = [...tempKeyword];
           keyword = JSON.stringify(keyword);
+
           $('#suggestKeyword-edit').val(keyword);
         })
 
@@ -181,36 +188,36 @@
       </script>
 
       <script>
-        const clearLogSuggest=(id)=>{
-          
+        const clearLogSuggest = (id) => {
+
           $.post(`/clearLogSuggest/${id}`,
             {
 
             },
             function (data, status) {
-              
+
             });
         }
 
-        const clearLogBacklink=(id)=>{
-          
+        const clearLogBacklink = (id) => {
+
           $.post(`/clearLogBacklink/${id}`,
             {
 
             },
             function (data, status) {
-              
+
             });
         }
 
-        const clearLogAD=(id)=>{
-          
+        const clearLogAD = (id) => {
+
           $.post(`/clearLogAD/${id}`,
             {
 
             },
             function (data, status) {
-              
+
             });
         }
 
@@ -317,7 +324,6 @@
 
       <script>
 
-        $(document).on('click', '#btn-confirm-edit-suggest', function () { alert("hello"); });
         const updateProjectSuggest = (id) => {
 
           // let name = $('#projectName-suggest-edit').val();
