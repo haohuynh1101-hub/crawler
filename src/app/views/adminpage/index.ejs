@@ -151,7 +151,7 @@
         */
         $('#edit-suggest-form').submit(() => {
           let keyword = $('#suggestKeyword-edit').val().split('\n');
-          
+
           let tempKeyword = [];
           keyword.forEach(element => {
             if (element !== "")
@@ -324,7 +324,6 @@
 
       <script>
 
-        $(document).on('click', '#btn-confirm-edit-suggest', function () { alert("hello"); });
         const updateProjectSuggest = (id) => {
 
           // let name = $('#projectName-suggest-edit').val();
