@@ -581,17 +581,23 @@
 
       </script>
 
+      <script>
+        function sleep(ms) {
+          return new Promise(resolve => setTimeout(resolve, ms));
+        }
+      </script>
+
       <script async>
         /**
           * run suggest tool
           * id: projectid
           * isRunNow {boolean} run now or run later (base on schedule)
          */
-        const runSuggestTool = (id, isRunNow) => {
+        const runSuggestTool = async(id, isRunNow) => {
 
           $('#listLogSuggest').empty();
           $(`#btnRun-${id}`).attr("disabled", true);
-          window.location.href = '/';
+          // window.location.href = '/';
           $.post("/suggest",
             {
               userid: localStorage.getItem('userid'),
@@ -606,6 +612,9 @@
             function (data, status) {
               //console.log(data);
             });
+
+            await sleep(1500);
+            location.reload();
         }
 
         /**
