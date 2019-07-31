@@ -1206,10 +1206,25 @@ router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 const suggestTaskContainer = async (req, res) => {
 
   try {
-
     await suggestTask(req, res);
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await getProject(projectId);
+
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+    }
+    
   } catch (error) {
 
+    console.log('err line 1212: ' + error);
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -1296,7 +1311,7 @@ const suggestTask = async (req, res) => {
         //send reload page socket
         await sendStopSuggest(userid, projectId);
       }
-      
+
       return reject(error);
     }
   });
@@ -1304,54 +1319,84 @@ const suggestTask = async (req, res) => {
 
 /**
  * stop project suggest
- * update project status to "Dang dung"
- * update isForceStop = true
  */
 router.get('/stopSuggest/:id', async (req, res) => {
 
-  let updateProject = await getProject(req.params.id);
-  updateProject.isForceStop = true;
-  updateProject.status = 'Đang dừng ...';
-  await updateProject.save();
-  res.redirect('/');
+  //query old project info
+  let oldProject = await mongoose.model('projects').findById(req.params.id);
+  let newProjectInfo = {
+    keyword: oldProject.keyword,
+    isForceStop: false,
+    domain: oldProject.domain,
+    delay: oldProject.delay,
+    amount: oldProject.amount,
+    name: oldProject.name,
+    searchTool: oldProject.searchTool,
+    belongTo: oldProject.belongTo,
+    status: 'stopped'
+  };
+
+  //delete old project info
+  await mongoose.model('projects').findByIdAndDelete(req.params.id);
+
+  //create new project with same info
+  await mongoose.model('projects').create({ ...newProjectInfo });
+
+  return res.redirect('/');
 });
 
 /**
  * stop project ad
- * update project status to "Dang dung"
- * update isForceStop = true
  */
 router.get('/stopAD/:id', async (req, res) => {
 
-  let updateProject = await mongoose.model('projectAds').findById(req.params.id);
+  //query old project info
+  let oldProject = await mongoose.model('projectAds').findById(req.params.id);
+  let newProjectInfo = {
+    adURL: oldProject.adURL,
+    isForceStop: false,
+    domain: oldProject.domain,
+    delay: oldProject.delay,
+    amount: oldProject.amount,
+    name: oldProject.name,
+    belongTo: oldProject.belongTo,
+    status: 'stopped'
+  };
 
-  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+  //delete old project info
+  await mongoose.model('projectAds').findByIdAndDelete(req.params.id);
 
-    updateProject.isForceStop = true;
-    updateProject.status = 'Đang dừng ...';
-    await updateProject.save();
-  }
+  //create new project with same info
+  await mongoose.model('projectAds').create({ ...newProjectInfo });
 
-  res.redirect('/');
+  return res.redirect('/');
 });
 
 /**
  * stop project backlink
- * update project status to "Dang dung"
- * update isForceStop = true
  */
 router.get('/stopBacklink/:id', async (req, res) => {
 
-  let updateProject = await mongoose.model('projectBacklinks').findById(req.params.id);
+  //query old project info
+  let oldProject = await mongoose.model('projectBacklinks').findById(req.params.id);
+  let newProjectInfo = {
+    urlBacklink: oldProject.urlBacklink,
+    isForceStop: false,
+    mainURL: oldProject.mainURL,
+    delay: oldProject.delay,
+    amount: oldProject.amount,
+    name: oldProject.name,
+    belongTo: oldProject.belongTo,
+    status: 'stopped'
+  };
 
-  if (updateProject.isForceStop == false && updateProject.status == 'running') {
+  //delete old project info
+  await mongoose.model('projectBacklinks').findByIdAndDelete(req.params.id);
 
-    updateProject.isForceStop = true;
-    updateProject.status = 'Đang dừng ...';
-    await updateProject.save();
-  }
+  //create new project with same info
+  await mongoose.model('projectBacklinks').create({ ...newProjectInfo });
 
-  res.redirect('/');
+  return res.redirect('/');
 });
 
 /**
@@ -1408,6 +1453,20 @@ router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
       setSchedule(day, month, hour, minute, second, suggestTaskContainer, req, res, next);
     }
   } catch (error) {
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await getProject(projectId);
+
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+    }
     console.log('project deleted');
   }
 })
