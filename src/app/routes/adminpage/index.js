@@ -1206,10 +1206,25 @@ router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 const suggestTaskContainer = async (req, res) => {
 
   try {
-
     await suggestTask(req, res);
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await getProject(projectId);
+
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+    }
+    
   } catch (error) {
 
+    console.log('err line 1212: ' + error);
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -1438,6 +1453,20 @@ router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
       setSchedule(day, month, hour, minute, second, suggestTaskContainer, req, res, next);
     }
   } catch (error) {
+
+    //change project status to stopped 
+    //reset isForceStopped to false
+    let { projectId, userid } = req.body;
+    let updateProject = await getProject(projectId);
+
+    if (updateProject) {
+      updateProject.status = 'stopped';
+      updateProject.isForceStop = false;
+      await updateProject.save();
+
+      //send reload page socket
+      await sendStopSuggest(userid, projectId);
+    }
     console.log('project deleted');
   }
 })
