@@ -7,9 +7,9 @@ var moment = require('moment-timezone');
  */
 const saveLog = async (projectId, message) => {
 
-    let timeLog=moment().utcOffset('+7');
+    let timeLog = moment().utcOffset('+7');
 
-    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()+1} `+`${message}`;
+    let log = `${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month() + 1} ` + `${message}`;
 
 
     //save log to document logs
@@ -21,8 +21,11 @@ const saveLog = async (projectId, message) => {
     //push log to document projects
     let updateProject = await mongoose.model('projects').findById(projectId);
 
-    await updateProject.log.push(newLog._id);
-    await updateProject.save();
+    if (updateProject) {
+        await updateProject.log.push(newLog._id);
+        await updateProject.save();
+    }
+
 }
 
 /**
@@ -32,9 +35,9 @@ const saveLog = async (projectId, message) => {
  */
 const saveLogBacklink = async (projectId, message) => {
 
-    let timeLog=moment().utcOffset('+7');
+    let timeLog = moment().utcOffset('+7');
 
-    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()+1} `+`${message}`;
+    let log = `${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month() + 1} ` + `${message}`;
 
     //save log to document logs
     let newLog = await mongoose.model('logBacklinks').create({
@@ -45,15 +48,18 @@ const saveLogBacklink = async (projectId, message) => {
     //push log to document projects
     let updateProject = await mongoose.model('projectBacklinks').findById(projectId);
 
-    await updateProject.log.push(newLog._id);
-    await updateProject.save();
+    if (updateProject) {
+        await updateProject.log.push(newLog._id);
+        await updateProject.save();
+    }
+
 }
 
 const saveLogAD = async (projectId, message) => {
 
-    let timeLog=moment().utcOffset('+7');
+    let timeLog = moment().utcOffset('+7');
 
-    let log=`${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month()+1} `+`${message}`;
+    let log = `${timeLog.hour()}:${timeLog.minute()}:${timeLog.second()}-${timeLog.date()}/${timeLog.month() + 1} ` + `${message}`;
 
     //save log to document logs
     let newLog = await mongoose.model('logAds').create({
@@ -64,8 +70,11 @@ const saveLogAD = async (projectId, message) => {
     //push log to document projects
     let updateProject = await mongoose.model('projectAds').findById(projectId);
 
-    await updateProject.log.push(newLog._id);
-    await updateProject.save();
+    if (updateProject) {
+        await updateProject.log.push(newLog._id);
+        await updateProject.save();
+    }
+
 }
 
-module.exports = {saveLog,saveLogBacklink,saveLogAD};
+module.exports = { saveLog, saveLogBacklink, saveLogAD };
