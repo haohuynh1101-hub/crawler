@@ -158,37 +158,45 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       await saveLog(projectId, page.url());
 
       await saveLog(projectId, 'Đang lả lướt trên trang ...');
-      await saveLog(projectId,'line 161');
-      await autoScroll(page);
-      await saveLog(projectId,'line 163');
+      await saveLog(projectId, 'line 161');
 
-      //click random url in page
-      let randomURL = await clickRandomURL(page);
-      await saveLog(projectId,'line 167');
-      await saveLog(projectId, 'Đang click url ngẫu nhiên trên trang ...');
-      await saveLog(projectId, 'URL hiện tại: ' + randomURL);
-      await sendRandomURLClicked(userid, projectId, randomURL);
-      await saveLog(projectId,'line 171');
-      return true;
+      // try {
+      //   await autoScroll(page);
+      // } catch (error) {
+      //   console.log('err scroll page: ' + error);
+      // }
 
     }
-    else {
 
-      sendNotFoundURL(userid, projectId);
-      await saveLog(projectId, "Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
+    await saveLog(projectId, 'line 163');
 
-      return false;
-
-    }
-  } catch (error) {
-
-    console.log("TCL: suggestDomain -> error", error);
-    await sendDeadProxy(userid, projectId);
-    await saveLog(projectId, 'IP die, đang đổi ip khác');
-
-    return false;
+    //click random url in page
+    let randomURL = await clickRandomURL(page);
+    await saveLog(projectId, 'line 167');
+    await saveLog(projectId, 'Đang click url ngẫu nhiên trên trang ...');
+    await saveLog(projectId, 'URL hiện tại: ' + randomURL);
+    await sendRandomURLClicked(userid, projectId, randomURL);
+    await saveLog(projectId, 'line 171');
+    return true;
 
   }
+    else {
+
+  sendNotFoundURL(userid, projectId);
+  await saveLog(projectId, "Không tìm thấy url hoặc title khớp với truy vấn ở thiết bị đang giả lập, đang chuyển sang thiết bị khác ...");
+
+  return false;
+
+}
+  } catch (error) {
+
+  console.log("TCL: suggestDomain -> error", error);
+  await sendDeadProxy(userid, projectId);
+  await saveLog(projectId, 'IP die, đang đổi ip khác');
+
+  return false;
+
+}
 
 }
 module.exports = suggestDomain;
