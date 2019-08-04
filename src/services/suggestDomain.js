@@ -159,7 +159,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
 
       await saveLog(projectId, 'Đang lả lướt trên trang ...');
       await saveLog(projectId,'line 161');
-      await autoScroll(page);
+      //await autoScroll(page);
       await saveLog(projectId,'line 163');
 
       //click random url in page
