@@ -49,11 +49,15 @@ var { sendCloseBrower,
   sendNOTEnoughTraffic,
   sendNOTEnoughLink
 } = require('services/socket');
+var logger = require('log-to-file');
+var path = require('path');
+var LOG_FILENAME = path.dirname(require.main.filename).replace('bin','log') + `/error.log`;
 
 /**
  * middleware that check enough links before submit links (function index)
  */
 const checkEnoughLink = () => {
+  
   return async (req, res, next) => {
 
     let { links, userid } = req.body;
@@ -1059,6 +1063,8 @@ const backlinkTaskContainer = async (req, res) => {
     await backlinkTask(req, res);
   } catch (error) {
 
+    logger('err in catch block backlinkTaskContainer line 1066: '+error,LOG_FILENAME);
+
     //user stop
     //change project status to stopped 
     //reset isForceStopped to false
@@ -1130,7 +1136,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
-      console.log('err line 1131 ' + error)
+      logger('err line 1139: ' + error,LOG_FILENAME)
       return reject(error);
     }
   });
@@ -1181,7 +1187,7 @@ router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 
     } catch (error) {
 
-      console.log('error when change backlink project status', error);
+      logger('error when change backlink project status  :'+error,LOG_FILENAME);
       throw error;
     }
 
@@ -1950,8 +1956,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
     } catch (error) {
 
-      console.log('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1625');
-      console.log(error)
+      logger('invalid url backlink in catch block clickMainURLWithSingleBacklink line 1959: '+error,LOG_FILENAME);
 
       await brower.close();
 
@@ -1988,7 +1993,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
       } catch (error) {
 
-        console.log("error click main url in single backlink ", error)
+        logger("error click main url in single backlink "+ error,LOG_FILENAME);
         return false;
       }
 
@@ -2018,8 +2023,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
   } catch (error) {
 
-    console.log(`error in catch block of click single backlink2` + error);
-    dumpError(error);
+    logger('error in catch block of click single backlink line 2026: ' + error,LOG_FILENAME);
     await brower.close();
   }
 
