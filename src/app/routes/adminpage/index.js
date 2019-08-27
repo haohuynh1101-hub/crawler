@@ -1591,7 +1591,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
     } catch (error) {
 
-      console.log('err in catch block click singlead line 1299 ' + error);
+      logger('err in catch block click singlead line 1299 ' + error.LOG_FILENAME);
 
       // //change project status to stopped 
       // //reset isForceStopped to false
@@ -1615,7 +1615,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     }
 
 
-    await page.waitForSelector(`a[href*="${adURL}"]`);
+    await page.waitForSelector(`a[href*="${adURL}"]`,{ timeout: 300000, visible: true });
     let wasClicked = await page.evaluate(async (adURL) => {
 
       //search all dom tree to find ad url
@@ -1631,7 +1631,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       } catch (error) {
 
-        console.log("error click single ad ", error)
+        logger("error click single ad "+ error,LOG_FILENAME)
         return false;
       }
 
@@ -1659,8 +1659,9 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
   } catch (error) {
 
-    console.log('error in catch block of clickSingleAD line 1234 ' + error);
+    logger('error in catch block of clickSingleAD line 1234 ' + error,LOG_FILENAME);
     await brower.close();
+    return false;
   }
 
 }
@@ -1944,15 +1945,14 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await saveLogBacklink(projectId, 'Đang truy cập: ' + backlink);
 
 
-
+    /// try to access backlink, wait maximum 300s
+    /// if can not access, recursive maximum 10 times
     try {
 
       await page.goto(backlink, { timeout: 300000, waitUntil: 'domcontentloaded' });
 
       await page.waitFor(5000);// in case DOM content not loaded yet
       numberInvalidBacklink = 0;
-      console.log('connect proxy success')
-
 
     } catch (error) {
 
@@ -1960,23 +1960,19 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
       await brower.close();
 
-      console.log('connect proxy faile, retry: ' + numberInvalidBacklink)
-
       numberInvalidBacklink++;
-      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
+
       if (numberInvalidBacklink >= 10) return false;
 
       await clickMainURLWithSingleBacklink(backlink, mainURL, delay, projectId, userid)
-
     }
-
 
 
     await sendFindingBacklink(userid, projectId, backlink);
     await saveLogBacklink(projectId, `Đang tìm kiếm đường dẫn đến site chính trên trang ${backlink}`);
 
-    //search for main url
-    await page.waitForSelector(`a[href*="${mainURL}"]`);
+    /// search for main url
+    await page.waitForSelector(`a[href*="${mainURL}"]`,{ timeout: 300000, visible: true });
     let wasClicked = await page.evaluate(async (mainURL) => {
 
       //search all dom tree to find main url
@@ -2007,11 +2003,11 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
       return false;
     }
 
-    //found main url, acccessing
+    /// found main url, acccessing
     sendFoundBacklink(userid, projectId, mainURL);
     saveLogBacklink(projectId, `Đã tìm thấy url site chính, đang truy cập ${mainURL}`);
 
-    //delay in main page
+    // delay in main page
     await setTimeDelay(delay);
     await page.waitFor(Const.timeDelay);
 
@@ -2025,6 +2021,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
     logger('error in catch block of click single backlink line 2026: ' + error,LOG_FILENAME);
     await brower.close();
+    return false;
   }
 
 }
