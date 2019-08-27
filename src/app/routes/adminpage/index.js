@@ -1136,7 +1136,7 @@ const backlinkTask = async (req, res) => {
 
     } catch (error) {
 
-      console.log('err line 1131 ' + error)
+      logger('err line 1139: ' + error,LOG_FILENAME)
       return reject(error);
     }
   });
@@ -1187,7 +1187,7 @@ router.post('/backlink', checkEnoughTraffic(), async (req, res, next) => {
 
     } catch (error) {
 
-      console.log('error when change backlink project status', error);
+      logger('error when change backlink project status  :'+error,LOG_FILENAME);
       throw error;
     }
 
