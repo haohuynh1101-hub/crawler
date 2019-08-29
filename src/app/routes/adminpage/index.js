@@ -115,7 +115,7 @@ const getMonthlyTraffic = async (userid) => {
 
   } catch (error) {
 
-    console.log('err in catch block get monthly traffic line 970 ' + error);
+    logger('err in catch block get monthly traffic line 970 ' + error,LOG_FILENAME);
     return 0;
   }
 
@@ -658,12 +658,12 @@ const clickADTask = async (req, res) => {
 
       //set status of project to "running"
       let updateProject = await mongoose.model('projectAds').findById(projectId);
-      let { amount } = updateProject;
+     
       updateProject.status = 'running';
       updateProject.save();
 
       //main process
-      for (let i = 0; i < amount; i++) {
+      while(true) {
 
         let { domain, adURL, delay, isForceStop } = await mongoose.model('projectAds').findById(projectId);
 
@@ -1098,7 +1098,7 @@ const backlinkTask = async (req, res) => {
       await updateProject.save();
 
       //main process
-      for (let i = 0; i < amount; i++) {
+      while(true) {
 
         //get project info
         let { urlBacklink, mainURL, delay, isForceStop } = await mongoose.model('projectBacklinks').findById(projectId);
@@ -1230,7 +1230,7 @@ const suggestTaskContainer = async (req, res) => {
     
   } catch (error) {
 
-    console.log('err line 1212: ' + error);
+    logger('err line 1233: ' + error,LOG_FILENAME);
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -1261,13 +1261,11 @@ const suggestTask = async (req, res) => {
       //set status of project to "running"
       let updateProject = await getProject(projectId);
 
-      let { amount } = updateProject;
-
       updateProject.status = 'running';
       await updateProject.save();
 
       //main process 
-      for (let i = 0; i < amount; i++) {
+      while(true) {
 
         let { keyword, domain, delay, isForceStop, searchTool } = await getProject(projectId);
 
