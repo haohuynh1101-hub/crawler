@@ -10,6 +10,9 @@ var {
 
 var clickRandomURL = require('./../services/clickRandomURL');
 var { saveLog } = require('./saveLog');
+var logger = require('log-to-file');
+var path = require('path');
+var LOG_FILENAME = path.dirname(require.main.filename).replace('bin','log') + `/error.log`;
 
 async function autoScroll(page) {
   await page.evaluate(async () => {
@@ -38,7 +41,7 @@ async function autoScroll(page) {
  * @return {boolean} true (found and clicked) || false (domain not found)
  */
 const suggestDomain = async (userid, projectId, page, domain) => {
-
+  
   try {
 
     let wasClicked;
@@ -158,17 +161,13 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       await saveLog(projectId, page.url());
 
       await saveLog(projectId, 'Đang lả lướt trên trang ...');
-      await saveLog(projectId,'line 161');
       //await autoScroll(page);
-      await saveLog(projectId,'line 163');
 
       //click random url in page
       let randomURL = await clickRandomURL(page);
-      await saveLog(projectId,'line 167');
       await saveLog(projectId, 'Đang click url ngẫu nhiên trên trang ...');
       await saveLog(projectId, 'URL hiện tại: ' + randomURL);
       await sendRandomURLClicked(userid, projectId, randomURL);
-      await saveLog(projectId,'line 171');
       return true;
 
     }
@@ -182,7 +181,7 @@ const suggestDomain = async (userid, projectId, page, domain) => {
     }
   } catch (error) {
 
-    console.log("TCL: suggestDomain -> error", error);
+    logger("TCL: suggestDomain -> error line 184 suggestdomain.js: "+ error,LOG_FILENAME);
     await sendDeadProxy(userid, projectId);
     await saveLog(projectId, 'IP die, đang đổi ip khác');
 
