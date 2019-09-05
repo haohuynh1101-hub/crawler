@@ -1302,6 +1302,7 @@ const suggestTask = async (req, res) => {
 
     } catch (error) {
 
+      logger('err line 1306: '+error,LOG_FILENAME);
       //change project status to stopped 
       //reset isForceStopped to false
       let { projectId, userid } = req.body;
@@ -1789,18 +1790,20 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
 
       wasClicked = await suggestDomain(userid, projectId, page, domain);
 
-      await setTimeDelay(delayTime);
-      await page.waitFor(Const.timeDelay);
+      if(wasClicked){
+        await setTimeDelay(delayTime);
+        await page.waitFor(Const.timeDelay);
+      }
 
       await sendCloseBrower(userid, projectId);
       await saveLog(projectId, 'Đang đóng trình duyệt ...');
-      brower.close();
+      await brower.close();
 
 
     } catch (error) {
 
-      console.log("TCL: searchAndSuggest -> error", error);
-      brower.close();
+      logger("TCL: searchAndSuggest -> error" + error, LOG_FILENAME);
+      await brower.close();
     }
   }
 
@@ -1850,12 +1853,14 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
       numberOfInvalidDomain++;
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
+    }else{ //found and clicked 1 domain
+      await decreaseMonthlyTraffic(userid);
     }
   }
 
   if (numberOfInvalidDomain >= keyword.length) return true;
 
-  await decreaseMonthlyTraffic(userid);
+  
   return false;
 }
 
@@ -2046,15 +2051,14 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
       numberOfInvalidDomain++;
       saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
+    }else{//found and clicked 1 domain
+      await decreaseMonthlyTraffic(userid);
     }
   }
 
   if (numberOfInvalidDomain >= urlBacklink.length) return false;
 
-  await decreaseMonthlyTraffic(userid);
-
   return true;
 }
-
 
 module.exports = router;
