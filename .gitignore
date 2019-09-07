@@ -27,3 +27,5 @@ package-lock.json
 #log files
 *.log
 fetchErrorFile.bat
+
+track.txt
