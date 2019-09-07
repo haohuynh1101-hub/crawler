@@ -14,24 +14,6 @@ var logger = require('log-to-file');
 var path = require('path');
 var LOG_FILENAME = path.dirname(require.main.filename).replace('bin','log') + `/error.log`;
 
-async function autoScroll(page) {
-  await page.evaluate(async () => {
-    await new Promise((resolve, reject) => {
-      var totalHeight = 0;
-      var distance = 100;
-      var timer = setInterval(() => {
-        var scrollHeight = document.body.scrollHeight;
-        window.scrollBy(0, distance);
-        totalHeight += distance;
-
-        if (totalHeight >= scrollHeight) {
-          clearInterval(timer);
-          resolve();
-        }
-      }, 100);
-    });
-  });
-}
 
 /**
  * find and click domain base on google search result (find maximum 10 first pages)
@@ -111,7 +93,6 @@ const suggestDomain = async (userid, projectId, page, domain) => {
       //if there was not any matched domain in previous page
       //search in next page  
       if (!wasClicked) {
-        console.log('next page')
 
         let nextpageURL = await page.evaluate(async (currentPageIndex) => {
 
