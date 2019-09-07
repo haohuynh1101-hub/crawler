@@ -135,7 +135,7 @@ const decreaseMonthlyTraffic = async (userid) => {
 
   } catch (error) {
 
-    console.log('err then decrease monthly traffic ' + error);
+    logger('err then decrease monthly traffic ' + error,LOG_FILENAME);
   }
 }
 
@@ -1115,13 +1115,7 @@ const backlinkTask = async (req, res) => {
           break;
         }
 
-        //out of traffic --> exit
-        let monthlyTraffic = await getMonthlyTraffic(userid);
-        if (monthlyTraffic <= 0) {
-
-          await sendNOTEnoughTraffic(userid, projectId);
-          break;
-        }
+        
       }
 
       //done task
@@ -1230,7 +1224,7 @@ const suggestTaskContainer = async (req, res) => {
     
   } catch (error) {
 
-    logger('err line 1233: ' + error,LOG_FILENAME);
+    logger('err line 1233: ' + JSON.stringify(error),LOG_FILENAME);
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -1260,7 +1254,6 @@ const suggestTask = async (req, res) => {
 
       //set status of project to "running"
       let updateProject = await getProject(projectId);
-
       updateProject.status = 'running';
       await updateProject.save();
 
@@ -1280,14 +1273,6 @@ const suggestTask = async (req, res) => {
           break;
         }
 
-        //out of traffic --> exit
-        let monthlyTraffic = await getMonthlyTraffic(userid);
-        if (monthlyTraffic <= 0) {
-
-          await sendNOTEnoughTraffic(userid, projectId);
-          break;
-        }
-
       }
 
       //set status of project to "stopped"
@@ -1302,7 +1287,7 @@ const suggestTask = async (req, res) => {
 
     } catch (error) {
 
-      logger('err line 1306: '+error,LOG_FILENAME);
+      logger('err line 1306: '+JSON.stringify(error),LOG_FILENAME);
       //change project status to stopped 
       //reset isForceStopped to false
       let { projectId, userid } = req.body;
@@ -1459,6 +1444,7 @@ router.post('/suggest', checkEnoughTraffic(), async (req, res, next) => {
     }
   } catch (error) {
 
+    logger('err line 1462: '+error,LOG_FILENAME);
     //change project status to stopped 
     //reset isForceStopped to false
     let { projectId, userid } = req.body;
@@ -1539,23 +1525,6 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   await page.setViewport({
     width: 1366,
     height: 768,
-  });
-  await page.on('console', consoleObj => console.log(consoleObj.text()));
-
-  //block  video
-  await page.setRequestInterception(true);
-  await page.on('request', request => {
-    const url = request.url().toLowerCase();
-    if (
-      url.endsWith('.mp4')
-      || url.endsWith('.avi')
-      || url.endsWith('.flv')
-      || url.endsWith('.mov')
-      || url.endsWith('.wmv')
-    )
-      request.abort();
-    else
-      request.continue();
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
@@ -1746,21 +1715,6 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       height: 768,
     });
     await page.on('console', consoleObj => console.log(consoleObj.text()));
-    //block  video
-    await page.setRequestInterception(true);
-    await page.on('request', request => {
-      const url = request.url().toLowerCase();
-      if (
-        url.endsWith('.mp4')
-        || url.endsWith('.avi')
-        || url.endsWith('.flv')
-        || url.endsWith('.mov')
-        || url.endsWith('.wmv')
-      )
-        request.abort();
-      else
-        request.continue();
-    });
 
     //change user agent
     await saveLog(projectId, 'Đang thay đổi User Agent ...');
@@ -1829,6 +1783,15 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
 
   for (let i = 0; i < keyword.length; i++) {
 
+    //out of traffic --> exit
+    let monthlyTraffic = await getMonthlyTraffic(userid);
+    await saveLog(projectId,'Traffic available: '+monthlyTraffic);
+    if (monthlyTraffic <= 0) {
+
+      await sendNOTEnoughTraffic(userid, projectId);
+      return true;
+    }
+
     /**
   * flag check stop signal from user
   * change project status to stopped 
@@ -1848,18 +1811,21 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
     if (status === 'stopped') return false;
 
     isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
-
-    if (isNotFoundDomain) {
+    
+    if (isNotFoundDomain == true) {
       numberOfInvalidDomain++;
       saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
-    }else{ //found and clicked 1 domain
+
+    } else if (isNotFoundDomain == false) { //found and clicked 1 domain
       await decreaseMonthlyTraffic(userid);
+
+    } else {
+      logger('err line 1824 -> isNotFoundDomain: ' + isNotFoundDomain, LOG_FILENAME);
     }
   }
 
   if (numberOfInvalidDomain >= keyword.length) return true;
-
   
   return false;
 }
@@ -1908,22 +1874,6 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     height: 768,
   });
   await page.on('console', consoleObj => console.log(consoleObj.text()));
-
-  //block  video
-  await page.setRequestInterception(true);
-  await page.on('request', request => {
-    const url = request.url().toLowerCase();
-    if (
-      url.endsWith('.mp4')
-      || url.endsWith('.avi')
-      || url.endsWith('.flv')
-      || url.endsWith('.mov')
-      || url.endsWith('.wmv')
-    )
-      request.abort();
-    else
-      request.continue();
-  });
 
 
   /**
@@ -2058,14 +2008,27 @@ const clickBackLink = async (urlBacklink, mainURL, delay, amount, projectId, use
 
   for (let i = 0; i < urlBacklink.length; i++) {
 
-    isFoundDomain = await clickMainURLWithSingleBacklink(urlBacklink[i], mainURL, delay, projectId, userid);
+    //out of traffic --> exit
+    let monthlyTraffic = await getMonthlyTraffic(userid);
+    await saveLogBacklink(projectId,'available traffic: '+monthlyTraffic);
+    if (monthlyTraffic <= 0) {
 
+      await sendNOTEnoughTraffic(userid, projectId);
+      return false;
+    }
+
+    isFoundDomain = await clickMainURLWithSingleBacklink(urlBacklink[i], mainURL, delay, projectId, userid);
+    
     if (isFoundDomain == false) {
       numberOfInvalidDomain++;
       saveLogBacklink(projectId, 'url backlink không hợp lệ hoặc không tìm thấy url cần view trên trang' + urlBacklink[i]);
       sendNotFoundURLWithKeywordBacklink(userid, projectId, urlBacklink);
-    }else{//found and clicked 1 domain
+
+    } else if (isFoundDomain == true) {//found and clicked 1 domain
       await decreaseMonthlyTraffic(userid);
+
+    } else {
+      logger('err line 2015, isFoundDomain: ' + isFoundDomain,LOG_FILENAME);
     }
   }
 
