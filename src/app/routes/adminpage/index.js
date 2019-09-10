@@ -1695,9 +1695,9 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       await updateProject.save();
       //send reload page socket
       await sendStopSuggest(userid, projectId);
-      return false;
+      return true;
     }
-    if (status === 'stopped') return false;
+    if (status === 'stopped') return true;
 
     runTime++;
 
@@ -1857,9 +1857,9 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
     await updateProject.save();
     //send reload page socket
     await sendStopBacklink(userid, projectId);
-    return true;
+    return false;
   }
-  if (status === 'stopped') return true;
+  if (status === 'stopped') return false;
 
   /**
    * setup brower and page
