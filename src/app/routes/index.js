@@ -17,7 +17,7 @@ router.use('/setupAdmin',async(req,res)=>{
     //     await mongoose.model('users').create(adminAccount)
     
     //   });
-      return success(adminGroup, "Done")
+     return res.json(adminGroup)
 })
 router.use('/login', require('./login'));
 
