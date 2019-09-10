@@ -1,7 +1,8 @@
 var router = require('express').Router();
 var { checkPermission } = require('services/checkPermissionCookie');
 var { IS_USER } = require('config/constants')
-
+var mongoose = require('mongoose');
+var bcrypt = require('bcryptjs');
 router.use('/setupAdmin',async(req,res)=>{
     let adminGroup = await mongoose.model('role').find({name:'Admin'})
     // let adminAccount = {
