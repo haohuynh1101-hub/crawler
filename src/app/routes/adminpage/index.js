@@ -811,12 +811,18 @@ router.get('/ad/:id', async (req, res) => {
 
   try {
 
-    let result = await mongoose.model('projectAds').findById(req.params.id).populate('log');
+    let result = await mongoose.model('projectAds').findById(req.params.id).populate({
+      path: 'log',
+      options: {
+        limit: 20,
+        sort: { _id: -1 }
+      }
+    });
 
     res.json(result);
 
   } catch (error) {
-
+    logger('err line 825: '+error,LOG_FILENAME);
     console.log('err get ad project info: ' + error);
   }
 
@@ -891,12 +897,18 @@ router.get('/project/:id', async (req, res) => {
 
   try {
 
-    let project = await mongoose.model('projects').findById(req.params.id).populate('log');
+    let project = await mongoose.model('projects').findById(req.params.id).populate({
+      path: 'log',
+      options: {
+        limit: 20,
+        sort: { _id: -1 }
+      }
+    });
 
     res.json(project);
 
   } catch (error) {
-
+    logger('err line 899: '+error,LOG_FILENAME)
     res.json(error);
   }
 
@@ -1039,12 +1051,18 @@ router.get('/backlinkproject/:id', async (req, res) => {
 
   try {
 
-    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate('log');
+    let projectInfo = await mongoose.model('projectBacklinks').findById(req.params.id).populate({
+      path: 'log',
+      options: {
+        limit: 20,
+        sort: { _id: -1 }
+      }
+    });
 
     res.json(projectInfo);
 
   } catch (error) {
-
+    logger('err line 1059: '+error,LOG_FILENAME);
     console.log('view backlink detail err: ' + error);
   }
 

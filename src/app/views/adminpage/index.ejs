@@ -703,7 +703,8 @@
 
               $('#view-suggestKeyword').val($('#view-suggestKeyword').val() + `\n${item}`);
             })
-
+            
+            data.log=data.log.reverse();
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -729,6 +730,8 @@
             data.urlBacklink.map(item => {
               $('#view-url_backlink').val($('#view-url_backlink').val() + `\n${item}`);
             })
+
+            data.log=data.log.reverse();
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -879,6 +882,7 @@
               $('#view-ad_url').val($('#view-ad_url').val() + `\n${item}`);
             })
 
+            data.log=data.log.reverse();
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
