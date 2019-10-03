@@ -1808,20 +1808,20 @@ const searchAndSuggestMultipleKeyword = async (searchTool, keyword, domain, dela
       await sendStopSuggest(userid, projectId);
       return false;
     }
-    if (status === 'stopped') return false;
+    if (status == 'stopped') return false;
 
     isNotFoundDomain = await searchAndSuggestSingleKeyword(searchTool, keyword[i], domain, delayTime, projectId, userid);
     
     if (isNotFoundDomain == true) {
       numberOfInvalidDomain++;
-      saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
+      await saveLog(projectId, 'Không tìm thấy domain cần tìm ứng với keyword ' + keyword[i]);
       sendNotFoundDomainWithKeyword(userid, projectId, keyword[i]);
 
     } else if (isNotFoundDomain == false) { //found and clicked 1 domain
       await decreaseMonthlyTraffic(userid);
 
     } else {
-      logger('err line 1824 -> isNotFoundDomain: ' + isNotFoundDomain, LOG_FILENAME);
+      await logger('err line 1824 -> isNotFoundDomain: ' + isNotFoundDomain, LOG_FILENAME);
     }
   }
 
