@@ -35,7 +35,15 @@
       <div class="content">
         <div class="container">
           <div class=card>
-            <div class='card-body' style="color:red"><b>Số traffic còn lại : <span><%- monthlyTraffic%></b></span></div>
+            <div class='card-body' style="color:red">
+              <b>Số traffic còn lại : <span><%- monthlyTraffic%></b>
+              </span>
+              <div class="test">
+                <b>Ngày hết hạn:  <span><%= moment(expiredDate).format('DD/MM/YYYY')%></span></b>
+              </div>
+            </div>
+              
+            
           </div>
           <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">

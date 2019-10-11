@@ -960,7 +960,9 @@ router.get('/', returnAdminpage(), async function (req, res, next) {
         role,
         traffic,
         monthlyTraffic: user.monthlyTraffic,
-        indexAmount: user.indexAmount
+        indexAmount: user.indexAmount,
+        expiredDate:user.expiredDate,
+        moment: moment
       });
 
     else
