@@ -348,6 +348,31 @@
             });
         })
     </script>
+    <script>
+    
+    $('#form-submit-new-user').submit(function (event) {
+            let validate = CheckValideUserData();
+
+            if (validate.err) {
+                alert("Please insert " + validate.message);
+                event.preventDefault()
+                return false;
+            }
+            $.ajax({
+                url: $('#form-submit-new-user').attr('action'),
+                type: 'POST',
+                data: $('#form-submit-new-user').serialize(),
+                success: function (data) {
+                    if (data.status == 409) {
+                        alert('username đã tồn tại')
+                    } else {
+                        location.reload()
+                    }
+                }
+            });
+            return false;
+        });  
+    </script>
 </body>
 
 <!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:15:13 GMT -->
