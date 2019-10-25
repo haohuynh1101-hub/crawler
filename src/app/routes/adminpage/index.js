@@ -52,7 +52,7 @@ var { sendCloseBrower,
 var logger = require('log-to-file');
 var path = require('path');
 var LOG_FILENAME = path.dirname(require.main.filename).replace('bin','log') + `/error.log`;
-
+var checkExistedUser=require('./../../middleware/checkExistedUser')
 /**
  * middleware that check enough links before submit links (function index)
  */
@@ -473,7 +473,7 @@ router.post('/users/emergencyStop/:userid', async (req, res) => {
 /**
  * create user
  */
-router.post('/users', async function (req, res, next) {
+router.post('/users',checkExistedUser, async function (req, res, next) {
 
   try {
     let users = await mongoose.model('users').find().populate('role');
