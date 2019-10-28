@@ -142,6 +142,7 @@
           }
           return true;
         }
+        
       </script>
 
       <script>
@@ -923,8 +924,8 @@
           location.reload();
         }
       </script>
-
-        // delete, stop
+        
+        
         <script>
           const deleteSuggest = (id) => {
             $.get(`/deleteSuggest/${id}`).done(function (data) {
@@ -963,7 +964,7 @@
           }
         </script>
 
-      // validate
+      
       <script async>
         const validateTimeSuggest = () => {
           let clock_suggest = $("#clock_suggest");
