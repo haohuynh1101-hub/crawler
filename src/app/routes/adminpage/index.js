@@ -300,15 +300,12 @@ router.get('/indexlink/:id', async (req, res) => {
   try {
 
     let project = await mongoose.model('projectIndex').findById(req.params.id);
-    console.log("TCL: project", project)
+    
     return success(res, 'success', project);
 
   } catch (error) {
-
-    console.log('err when get index link project ' + error);
     return errorWithMess(res, error);
   }
-
 })
 
 /**
@@ -653,7 +650,7 @@ const clickADTask = async (req, res) => {
   return new Promise(async (resolve, reject) => {
 
     try {
-
+      
       let { projectId, userid } = req.body;
 
       //set status of project to "running"
@@ -665,9 +662,8 @@ const clickADTask = async (req, res) => {
       //main process
       while(true) {
 
-        let { domain, adURL, delay, isForceStop } = await mongoose.model('projectAds').findById(projectId);
+        let { domain, adURL, delay } = await mongoose.model('projectAds').findById(projectId);
 
-        if (isForceStop) throw new Error('Your ad task is forced to stopped by user !!!');
 
         let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
 
@@ -733,7 +729,6 @@ router.get('/deleteAD/:id', async (req, res) => {
 router.post('/clickAd', checkEnoughTraffic(), async (req, res, next) => {
 
   if (JSON.parse(req.body.isRunNow) == true) {
-
     ADTaskContainer(req, res);
   }
   else {
@@ -776,9 +771,9 @@ router.post('/clickAd', checkEnoughTraffic(), async (req, res, next) => {
 router.post('/editAD/:id', async (req, res) => {
 
   try {
-
-    let { adURL, domain, delay, amount, name } = req.body;
-
+    
+    let { adURL, delay, amount, name } = req.body;
+    let domain =''
     let project = await mongoose.model('projectAds').findById(req.params.id);
     project.name = name;
     project.adURL = JSON.parse(adURL);
@@ -1591,10 +1586,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
       await brower.close();
 
-      console.log('connect proxy faile, retry: ' + numberOfInvalidAD)
-
       numberOfInvalidAD++;
-      console.log("TCL: clickMainURLWithSingleBacklink -> numberInvalidBacklink", numberInvalidBacklink)
 
       if (numberOfInvalidAD >= 10) return false;
 

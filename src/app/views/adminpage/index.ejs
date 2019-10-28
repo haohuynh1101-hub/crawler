@@ -281,15 +281,12 @@
 
           $.get(`/ad/${id}`).done(function (data) {
             $('#edit-projectName_ad').val(data.name);
-            $('#edit-main_url_ad').val(data.domain);
             $('#edit-delay_ad').val(data.delay);
             $('#edit-amount_ad').val(data.amount);
 
             data.adURL.map(item => {
-
               $('#edit-ad_url').val($('#edit-ad_url').val() + `\n${item}`);
             })
-
           })
         }
       </script>
@@ -740,7 +737,7 @@
               $('#view-url_backlink').val($('#view-url_backlink').val() + `\n${item}`);
             })
 
-            data.log=data.log.reverse();
+            data.log = data.log.reverse();
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -781,10 +778,10 @@
         //validate data click ad
         function CheckValideAD() {
           let name = $('#projectName_ad');
-          let main_url = $('#main_url_ad');
+          // let main_url = $('#main_url_ad');
           let ad_url = $('#ad_url');
           let delay = $("#delay_ad")
-          return (CheckValide([name, main_url, ad_url, delay]));
+          return (CheckValide([name, ad_url, delay]));
         }
 
         // accept only positve number in input
@@ -863,7 +860,7 @@
           $.post("/saveAdProject",
             {
               adURL: JSON.stringify($('#ad_url').val().split('\n')),
-              domain: $('#main_url_ad').val(),
+              domain: '',
               delay: $('#delay_ad').val(),
               amount: $('#amount_ad').val(),
               name: $('#projectName_ad').val()
@@ -881,17 +878,14 @@
 
           $.get(`/ad/${id}`).done(function (data) {
             $('#view-name_ad').text(data.name);
-            //$('#view-ad_url').text(data.adURL);
-            $('#view-main_url_ad').text(data.domain);
             $('#view-delay_ad').text(data.delay);
             $('#view-amount_ad').text(data.amount);
-
+            // map array of url
             data.adURL.map(item => {
-
               $('#view-ad_url').val($('#view-ad_url').val() + `\n${item}`);
             })
 
-            data.log=data.log.reverse();
+            data.log = data.log.reverse();
             data.log.map((item) => {
               $(`#${id}`).prepend(`<li>${item.message}</li>`);
             })
@@ -904,8 +898,8 @@
         * id: projectid
         * isRunNow {boolean} run now or run later (base on schedule)
         */
-        const runAdLinkTool = (id, isRunNow) => {
-
+        const runAdLinkTool = async(id, isRunNow) => {
+          
           $(`#btnADRun-${id}`).attr("disabled", true);
 
           window.location.href = '/';
@@ -925,57 +919,51 @@
 
               //console.log(data);
             });
-        }
-
-
-        const deleteSuggest = (id) => {
-
-          $.get(`/deleteSuggest/${id}`).done(function (data) {
-
-            location.reload();
-          })
-        }
-
-        const deleteBacklink = (id) => {
-
-          $.get(`/deleteBacklink/${id}`).done(function (data) {
-
-            location.reload();
-          })
-        }
-
-        const deleteAD = (id) => {
-
-          $.get(`/deleteAD/${id}`).done(function (data) {
-
-            location.reload();
-          })
-        }
-
-        const stopSuggest = (id) => {
-          console.log('stop functin')
-          $.get(`/stopSuggest/${id}`).done(function (data) {
-
-            location.reload();
-          })
-        }
-
-        const stopAD = (id) => {
-          console.log('stop functin')
-          $.get(`/stopAD/${id}`).done(function (data) {
-
-            location.reload();
-          })
-        }
-
-        const stopBacklink = (id) => {
-          console.log('stop functin')
-          $.get(`/stopBacklink/${id}`).done(function (data) {
-
-            location.reload();
-          })
+          await sleep(1500);
+          location.reload();
         }
       </script>
+
+        // delete, stop
+        <script>
+          const deleteSuggest = (id) => {
+            $.get(`/deleteSuggest/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+
+          const deleteBacklink = (id) => {
+            $.get(`/deleteBacklink/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+
+          const deleteAD = (id) => {
+            $.get(`/deleteAD/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+
+          const stopSuggest = (id) => {
+            $.get(`/stopSuggest/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+
+          const stopAD = (id) => {
+            $.get(`/stopAD/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+
+          const stopBacklink = (id) => {
+            $.get(`/stopBacklink/${id}`).done(function (data) {
+              location.reload();
+            })
+          }
+        </script>
+
+      // validate
       <script async>
         const validateTimeSuggest = () => {
           let clock_suggest = $("#clock_suggest");
