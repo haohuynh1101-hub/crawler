@@ -1761,6 +1761,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
       }
 
       await searchByKeyWord(page, keyword);
+      await saveLog(projectId,`Thực hiện tìm kiếm bằng keyword "${keyword}"`)
 
       wasClicked = await suggestDomain(userid, projectId, page, domain);
 
