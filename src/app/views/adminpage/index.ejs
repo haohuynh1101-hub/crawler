@@ -57,7 +57,7 @@
               <% } %>
               <% if (role.canClickAD) { %>
               <a class="nav-item nav-link " id="nav-click-ad-tab" data-toggle="tab" href="#click-ad" role="tab"
-                aria-controls="click-ad" aria-selected="false">Click Ad</a>
+                aria-controls="click-ad" aria-selected="false">View site</a>
               <% } %>
               <% if (role.canIndex) { %>
               <a class="nav-item nav-link " id="nav-index-tab" data-toggle="tab" href="#indexlink" role="tab"
@@ -284,7 +284,10 @@
             $('#edit-projectName_ad').val(data.name);
             $('#edit-delay_ad').val(data.delay);
             $('#edit-amount_ad').val(data.amount);
-
+            if(data.isRandom){
+              $('#edit-isRandom-ad').attr('checked',true)
+            }
+            
             data.adURL.map(item => {
               $('#edit-ad_url').val($('#edit-ad_url').val() + `\n${item}`);
             })
@@ -864,12 +867,15 @@
               domain: '',
               delay: $('#delay_ad').val(),
               amount: $('#amount_ad').val(),
-              name: $('#projectName_ad').val()
+              name: $('#projectName_ad').val(),
+              isRandom:$('#isRandom').is(":checked")
             },
             function (data, status) {
               window.location.href = '/';
             });
         }
+
+        
 
         const viewAdProject = (id) => {
 
@@ -881,6 +887,10 @@
             $('#view-name_ad').text(data.name);
             $('#view-delay_ad').text(data.delay);
             $('#view-amount_ad').text(data.amount);
+            if(data.isRandom){
+              $('#view-isRandom').attr('checked',true)
+            }
+            
             // map array of url
             data.adURL.map(item => {
               $('#view-ad_url').val($('#view-ad_url').val() + `\n${item}`);
@@ -984,8 +994,12 @@
         }
 
       </script>
-</body>
 
-<!-- Mirrored from coderthemes.com/adminto/vertical_dark/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 Mar 2019 13:15:13 GMT -->
+      <script>
+        $('#edit-ad-form').on('submit',()=>{
+          $('#edit-isRandom-ad').attr('value',$('#edit-isRandom-ad').is(":checked"))
+        })
+        </script>
+</body>
 
 </html>

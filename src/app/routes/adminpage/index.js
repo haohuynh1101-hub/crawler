@@ -53,6 +53,7 @@ var logger = require('log-to-file');
 var path = require('path');
 var LOG_FILENAME = path.dirname(require.main.filename).replace('bin','log') + `/error.log`;
 var checkExistedUser=require('./../../middleware/checkExistedUser')
+var _=require('lodash')
 /**
  * middleware that check enough links before submit links (function index)
  */
@@ -595,7 +596,6 @@ router.post('/groupUsers', async function (req, res, next) {
 router.post('/saveAdProject', async (req, res) => {
 
   try {
-
     let numberOfProject = await mongoose.model('projectAds').find({ belongTo: req.signedCookies.user }).countDocuments();
     let maxProject = await mongoose.model('users').findById(req.signedCookies.user).populate('role');
     maxProject = maxProject.role.maxProject;
@@ -670,7 +670,7 @@ const clickADTask = async (req, res) => {
         //invalid ad url/domain --> exit
         if (isSuccessed == false) {
 
-          saveLogAD(projectId, 'Không tìm thấy bất kì url quảng cáo nào trùng khớp, vui lòng kiểm tra lại !!!');
+          saveLogAD(projectId, 'Các URL đã nhập vào không hợp lệ');
           sendNotFoundAD(userid, projectId);
           break;
         }
@@ -694,7 +694,6 @@ const clickADTask = async (req, res) => {
       res.send('ok');
 
     } catch (error) {
-
       return reject(error);
     }
   });
@@ -771,8 +770,7 @@ router.post('/clickAd', checkEnoughTraffic(), async (req, res, next) => {
 router.post('/editAD/:id', async (req, res) => {
 
   try {
-    
-    let { adURL, delay, amount, name } = req.body;
+    let { adURL, delay, amount, name,isRandom } = req.body;
     let domain =''
     let project = await mongoose.model('projectAds').findById(req.params.id);
     project.name = name;
@@ -780,6 +778,7 @@ router.post('/editAD/:id', async (req, res) => {
     project.domain = domain;
     project.delay = delay;
     project.amount = amount;
+    project.isRandom=isRandom
 
     await project.save();
     res.redirect('/');
@@ -1365,7 +1364,8 @@ router.get('/stopAD/:id', async (req, res) => {
     amount: oldProject.amount,
     name: oldProject.name,
     belongTo: oldProject.belongTo,
-    status: 'stopped'
+    status: 'stopped',
+    isRandom: _.get(oldProject,'isRandom',false)
   };
 
   //delete old project info
@@ -1511,24 +1511,9 @@ let numberOfInvalidAD = 0;
  */
 const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
 
-  /**
-   * flag check stop signal from user
-   * change project status to stopped 
-   * reset isForceStopped to false
-   */
-  let { isForceStop, status } = await mongoose.model('projectAds').findById(projectId);
-  if (isForceStop) {
-
-    let updateProject = await mongoose.model('projectAds').findById(projectId);
-    updateProject.status = 'stopped';
-    updateProject.isForceStop = false;
-    await updateProject.save();
-    //send reload page socket
-    await sendStopAD(userid, projectId);
-    return true;
-  }
+  let { status } = await mongoose.model('projectAds').findById(projectId);
+  
   if (status === 'stopped') return true;
-
 
   /**
    * setup brower and page
@@ -1544,7 +1529,7 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
   await page.on('console', consoleObj => console.log(consoleObj.text()));
 
 
-  //start job
+  // start job
   try {
 
     //change user agent
@@ -1554,96 +1539,29 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await sendCurrentUserAgentAD(userid, projectId, currentUserAgent);
     await saveLogAD(projectId, `User agent hiện tại: ${currentUserAgent}`);
 
-    //extract real ad url
-    adURL = adURL.replace('https://', '');
-    adURL = adURL.replace('http://', '');
-    adURL = adURL.split('/')[0];
-
-    //go to domain
-    //find and click ad 
-    await sendGoToDomainAD(userid, projectId, domain);
-    await saveLogAD(projectId, `Đang truy cập "${domain}"`);
-
-
-    try {
-
-      await page.goto(domain, { timeout: 300000, waitUntil: 'domcontentloaded' });
-      await page.waitFor(5000);// in case DOM content not loaded yet
-      numberOfInvalidAD = 0;
-      console.log('connect proxy success')
-
-    } catch (error) {
-
-      logger('err in catch block click singlead line 1299 ' + error.LOG_FILENAME);
-
-      // //change project status to stopped 
-      // //reset isForceStopped to false
-      // let updateProject = await mongoose.model('projectAds').findById(projectId);
-      // updateProject.status = 'stopped';
-      // updateProject.isForceStop = false;
-      // await updateProject.save();
-      // await sendStopAD(userid, projectId);
-
-      await brower.close();
-
-      numberOfInvalidAD++;
-
-      if (numberOfInvalidAD >= 10) return false;
-
-      await clickSingleAD(domain, adURL, delay, projectId, userid);
-
-    }
-
-
-    await page.waitForSelector(`a[href*="${adURL}"]`,{ timeout: 300000, visible: true });
-    let wasClicked = await page.evaluate(async (adURL) => {
-
-      //search all dom tree to find ad url
-      let extractedDOM = await document.querySelectorAll(`a[href*="${adURL}"]`);
-
-      if (extractedDOM.length == 0) return false;
-
-      try {
-
-        await extractedDOM[0].setAttribute('target', '');
-        await extractedDOM[0].click();
-        return true;
-
-      } catch (error) {
-
-        logger("error click single ad "+ error,LOG_FILENAME)
-        return false;
-      }
-
-    }, adURL);
-
-    if (wasClicked == false) {
-
-      sendCloseBrower(userid, projectId);
-      saveLogAD(projectId, 'Đang đóng trình duyệt ...');
-      await brower.close();
-      return false;
-    }
-
-    //set time stay on page after click
-    await sendFoundAD(userid, projectId, adURL);
-    await saveLogAD(projectId, `Đã tìm thấy url quảng cáo : ${adURL}, đang truy cập ...`);
+    // go to domain
+    await sendGoToDomainAD(userid, projectId, adURL);
+    await saveLogAD(projectId, `Đang truy cập "${adURL}"`);
+    await page.goto(adURL, { timeout: 300000, waitUntil: 'domcontentloaded' });
+    // delay
     await setTimeDelay(delay);
+    await saveLogAD(projectId,`Đang view trang "${adURL}"`)
     await page.waitFor(Const.timeDelay);
-
-    //close brower
+    let randomURL=await clickRandomURL(page)
+    await saveLogAD(projectId,'Đang click ngẫu nhiên')
+    await saveLogAD(projectId,`URL đã click: ${randomURL}`)
+    // close brower
     sendCloseBrower(userid, projectId);
     saveLogAD(projectId, 'Đang đóng trình duyệt ...');
     await brower.close();
+
     return true;
 
   } catch (error) {
-
     logger('error in catch block of clickSingleAD line 1234 ' + error,LOG_FILENAME);
     await brower.close();
     return false;
   }
-
 }
 /**
  * find and click many ad in one domain
@@ -1659,14 +1577,13 @@ const clickAD = async (domain, adURL, delay, projectId, userid) => {
 
   for (let i = 0; i < adURL.length; i++) {
 
-    isFoundAD = await clickSingleAD(domain, adURL[0], delay, projectId, userid);
+    isFoundAD = await clickSingleAD(domain, adURL[i], delay, projectId, userid);
 
     if (isFoundAD == false) {
 
       numberOfInvalidDomain++;
-      saveLogAD(projectId, `Không tìm thấy url quảng cáo "${adURL}" hoặc url trang chứa quảng cáo không hợp lệ`);
-      sendNotFoundSingleAD(userid, projectId, adURL);
-
+      saveLogAD(projectId, `URL "${adURL[i]}" không hợp lệ`);
+      sendNotFoundSingleAD(userid, projectId, adURL[i]);
     }
   }
 
