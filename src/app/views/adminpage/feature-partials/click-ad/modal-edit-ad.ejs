@@ -16,21 +16,21 @@
                         <div class="form-group row">
                             <label class="col-3 col-form-label pr-0">Tên dự án</label>
                             <div class="col-8">
-                                <input name=name id='edit-projectName_ad' type="text" class="form-control pl-0" data-focus="Tên dự án"
+                                <input name='name' id='edit-projectName_ad' type="text" class="form-control pl-0" data-focus="Tên dự án"
                                     value="">
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        <!-- <div class="form-group row">
                             <label class="col-3 col-form-label pr-0">Trang chứa quảng cáo cần click</label>
                             <div class="col-8">
                                 <input name='domain' id='edit-main_url_ad' type="text" class="form-control pl-0" data-focus="Trang chứa quảng cáo cần click"
                                     value="">
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="form-group row">
-                            <label class="col-3 col-form-label pr-0">URL quảng cáo (Mỗi url trên một dòng)</label>
+                            <label class="col-3 col-form-label pr-0">URL cần view (Mỗi url trên một dòng)</label>
                             <div class="col-8">
                                 <textarea name='adURL' id='edit-ad_url' type="text" class="form-control pl-0" data-focus="URL quảng cáo"
                                     value=""></textarea>
@@ -50,38 +50,21 @@
 
                     </div>
                     <div class="col-md-6">
-                        <div class="row form-group">
-                            <div class="checkbox">
-                                <input id="checkbox4" type="checkbox" checked disabled>
-                                <label for="checkbox4">
-                                    Tự động xóa cookies
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="checkbox">
-                                <input id="checkbox3" type="checkbox" checked disabled>
-                                <label for="checkbox3">
-                                    Tự động thay đổi UserAgent
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group row" style="visibility: hidden">
-                            <div class="checkbox">
-                                <input id="" type="checkbox">
-                                <label for="">
-                                    .
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group row" style="visibility: hidden">
-                            <div class="checkbox">
-                                <input id="" type="checkbox">
-                                <label for="">
-                                    .
-                                </label>
-                            </div>
-                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                              <input type="checkbox" disabled checked class="form-check-input" value="">Tự động xóa cookies
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <label class="form-check-label">
+                              <input type="checkbox" disabled checked class="form-check-input" value="">Tự động thay đổi User Agent
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <label class="form-check-label">
+                              <input type="checkbox" name='isRandom' id='edit-isRandom-ad' class="form-check-input" id='isRandom'>Click random trên site trong khi view
+                            </label>
+                          </div>
                         <div class="form-group row">
                             <div class="col-9"></div>
                             <div class="col-3">
