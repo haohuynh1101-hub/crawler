@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var projectAds = new mongoose.Schema({
     name: String,
-    domain:String,
+    domain: String,
     adURL: [
         {
             type: String
@@ -23,10 +23,15 @@ var projectAds = new mongoose.Schema({
         ref: 'users'
     },
 
-    isForceStop:{
-    type:Boolean,
-    default:false
-  }
+    isForceStop: {
+        type: Boolean,
+        default: false
+    },
+
+    isRandom:{
+        type: Boolean,
+        default: false
+    }
 })
 
 module.exports = projectAds;
