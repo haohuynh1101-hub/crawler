@@ -7,10 +7,7 @@ var { strDocAgents } = require('config/listAgents');
 var { success } = require('services/returnToUser')
 var { randomAgent } = require('services/randomAgent');
 
-router.get('/clearad',async(req,res)=>{
-  await mongoose.model('projectAds').deleteMany()
-  res.send('ok')
-})
+
 router.get("/", async (req, res, next) => {
   let newRole = {
     name: 'Admin',
