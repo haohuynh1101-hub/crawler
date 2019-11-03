@@ -662,10 +662,10 @@ const clickADTask = async (req, res) => {
       //main process
       while(true) {
 
-        let { domain, adURL, delay } = await mongoose.model('projectAds').findById(projectId);
+        let { domain, adURL, delay,isRandom } = await mongoose.model('projectAds').findById(projectId);
 
 
-        let isSuccessed = await clickAD(domain, adURL, delay, projectId, userid);
+        let isSuccessed = await clickAD(domain, adURL, delay,isRandom, projectId, userid);
 
         //invalid ad url/domain --> exit
         if (isSuccessed == false) {
@@ -1509,7 +1509,7 @@ let numberOfInvalidAD = 0;
  * @param {*} userid 
  * @returns {boolean} true (found and clicked) || false (ad url not found) 
  */
-const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
+const clickSingleAD = async (domain, adURL, delay,isRandom, projectId, userid) => {
 
   let { status } = await mongoose.model('projectAds').findById(projectId);
   
@@ -1547,9 +1547,13 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
     await setTimeDelay(delay);
     await saveLogAD(projectId,`Đang view trang "${adURL}"`)
     await page.waitFor(Const.timeDelay);
-    let randomURL=await clickRandomURL(page)
-    await saveLogAD(projectId,'Đang click ngẫu nhiên')
-    await saveLogAD(projectId,`URL đã click: ${randomURL}`)
+    // click random
+    if(isRandom){
+      let randomURL=await clickRandomURL(page)
+      await saveLogAD(projectId,'Đang click ngẫu nhiên')
+      await saveLogAD(projectId,`URL đã click: ${randomURL}`)
+    }
+    
     // close brower
     sendCloseBrower(userid, projectId);
     saveLogAD(projectId, 'Đang đóng trình duyệt ...');
@@ -1570,14 +1574,14 @@ const clickSingleAD = async (domain, adURL, delay, projectId, userid) => {
  * @param {Number} delay 
  * @returns {boolean} true (found and clicked) || false (ad url not found)
  */
-const clickAD = async (domain, adURL, delay, projectId, userid) => {
+const clickAD = async (domain, adURL, delay,isRandom, projectId, userid) => {
 
   let isFoundAD;
   let numberOfInvalidDomain = 0;
 
   for (let i = 0; i < adURL.length; i++) {
 
-    isFoundAD = await clickSingleAD(domain, adURL[i], delay, projectId, userid);
+    isFoundAD = await clickSingleAD(domain, adURL[i], delay,isRandom, projectId, userid);
 
     if (isFoundAD == false) {
 
