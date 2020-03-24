@@ -1520,7 +1520,7 @@ const clickSingleAD = async (domain, adURL, delay,isRandom, projectId, userid) =
    */
   let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
-  await page.authenticate({ username: 'anhhungan', password: '035112-590e0d-280bb4-8beb39-83cde4' });
+  await page.authenticate({ username: 'anhhungan', password: '57f912-c58c9f-e324e0-e40d47-01c487' });
   await page.setCacheEnabled(false);
   await page.setViewport({
     width: 1366,
@@ -1641,7 +1641,7 @@ const searchAndSuggestSingleKeyword = async (searchTool, keyword, domain, delayT
      */
     let brower = await puppeteer.launch(Const.options);
     const page = await brower.newPage();
-    await page.authenticate({ username: 'anhhungan', password: '035112-590e0d-280bb4-8beb39-83cde4' });
+    await page.authenticate({ username: 'anhhungan', password: '57f912-c58c9f-e324e0-e40d47-01c487' });
     await page.setCacheEnabled(false);
     await page.setViewport({
       width: 1366,
@@ -1801,7 +1801,7 @@ const clickMainURLWithSingleBacklink = async (backlink, mainURL, delay, projectI
 
   let brower = await puppeteer.launch(Const.options);
   const page = await brower.newPage();
-  await page.authenticate({ username: 'anhhungan', password: '035112-590e0d-280bb4-8beb39-83cde4' });
+  await page.authenticate({ username: 'anhhungan', password: '57f912-c58c9f-e324e0-e40d47-01c487' });
   await page.setCacheEnabled(false);
   await page.setViewport({
     width: 1366,
