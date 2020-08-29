@@ -1,6 +1,6 @@
 module.exports = {
   options: {
-    headless: false,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    headless: true,
+    // args: ["--no-sandbox", "--disable-setuid-sandbox"],
   },
 };

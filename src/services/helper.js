@@ -42,4 +42,16 @@ const typeIntoInput = async ({ page, selector, value, delay = 120 }) => {
   await page.type(selector, value, { delay });
 };
 
-module.exports = { clickHtmlElementById, fillToTextInput, typeIntoInput };
+const changeUserAgent = async (page, agent) => {
+  await page.setUserAgent(agent);
+};
+const clickBySelect = async (page, nameSelection, option) => {
+  await page.select(`select[name='${nameSelection}']`, `${option}`);
+};
+module.exports = {
+  clickHtmlElementById,
+  fillToTextInput,
+  typeIntoInput,
+  changeUserAgent,
+  clickBySelect,
+};
